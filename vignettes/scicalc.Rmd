@@ -1,0 +1,212 @@
+---
+title: "scicalc"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{scicalc}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = ""
+)
+```
+
+To install the scicalc package you can run the following two commands:
+```r
+options(repos = c('scicalc' = "https://a2-ai.github.io/gh-pkg-mirror/scicalc",
+                  getOption("repos")))
+install.packages("scicalc")
+```
+# Scicalc
+Scicalc is a package of functions commonly used at A2-Ai. We hope this package will ease data assembly and allow for a more reproducible code across analysts and projects. It is in no way complete or all encompassing, but we hope this is a good start. Please let us know if there are additional functions we should include!
+```{r setup}
+library(scicalc)
+```
+## Reading in data
+
+I'll first try and read in data from `~/inst/extdata/data/source` - in R packages extra files go in the `inst` directory, but we can pretend this is just like a Project starter `data/source` directory.
+```{r}
+data_source <- file.path(here::here(), "inst", "extdata", "data", "source")
+if (!dir.exists(data_source)) {
+  scicalc::create_dir(data_source) 
+  # I'm using this scicalc::create_dir function to create this directory 
+  # the first time I'm running this vignette. More on this later
+}
+
+list.files(data_source)
+```
+This is a contrived example, but there are several different file types in source data representing different SDTM domains. As well as a `test.txt` file. We can use the `read_file_with_hash` function to read in all the files in this source directory. No more creating `read_file_type_with_hash` functions in each script!
+
+```{r}
+raw_data <- purrr::map(
+  list.files(data_source, full.names = TRUE),
+  scicalc::read_file_with_hash) %>% 
+  purrr::set_names(tools::file_path_sans_ext(list.files(data_source)))
+```
+```{r}
+names(raw_data)
+```
+
+We can see that each different file type was read with read_file_with_hash and saved to `raw_data`. We also got a warning for `test.txt` file was not currently supported. If there are any other file types you commonly read and want to print a hash besides `csv`, `parquet`, and `sas7bdat` please reach out so we can add that functionality! Behind the scenes of `read_file_with_hash` the extension of the file is determined and a corresponding function such as `read_parquet_with_hash` is called. You can call either, but I would recommend using the general `read_file_with_hash`.
+
+## Simple data analysis
+
+Let's do some bmi and bsa caclulations with the data in the vs domain
+```{r}
+df <- raw_data$pc
+
+df <- df %>% 
+  dplyr::mutate(.data = raw_data$vs,
+    BBMI = scicalc::bbmi(WEIGHT, HEIGHT),
+    DBSA = scicalc::bsa(WEIGHT, HEIGHT),
+    MBSA = scicalc::bsa(WEIGHT, HEIGHT, method = "mosteller"))
+df
+```
+
+Now we can verify the lab units before moving on - remember this is a contrived dataset, but the workflow should be somewhat similar.
+```{r}
+dflb <- raw_data$lb %>% 
+  dplyr::select(c("ID", "CREAT", "CYSTC", "AST", "BILI", )) %>% 
+  dplyr::distinct() %>% 
+  tidyr::pivot_longer(cols = c("CREAT", "CYSTC", "AST", "BILI"), 
+                      names_to = "LBTESTCD", values_to = "LBORRES")
+
+dfu <- raw_data$lb %>%
+  dplyr::select(c("ID", "CREATU", "CYSTCU", "ASTU", "BILIU")) %>% 
+  dplyr::distinct() %>% 
+  tidyr::pivot_longer(cols = c("CREATU", "CYSTCU", "ASTU", "BILIU"), 
+                      names_to = "LBTESTCDU", values_to = "LBORRESU") 
+
+lb <- dflb %>% 
+  dplyr::mutate(LBORRESU = dfu$LBORRESU)
+
+lb
+```
+```{r}
+if (scicalc::check_for_unique_units(lb$LBTESTCD, lb$LBORRESU)) {
+  print("Units are 1:1!")
+} else {
+  stop("Error with units!")
+}
+```
+```{r}
+scicalc::get_unique_units_df(lb$LBTESTCD, lb$LBORRESU)
+```
+Now we can use the lab data to calculate hepatic function.
+```{r}
+df <- df %>% 
+  dplyr::mutate(.data = raw_data$lb, 
+    BHFC = scicalc::bhfc(AST, ULNAST, BILI, ULNBILI),
+  )
+df
+```
+Now we'll need the demographics needed for Creatinine clearance, estimated glomerular filtration rate, and renal function.
+```{r}
+df <- df %>% 
+  dplyr::mutate(.data = raw_data$dm, 
+    CRCL = scicalc::crcl(scicalc::is_female(SEX), AGE, CREAT, WEIGHT),
+    BRFC = scicalc::brfc(CRCL),
+    
+    ckdepi_2009_egfr = scicalc::egfr(
+      sexf = scicalc::is_female(SEX), 
+      raceb = scicalc::is_black(RACE), 
+      age = AGE, 
+      creat = CREAT,
+      method = "CKDEPI 2009"),
+    ckdepi_2021_egfr = scicalc::egfr(
+      sexf = scicalc::is_female(SEX), 
+      age = AGE, 
+      creat = CREAT, 
+      cystc = CYSTC, 
+      method = "CKDEPI 2021"),
+    mdrd_egfr = scicalc::egfr(
+      sexf = scicalc::is_female(SEX), 
+      raceb = scicalc::is_black(RACE), 
+      age = AGE, 
+      creat = CREAT,
+      method = "MDRD"),
+    schwartz_egfr = scicalc::egfr(
+      height = HEIGHT,
+      creat = CREAT,
+      method = "Schwartz"
+    )
+  )
+
+df
+```
+## Writting data
+We can use the `write_file_with_hash` to write `parquet` files (We highly recommend you write all data to parquet unless there is a specific need for other file type). We just need to supply a path to the file if the directory the file should be written to does not exist, this function will create it and all directories needed on the path. This function won't let us overwrite the file unless we supply `overwrite = TRUE`
+```{r}
+data_derived <- file.path(here::here(), "inst", "extdata", "data", "derived")
+if (!file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
+  scicalc::write_file_with_hash(
+    df, file.path(data_derived, "pk_data_v01.parquet"))  
+} else {
+  print("Overwriting data!")
+  scicalc::write_file_with_hash(
+    df, file.path(data_derived, "pk_data_v01.parquet"), overwrite = TRUE)
+}
+```
+## Reading in derived data
+Now if we want to read in the derived data and verify it is the data we think it is we can use `read_hashed_file`. This function will only let you ingest the data if the hash you supply matches the hash of the contents of the file.
+```{r}
+#This hash is incorrect so the function errors
+if (file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
+  testthat::expect_error(scicalc::read_hashed_file(file.path(data_derived, "pk_data_v01.parquet"), "d4e21e3e681bc282ee7a3e758b15cebe"))
+}
+```
+Giving the correct hash let's us access the data
+```{r}
+data <- scicalc::read_hashed_file(
+  file.path(data_derived, "pk_data_v01.parquet"), 
+  "41fde04ca4aa6085eddbd8c1ef109684")
+data
+```
+
+```{r, include=FALSE}
+df <- data.frame(
+  "ID" = factor(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3)),
+  "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M", "F", "F", "F", "F"),
+  "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK", "ASIAN", "ASIAN", "ASIAN", "ASIAN"),
+  "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22, 35, 35, 35, 35),
+  "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4, 3, 3, 3, 3),
+  "CREATU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
+  "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9, 0.7, 0.7, 0.7, 0.7),
+  "CYSTCU" = c("mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L"),
+  "AST" = c(15, 15, 15, 15, 29, 29, 29, 29, 38, 38, 38, 38),
+  "ULNAST" = c(33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33),
+  "ASTU" = c("U/L","U/L","U/L","U/L","U/L","U/L","U/L","U/L", "U/L", "U/L", "U/L", "U/L"),
+  "BILI" = c(0.8, 0.8, 0.8, 0.8, 1.9, 1.9, 1.9, 1.9, 1.1, 1.1, 1.1, 1.1),
+  "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2),
+  "BILIU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
+  "HEIGHT" = c(174 ,174, 174, 174, 201, 201, 201, 201, 190, 190, 190, 190),
+  "WEIGHT" = c(70, 70, 70, 70, 80, 80, 80, 80, 75, 75, 75, 75),
+  "DV" = c(10, 150, 70, 9, 7, 140, 60, 7, 11, 156, 70, 7),
+  "NTLD" = c(0, 0.25, 1, 8, 0, 0.25, 1, 8, 0, 0.25, 1, 8)
+)
+
+library(ggplot2)
+ggplot2::ggplot(df, aes(x = NTLD, y = DV, color = ID)) +
+  geom_point() +
+  geom_line()
+
+df %>% 
+  dplyr::select(c("ID", "SEX", "RACE", "AGE")) %>% 
+  haven::write_sas(path = file.path(data_source, "dm.sas7bdat"))
+
+df %>% 
+  dplyr::select(c("ID", "HEIGHT", "WEIGHT")) %>% 
+  arrow::write_parquet(sink = file.path(data_source, "vs.parquet"))
+
+df %>% 
+  dplyr::select(c("ID", "CREAT", "CREATU", "CYSTC", "CYSTCU", "AST", "ULNAST", "BILI", "ULNBILI", "ASTU", "BILIU")) %>% 
+  readr::write_csv(file = file.path(data_source, "lb.csv"))
+
+df %>% 
+  dplyr::select(c("ID", "DV", "NTLD")) %>% 
+  arrow::write_parquet(sink = file.path(data_source, "pc.parquet"))
+
+```

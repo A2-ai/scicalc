@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GraphPadPrismFile PrismXMLVersion="5.00">
+  <Created>
+    <OriginalVersion CreatedByProgram="GraphPad Prism" CreatedByVersion="6.0f.254" Login="" DateTime="2024-08-14T15:14:35+00:00"/>
+  </Created>
+  <InfoSequence>
+    <Ref ID="Info0" Selected="1"/>
+  </InfoSequence>
+  <Info ID="Info0">
+    <Title>Project info 1</Title>
+    <Notes></Notes>
+    <Constant>
+      <Name>Experiment Date</Name>
+      <Value></Value>
+    </Constant>
+    <Constant>
+      <Name>Experiment ID</Name>
+      <Value></Value>
+    </Constant>
+    <Constant>
+      <Name>Notebook ID</Name>
+      <Value></Value>
+    </Constant>
+    <Constant>
+      <Name>Project</Name>
+      <Value></Value>
+    </Constant>
+    <Constant>
+      <Name>Experimenter</Name>
+      <Value></Value>
+    </Constant>
+    <Constant>
+      <Name>Protocol</Name>
+      <Value></Value>
+    </Constant>
+  </Info>
+  <TableSequence>
+    <Ref ID="Table0" Selected="1"/>
+  </TableSequence>
+  <Table ID="Table0" XFormat="none" TableType="OneWay" EVFormat="AsteriskAfterNumber">
+    <Title>Data 1</Title>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>ID</Title>
+      <Subcolumn>
+        <d>1</d>
+        <d>1</d>
+        <d>1</d>
+        <d>1</d>
+        <d>2</d>
+        <d>2</d>
+        <d>2</d>
+        <d>2</d>
+        <d>3</d>
+        <d>3</d>
+        <d>3</d>
+        <d>3</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>AGE</Title>
+      <Subcolumn>
+        <d>24</d>
+        <d>24</d>
+        <d>24</d>
+        <d>24</d>
+        <d>22</d>
+        <d>22</d>
+        <d>22</d>
+        <d>22</d>
+        <d>35</d>
+        <d>35</d>
+        <d>35</d>
+        <d>35</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>CREAT</Title>
+      <Subcolumn>
+        <d>1</d>
+        <d>1</d>
+        <d>1</d>
+        <d>1</d>
+        <d>4</d>
+        <d>4</d>
+        <d>4</d>
+        <d>4</d>
+        <d>3</d>
+        <d>3</d>
+        <d>3</d>
+        <d>3</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>CYSTC</Title>
+      <Subcolumn>
+        <d>0.4</d>
+        <d>0.4</d>
+        <d>0.4</d>
+        <d>0.4</d>
+        <d>0.9</d>
+        <d>0.9</d>
+        <d>0.9</d>
+        <d>0.9</d>
+        <d>0.7</d>
+        <d>0.7</d>
+        <d>0.7</d>
+        <d>0.7</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>AST</Title>
+      <Subcolumn>
+        <d>15</d>
+        <d>15</d>
+        <d>15</d>
+        <d>15</d>
+        <d>29</d>
+        <d>29</d>
+        <d>29</d>
+        <d>29</d>
+        <d>38</d>
+        <d>38</d>
+        <d>38</d>
+        <d>38</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>ULNAST</Title>
+      <Subcolumn>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+        <d>33</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>BILI</Title>
+      <Subcolumn>
+        <d>0.8</d>
+        <d>0.8</d>
+        <d>0.8</d>
+        <d>0.8</d>
+        <d>1.9</d>
+        <d>1.9</d>
+        <d>1.9</d>
+        <d>1.9</d>
+        <d>1.1</d>
+        <d>1.1</d>
+        <d>1.1</d>
+        <d>1.1</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>ULNBILI</Title>
+      <Subcolumn>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+        <d>1.2</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>HEIGHT</Title>
+      <Subcolumn>
+        <d>174</d>
+        <d>174</d>
+        <d>174</d>
+        <d>174</d>
+        <d>201</d>
+        <d>201</d>
+        <d>201</d>
+        <d>201</d>
+        <d>190</d>
+        <d>190</d>
+        <d>190</d>
+        <d>190</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>WEIGHT</Title>
+      <Subcolumn>
+        <d>70</d>
+        <d>70</d>
+        <d>70</d>
+        <d>70</d>
+        <d>80</d>
+        <d>80</d>
+        <d>80</d>
+        <d>80</d>
+        <d>75</d>
+        <d>75</d>
+        <d>75</d>
+        <d>75</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>DV</Title>
+      <Subcolumn>
+        <d>10</d>
+        <d>150</d>
+        <d>70</d>
+        <d>9</d>
+        <d>7</d>
+        <d>140</d>
+        <d>60</d>
+        <d>7</d>
+        <d>11</d>
+        <d>156</d>
+        <d>70</d>
+        <d>7</d>
+      </Subcolumn>
+    </YColumn>
+    <YColumn Width="89" Decimals="0" Subcolumns="1">
+      <Title>NTLD</Title>
+      <Subcolumn>
+        <d>0</d>
+        <d>0.25</d>
+        <d>1</d>
+        <d>8</d>
+        <d>0</d>
+        <d>0.25</d>
+        <d>1</d>
+        <d>8</d>
+        <d>0</d>
+        <d>0.25</d>
+        <d>1</d>
+        <d>8</d>
+      </Subcolumn>
+    </YColumn>
+  </Table>
+</GraphPadPrismFile>
