@@ -16,7 +16,7 @@ test_that("write_parquet_with_hash prints a hash", {
     "b" = c("A", "B", "C", "D")
   )
   path <- "test.parquet"
-  expect_output(write_parquet_with_hash(df, path), "test.parquet: fd45cca2b6e96f8f58ec492c98de340d")
+  expect_output(write_parquet_with_hash(df, path), "test.parquet: 366b88a971f373f9b6141bcfcbf644b9")
   unlink(path, recursive = TRUE)
 })
 

@@ -1,5 +1,5 @@
 test_that('read_pzfx_with_hash gives data for pzfx file', {
-  df <- read_pzfx_with_hash("testdata/test_data.pzfx", "Data 1")
+  df <- read_pzfx_with_hash("testdata/test_data.pzfx", table = "Data 1")
   expected_df <- data.frame(
     ID = c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3),
     AGE = c(24, 24, 24, 24, 22, 22, 22, 22, 35, 35, 35, 35),

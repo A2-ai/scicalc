@@ -4,10 +4,12 @@
 \alias{read_sas_with_hash}
 \title{Reads data from sas file and prints hash of contents.}
 \usage{
-read_sas_with_hash(sas_file_path)
+read_sas_with_hash(sas_file_path, ...)
 }
 \arguments{
 \item{sas_file_path}{path to sas file to ingest}
+
+\item{...}{additional arguments to digest or read_sas}
 }
 \value{
 a dataframe(?) of data within file

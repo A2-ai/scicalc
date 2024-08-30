@@ -46,6 +46,7 @@ raw_data <- purrr::map(
   scicalc::read_file_with_hash) %>% 
   purrr::set_names(tools::file_path_sans_ext(list.files(data_source)))
 ```
+
 ```{r}
 names(raw_data)
 ```
@@ -162,7 +163,7 @@ Giving the correct hash let's us access the data
 ```{r}
 data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"), 
-  "41fde04ca4aa6085eddbd8c1ef109684")
+  "419badb3414340c25066b473410539d9")
 data
 ```
 

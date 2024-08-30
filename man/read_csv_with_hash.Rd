@@ -4,14 +4,12 @@
 \alias{read_csv_with_hash}
 \title{Reads data from csv file and prints hash of contents.}
 \usage{
-read_csv_with_hash(csv_file_path, na = c("", "NA"), show_col_types = TRUE)
+read_csv_with_hash(csv_file_path, ...)
 }
 \arguments{
 \item{csv_file_path}{path to csv file to ingest}
 
-\item{na}{Character vector of strings to interpret as missing values.}
-
-\item{show_col_types}{logical values to show column types when reading csv files.}
+\item{...}{additional arguments for digest or read_csv}
 }
 \value{
 dataframe of data within file

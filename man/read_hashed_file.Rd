@@ -4,12 +4,14 @@
 \alias{read_hashed_file}
 \title{Reads a file if the supplied hash matches the file's hash}
 \usage{
-read_hashed_file(file_path, hash)
+read_hashed_file(file_path, hash, ...)
 }
 \arguments{
 \item{file_path}{path to file with data you want to read}
 
 \item{hash}{hash you expect the file to have}
+
+\item{...}{additional arguments for digest or read_csv, parquet, sas}
 }
 \value{
 data object of contents of file_path

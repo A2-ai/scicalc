@@ -4,21 +4,12 @@
 \alias{read_file_with_hash}
 \title{Reads the data from a file (csv or parquet) and prints the hash}
 \usage{
-read_file_with_hash(
-  file_path,
-  na = c("", "NA"),
-  show_col_types = TRUE,
-  table = NULL
-)
+read_file_with_hash(file_path, ...)
 }
 \arguments{
 \item{file_path}{path to data file}
 
-\item{na}{Character vector of strings to interpret as missing values.}
-
-\item{show_col_types}{logical values to show column types when reading csv files.}
-
-\item{table}{optional argument only needed for reading prism pzfx files.}
+\item{...}{additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx}
 }
 \value{
 data within the supplied file
