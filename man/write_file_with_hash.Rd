@@ -4,7 +4,7 @@
 \alias{write_file_with_hash}
 \title{Writes data to path, if directory doesn't exist it is created before file is written}
 \usage{
-write_file_with_hash(data, path, overwrite = FALSE, na_value = ".")
+write_file_with_hash(data, path, overwrite = FALSE, ...)
 }
 \arguments{
 \item{data}{the data object to write to file}
@@ -13,7 +13,7 @@ write_file_with_hash(data, path, overwrite = FALSE, na_value = ".")
 
 \item{overwrite}{boolean of whether to overwrite or not.}
 
-\item{na_value}{string for what to replace NA with. default is "."}
+\item{...}{additional arguments for digest or write_file.}
 }
 \value{
 Nothing, File is created and hash of created file is printed

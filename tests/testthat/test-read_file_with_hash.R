@@ -51,3 +51,7 @@ test_that("read_file_with_hash will not replace '.' by default", {
 test_that("read_csv_with_hash can hide column types", {
   expect_output(read_file_with_hash("testdata/test_data_missing.csv", show_col_types = FALSE), "test_data_missing.csv: 7366d2af6972e7bbda399c8fcbc2760b")
 })
+
+test_that("read_file_with_hash can use different algos", {
+  expect_output(read_file_with_hash("testdata/test_data.parquet", algo = "blake3"), "8cc226a0b865f4b8d988fbdd67641b66db397f4ab5291f76f4160725afe733bc")
+})

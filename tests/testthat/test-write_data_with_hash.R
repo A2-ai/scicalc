@@ -71,3 +71,15 @@ test_that("write_file_with_hash will warn about non supported file types", {
   )
   expect_warning(write_file_with_hash(df, path))
 })
+
+test_that("write_file_with_hash can use different digest algorithms", {
+  df <- data.frame(
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
+  )
+  path <- "test.parquet"
+  expect_output(write_file_with_hash(df, path), "test.parquet: 366b88a971f373f9b6141bcfcbf644b9")
+  unlink(path, recursive = TRUE)
+  expect_output(write_file_with_hash(df, path, algo = "blake3"), "test.parquet: f130cf6cc1ec65f81eac8cbccf79c95525d070eb99b297273c86ef9f8b076e6f")
+  unlink(path, recursive = TRUE)
+})

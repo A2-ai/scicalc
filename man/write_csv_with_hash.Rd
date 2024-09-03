@@ -4,14 +4,14 @@
 \alias{write_csv_with_hash}
 \title{Writes data to csv_path with na_value replacing NA values.}
 \usage{
-write_csv_with_hash(data, csv_path, na_value = ".")
+write_csv_with_hash(data, csv_path, ...)
 }
 \arguments{
 \item{data}{a data object to write to file}
 
 \item{csv_path}{the file path to save the csv}
 
-\item{na_value}{the value of what to replace NA with}
+\item{...}{additional arguments to digest or write_csv}
 }
 \value{
 Nothing, creates csv_path file and prints hash of the file

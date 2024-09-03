@@ -31,9 +31,7 @@ I'll first try and read in data from `~/inst/extdata/data/source` - in R package
 ```{r}
 data_source <- file.path(here::here(), "inst", "extdata", "data", "source")
 if (!dir.exists(data_source)) {
-  scicalc::create_dir(data_source) 
-  # I'm using this scicalc::create_dir function to create this directory 
-  # the first time I'm running this vignette. More on this later
+  fs::dir_create(data_source)
 }
 
 list.files(data_source)
@@ -46,6 +44,15 @@ raw_data <- purrr::map(
   scicalc::read_file_with_hash) %>% 
   purrr::set_names(tools::file_path_sans_ext(list.files(data_source)))
 ```
+These hashes come from `digest::digest`'s default algorithm `md5`, but we can alter this by supplying `algo = 'blake3'` to the read_file_with_hash function.
+```{r}
+raw_data <- purrr::map(
+  list.files(data_source, full.names = TRUE),
+  scicalc::read_file_with_hash, algo = "blake3") %>% 
+  purrr::set_names(tools::file_path_sans_ext(list.files(data_source)))
+```
+
+
 ```{r}
 names(raw_data)
 ```
@@ -138,31 +145,40 @@ df <- df %>%
 df
 ```
 ## Writting data
-We can use the `write_file_with_hash` to write `parquet` files (We highly recommend you write all data to parquet unless there is a specific need for other file type). We just need to supply a path to the file if the directory the file should be written to does not exist, this function will create it and all directories needed on the path. This function won't let us overwrite the file unless we supply `overwrite = TRUE`
+We can use the `write_file_with_hash` to write `parquet` files (We highly recommend you write all data to parquet unless there is a specific need for other file type). We just need to supply a path to the file if the directory the file should be written to does not exist, this function will create it and all directories needed on the path. This function won't let us overwrite the file unless we supply `overwrite = TRUE`. Like `read_file_with_hash` we can choose which algorithm to use for the digest.
 ```{r}
 data_derived <- file.path(here::here(), "inst", "extdata", "data", "derived")
 if (!file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
   scicalc::write_file_with_hash(
-    df, file.path(data_derived, "pk_data_v01.parquet"))  
+    df, file.path(data_derived, "pk_data_v01.parquet"), algo = "blake3")  
 } else {
   print("Overwriting data!")
   scicalc::write_file_with_hash(
-    df, file.path(data_derived, "pk_data_v01.parquet"), overwrite = TRUE)
+    df, file.path(data_derived, "pk_data_v01.parquet"), overwrite = TRUE, algo = "blake3")
 }
 ```
 ## Reading in derived data
-Now if we want to read in the derived data and verify it is the data we think it is we can use `read_hashed_file`. This function will only let you ingest the data if the hash you supply matches the hash of the contents of the file.
+Now if we want to read in the derived data and verify it is the data we think it is we can use `read_hashed_file`. This function will only let you ingest the data if the hash you supply matches the hash of the contents of the file. Here I've supplied the `blake3` hash which does not match the `md5` hash digest uses by default. We have two options, tell `read_hashed_file` to use `algo = 'blake3'` or supply the `md5` hash.
 ```{r}
 #This hash is incorrect so the function errors
 if (file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
-  testthat::expect_error(scicalc::read_hashed_file(file.path(data_derived, "pk_data_v01.parquet"), "d4e21e3e681bc282ee7a3e758b15cebe"))
+  testthat::expect_error(scicalc::read_hashed_file(file.path(data_derived, "pk_data_v01.parquet"), "115abc8313ddaaaa6b384ab945759a63c70ff5566e8ab430f17621e35f73437d"))
 }
 ```
-Giving the correct hash let's us access the data
+1. updated algo argument works:
+```{r}
+data <- scicalc::read_hashed_file(
+  file.path(data_derived, "pk_data_v01.parquet"),
+  algo = "blake3",
+  "115abc8313ddaaaa6b384ab945759a63c70ff5566e8ab430f17621e35f73437d")
+data
+```
+
+2. giving the `md5` hash works
 ```{r}
 data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"), 
-  "41fde04ca4aa6085eddbd8c1ef109684")
+  "419badb3414340c25066b473410539d9")
 data
 ```
 

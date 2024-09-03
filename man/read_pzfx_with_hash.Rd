@@ -4,12 +4,12 @@
 \alias{read_pzfx_with_hash}
 \title{Reads in table from a prism pzfx file.}
 \usage{
-read_pzfx_with_hash(pzfx_file_path, table)
+read_pzfx_with_hash(pzfx_file_path, ...)
 }
 \arguments{
 \item{pzfx_file_path}{path to pzfx file}
 
-\item{table}{name of table wihtin file to read. Must be in pzfx_tables(pzfx_file_path)}
+\item{...}{additional arguments to digest or read_pzfx}
 }
 \value{
 data within the table of the pzfx file
