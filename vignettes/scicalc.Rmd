@@ -14,6 +14,58 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{r, include=FALSE}
+library(dplyr)
+data_source <- file.path(here::here(), "inst", "extdata", "data", "source")
+
+for (file in c("dm.sas7bdat", "vs.parquet", "lb.csv", "pc.parquet")) {
+  unlist(file.path(data_source, file))
+}
+
+df <- data.frame(
+  "ID" = factor(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3)),
+  "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M", "F", "F", "F", "F"),
+  "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK", "ASIAN", "ASIAN", "ASIAN", "ASIAN"),
+  "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22, 35, 35, 35, 35),
+  "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4, 3, 3, 3, 3),
+  "CREATU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
+  "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9, 0.7, 0.7, 0.7, 0.7),
+  "CYSTCU" = c("mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L"),
+  "AST" = c(15, 15, 15, 15, 29, 29, 29, 29, 38, 38, 38, 38),
+  "ULNAST" = c(33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33),
+  "ASTU" = c("U/L","U/L","U/L","U/L","U/L","U/L","U/L","U/L", "U/L", "U/L", "U/L", "U/L"),
+  "BILI" = c(0.8, 0.8, 0.8, 0.8, 1.9, 1.9, 1.9, 1.9, 1.1, 1.1, 1.1, 1.1),
+  "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2),
+  "BILIU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
+  "HEIGHT" = c(174 ,174, 174, 174, 201, 201, 201, 201, 190, 190, 190, 190),
+  "WEIGHT" = c(70, 70, 70, 70, 80, 80, 80, 80, 75, 75, 75, 75),
+  "DV" = c(10, 150, 70, 9, 7, 140, 60, 7, 11, 156, 70, 7),
+  "NTLD" = c(0, 0.25, 1, 8, 0, 0.25, 1, 8, 0, 0.25, 1, 8)
+)
+
+library(ggplot2)
+ggplot2::ggplot(df, aes(x = NTLD, y = DV, color = ID)) +
+  geom_point() +
+  geom_line()
+
+df %>% 
+  dplyr::select(c("ID", "SEX", "RACE", "AGE")) %>% 
+  haven::write_sas(path = file.path(data_source, "dm.sas7bdat"))
+
+df %>% 
+  dplyr::select(c("ID", "HEIGHT", "WEIGHT")) %>% 
+  arrow::write_parquet(sink = file.path(data_source, "vs.parquet"))
+
+df %>% 
+  dplyr::select(c("ID", "CREAT", "CREATU", "CYSTC", "CYSTCU", "AST", "ULNAST", "BILI", "ULNBILI", "ASTU", "BILIU")) %>% 
+  readr::write_csv(file = file.path(data_source, "lb.csv"))
+
+df %>% 
+  dplyr::select(c("ID", "DV", "NTLD")) %>% 
+  arrow::write_parquet(sink = file.path(data_source, "pc.parquet"))
+
+```
+
 To install the scicalc package you can run the following two commands:
 ```r
 options(repos = c('scicalc' = "https://a2-ai.github.io/gh-pkg-mirror/scicalc",
@@ -37,6 +89,7 @@ if (!dir.exists(data_source)) {
 list.files(data_source)
 ```
 This is a contrived example, but there are several different file types in source data representing different SDTM domains. As well as a `test.txt` file. We can use the `read_file_with_hash` function to read in all the files in this source directory. No more creating `read_file_type_with_hash` functions in each script!
+
 
 ```{r}
 raw_data <- purrr::map(
@@ -160,69 +213,35 @@ if (!file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
 ## Reading in derived data
 Now if we want to read in the derived data and verify it is the data we think it is we can use `read_hashed_file`. This function will only let you ingest the data if the hash you supply matches the hash of the contents of the file. Here I've supplied the `blake3` hash which does not match the `md5` hash digest uses by default. We have two options, tell `read_hashed_file` to use `algo = 'blake3'` or supply the `md5` hash.
 ```{r}
+hash <- digest::digest(file.path(data_derived, "pk_data_v01.parquet")) # This is a hash of the string to the file type so it will not match the hash for contents of the file.
+print(hash)
 #This hash is incorrect so the function errors
 if (file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
-  testthat::expect_error(scicalc::read_hashed_file(file.path(data_derived, "pk_data_v01.parquet"), "115abc8313ddaaaa6b384ab945759a63c70ff5566e8ab430f17621e35f73437d"))
+  testthat::expect_error(scicalc::read_hashed_file(file.path(data_derived, "pk_data_v01.parquet"), hash))
 }
 ```
 1. updated algo argument works:
 ```{r}
+correct_hash <- digest::digest(file = file.path(data_derived, "pk_data_v01.parquet"), algo = "blake3")
+print(correct_hash)
+```
+```{r}
 data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"),
   algo = "blake3",
-  "115abc8313ddaaaa6b384ab945759a63c70ff5566e8ab430f17621e35f73437d")
+  correct_hash)
 data
 ```
 
 2. giving the `md5` hash works
 ```{r}
+md5_hash <- digest::digest(file = file.path(data_derived, "pk_data_v01.parquet"))
+print(md5_hash)
+```
+```{r}
 data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"), 
-  "419badb3414340c25066b473410539d9")
+  md5_hash)
 data
 ```
 
-```{r, include=FALSE}
-df <- data.frame(
-  "ID" = factor(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3)),
-  "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M", "F", "F", "F", "F"),
-  "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK", "ASIAN", "ASIAN", "ASIAN", "ASIAN"),
-  "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22, 35, 35, 35, 35),
-  "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4, 3, 3, 3, 3),
-  "CREATU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
-  "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9, 0.7, 0.7, 0.7, 0.7),
-  "CYSTCU" = c("mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L"),
-  "AST" = c(15, 15, 15, 15, 29, 29, 29, 29, 38, 38, 38, 38),
-  "ULNAST" = c(33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33),
-  "ASTU" = c("U/L","U/L","U/L","U/L","U/L","U/L","U/L","U/L", "U/L", "U/L", "U/L", "U/L"),
-  "BILI" = c(0.8, 0.8, 0.8, 0.8, 1.9, 1.9, 1.9, 1.9, 1.1, 1.1, 1.1, 1.1),
-  "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2),
-  "BILIU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
-  "HEIGHT" = c(174 ,174, 174, 174, 201, 201, 201, 201, 190, 190, 190, 190),
-  "WEIGHT" = c(70, 70, 70, 70, 80, 80, 80, 80, 75, 75, 75, 75),
-  "DV" = c(10, 150, 70, 9, 7, 140, 60, 7, 11, 156, 70, 7),
-  "NTLD" = c(0, 0.25, 1, 8, 0, 0.25, 1, 8, 0, 0.25, 1, 8)
-)
-
-library(ggplot2)
-ggplot2::ggplot(df, aes(x = NTLD, y = DV, color = ID)) +
-  geom_point() +
-  geom_line()
-
-df %>% 
-  dplyr::select(c("ID", "SEX", "RACE", "AGE")) %>% 
-  haven::write_sas(path = file.path(data_source, "dm.sas7bdat"))
-
-df %>% 
-  dplyr::select(c("ID", "HEIGHT", "WEIGHT")) %>% 
-  arrow::write_parquet(sink = file.path(data_source, "vs.parquet"))
-
-df %>% 
-  dplyr::select(c("ID", "CREAT", "CREATU", "CYSTC", "CYSTCU", "AST", "ULNAST", "BILI", "ULNBILI", "ASTU", "BILIU")) %>% 
-  readr::write_csv(file = file.path(data_source, "lb.csv"))
-
-df %>% 
-  dplyr::select(c("ID", "DV", "NTLD")) %>% 
-  arrow::write_parquet(sink = file.path(data_source, "pc.parquet"))
-
-```

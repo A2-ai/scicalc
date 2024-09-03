@@ -15,8 +15,15 @@ test_that("write_csv_with_hash prints a hash", {
     "a" = c(1, 2, 3, 4),
     "b" = c("A", "B", "C", "D")
   )
+
   path <- "test.csv"
-  expect_output(write_csv_with_hash(df, path), "test.csv: 0cfd6da55e6c1e198effe1e584c26d79")
+  write_csv_with_hash(df, path) #Generating file to digest it for hash to test output
+  md5_hash <- digest::digest(file = path)
+  blake3_hash <- digest::digest(file = path, algo = "blake3")
+
+  expect_output(write_csv_with_hash(df, path), paste0("test.csv: ", md5_hash))
+  unlink(path, recursive = TRUE)
+  expect_output(write_csv_with_hash(df, path, algo = "blake3"), paste0("test.csv: ", blake3_hash))
   unlink(path, recursive = TRUE)
 })
 

@@ -1,5 +1,6 @@
 test_that("read_sas_with_hash prints hash", {
-  expect_output(read_sas_with_hash("testdata/test_data.sas7bdat"), "test_data.sas7bdat: b7fc331371df02c2038455c2099f633a")
+  hash <- digest::digest(file = "testdata/test_data.sas7bdat")
+  expect_output(read_sas_with_hash("testdata/test_data.sas7bdat"), paste0("test_data.sas7bdat: ", hash))
 })
 
 test_that('read_sas_with_hash gives data', {

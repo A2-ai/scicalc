@@ -46,7 +46,8 @@ test_that("read_csv_with_hash will not replace '.' by default", {
 })
 
 test_that("read_csv_with_hash can hide column types", {
-  expect_output(read_csv_with_hash("testdata/test_data_missing.csv", show_col_types = FALSE), "test_data_missing.csv: 7366d2af6972e7bbda399c8fcbc2760b")
+  hash <- digest::digest(file = "testdata/test_data_missing.csv")
+  expect_output(read_csv_with_hash("testdata/test_data_missing.csv", show_col_types = FALSE), paste0("test_data_missing.csv: ", hash))
 })
 
 test_that("read_csv_with_hash can use different digest algorithms", {
@@ -59,6 +60,8 @@ test_that("read_csv_with_hash can use different digest algorithms", {
     "HEIGHT" = c(NA, 186, 201, 193)
   )
   df <- read_csv_with_hash("testdata/test_data_missing.csv", na = ".", algo = "blake3")
-  expect_output(read_csv_with_hash("testdata/test_data_missing.csv", na = ".", algo = "blake3"), "test_data_missing.csv: d3bf561a9ae01f428ab06a4f523e6e8529090fdb76390b7cfafece026f4fd037")
+  hash <- digest::digest(file = "testdata/test_data_missing.csv", algo = "blake3")
+
+  expect_output(read_csv_with_hash("testdata/test_data_missing.csv", na = ".", algo = "blake3"), paste0("test_data_missing.csv: ", hash))
   expect_equal(df %>% as.data.frame(), expected_df)
 })

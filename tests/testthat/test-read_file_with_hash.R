@@ -1,9 +1,11 @@
 test_that("read_file_with_hash prints hash for parquet file", {
-  expect_output(read_file_with_hash("testdata/test_data.parquet"), "test_data.parquet: 8cf6b17fcae5b5673a28045a41f622b7")
+  hash <- digest::digest(file = "testdata/test_data.parquet")
+  expect_output(read_file_with_hash("testdata/test_data.parquet"), paste0("test_data.parquet: ", hash))
 })
 
 test_that("read_file_with_hash prints hash for csv file", {
-  expect_output(read_file_with_hash("testdata/test_data.csv"), "test_data.csv: 682d81e77c35093aaacf8a181740f89a")
+  hash <- digest::digest(file = "testdata/test_data.csv")
+  expect_output(read_file_with_hash("testdata/test_data.csv"), paste0("test_data.csv: ", hash))
 })
 
 test_that("read_file_with_hash won't work for non-existant files", {
@@ -15,11 +17,13 @@ test_that("read_file_with_hash warns about non-supported file type", {
 })
 
 test_that("read_file_with_hash prints for sas file", {
-  expect_output(read_file_with_hash("testdata/test_data.sas7bdat"), "test_data.sas7bdat: b7fc331371df02c2038455c2099f633a")
+  hash <- digest::digest(file = "testdata/test_data.sas7bdat")
+  expect_output(read_file_with_hash("testdata/test_data.sas7bdat"), paste0("test_data.sas7bdat: ", hash))
 })
 
 test_that("read_file_with_hash prints for pzxf file", {
-  expect_output(read_file_with_hash("testdata/test_data.pzfx", table = "Data 1"), "test_data.pzfx: 2277208799b6c53733a1c9b2f871fb75")
+  hash <- digest::digest(file = "testdata/test_data.pzfx")
+  expect_output(read_file_with_hash("testdata/test_data.pzfx", table = "Data 1"), paste0("test_data.pzfx: ", hash))
 })
 
 test_that("read_file_with_hash can replace '.' with NA", {
@@ -49,9 +53,11 @@ test_that("read_file_with_hash will not replace '.' by default", {
 })
 
 test_that("read_csv_with_hash can hide column types", {
-  expect_output(read_file_with_hash("testdata/test_data_missing.csv", show_col_types = FALSE), "test_data_missing.csv: 7366d2af6972e7bbda399c8fcbc2760b")
+  hash <- digest::digest(file = "testdata/test_data_missing.csv")
+  expect_output(read_file_with_hash("testdata/test_data_missing.csv", show_col_types = FALSE), paste0("test_data_missing.csv: ", hash))
 })
 
 test_that("read_file_with_hash can use different algos", {
-  expect_output(read_file_with_hash("testdata/test_data.parquet", algo = "blake3"), "8cc226a0b865f4b8d988fbdd67641b66db397f4ab5291f76f4160725afe733bc")
+  hash <- digest::digest(file = "testdata/test_data.parquet", algo = "blake3")
+  expect_output(read_file_with_hash("testdata/test_data.parquet", algo = "blake3"),  paste0("test_data.parquet: ", hash))
 })

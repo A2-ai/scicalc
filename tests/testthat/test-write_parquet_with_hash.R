@@ -16,7 +16,13 @@ test_that("write_parquet_with_hash prints a hash", {
     "b" = c("A", "B", "C", "D")
   )
   path <- "test.parquet"
-  expect_output(write_parquet_with_hash(df, path), "test.parquet: 366b88a971f373f9b6141bcfcbf644b9")
+  write_parquet_with_hash(df, path) #Generating file to digest it for hash to test output
+  md5_hash <- digest::digest(file = path)
+  blake3_hash <- digest::digest(file = path, algo = "blake3")
+
+  expect_output(write_parquet_with_hash(df, path), paste0("test.parquet: ", md5_hash))
+  unlink(path, recursive = TRUE)
+  expect_output(write_parquet_with_hash(df, path, algo = "blake3"), paste0("test.parquet: ", blake3_hash))
   unlink(path, recursive = TRUE)
 })
 
