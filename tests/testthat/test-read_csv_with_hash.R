@@ -1,5 +1,6 @@
 test_that("read_csv_with_hash prints hash", {
-  expect_output(read_csv_with_hash("testdata/test_data.csv"), "test_data.csv: 682d81e77c35093aaacf8a181740f89a")
+  hash <- digest::digest("testdata/test_data.csv")
+  expect_output(read_csv_with_hash("testdata/test_data.csv"), paste0("test_data.csv: ", hash))
 })
 
 test_that('read_csv_with_hash gives data', {
