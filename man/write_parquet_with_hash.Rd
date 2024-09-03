@@ -4,12 +4,14 @@
 \alias{write_parquet_with_hash}
 \title{Writes data to parquet_path and prints hash}
 \usage{
-write_parquet_with_hash(data, parquet_path)
+write_parquet_with_hash(data, parquet_path, ...)
 }
 \arguments{
 \item{data}{the data object to save to parquet_path}
 
 \item{parquet_path}{the path to the desired parquet destination}
+
+\item{...}{additional arguments to digest and write_parquet}
 }
 \value{
 Nothing. creates parquet_path file and prints hash
