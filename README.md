@@ -17,7 +17,6 @@ You can install the development version of scicalc from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("a2-ai/scicalc")
 ```
 
 ## Example
