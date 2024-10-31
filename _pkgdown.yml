@@ -1,10 +1,10 @@
+url: https://potential-broccoli-9pe6wkn.pages.github.io/
 template:
   bootstrap: 5
   bslib:
-    bg: "#FFFFFF"
-    fg: "#63666A"
-    primary: "#1E63AF"
-
+    bg: '#FFFFFF'
+    fg: '#63666A'
+    primary: '#1E63AF'
 navbar:
   title: scicalc
   bg: primary
@@ -25,7 +25,6 @@ navbar:
     github:
       icon: fa-github fa-lg
       href: https://github.com/A2-ai/scicalc
-
 reference:
 - title: Reading/Writing File Functions
 - subtitle: File Reading Functions
@@ -69,7 +68,6 @@ reference:
   - mdrd_egfr
   - ckdepi_2021_egfr
   - schwartz_egfr
-
 - title: Statistical Functions
   contents:
   - cv
