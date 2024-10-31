@@ -7,7 +7,8 @@ Authors@R: c(
     person("Devin", "Pastoor", , "devin@a2-ai.com", role = "aut"),
     person("Wesley", "Cummings", , "wes@a2-ai.com", role = "ctb"),
     person("Emily", "Schapiro", , "emily@a2-ai.com", role = "ctb"),
-    person("Ryan", "Crass", , "ryan@a2-ai.com", role = "ctb")
+    person("Ryan", "Crass", , "ryan@a2-ai.com", role = "ctb"),
+    person("Elizabeth", "LeBeau", ,"elizabeth@a2-ai.com", role = "ctb")
   )
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
