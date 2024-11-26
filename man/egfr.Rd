@@ -15,7 +15,7 @@ egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009")
 
 \item{creat}{the serum creatinine levels in mg/dL.}
 
-\item{cystc}{the cystain C levels in mg/L - only used in CKDEPI 2021 method}
+\item{cystc}{the cystatin C levels in mg/L - only used in CKDEPI 2021 cystatin method}
 
 \item{height}{the height of a patient in cm.}
 
