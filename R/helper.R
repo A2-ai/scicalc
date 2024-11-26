@@ -55,18 +55,10 @@ is_black <- function(x) {
 
   x <- tolower(x)
 
-  return (ifelse(
-    x == "black",
+  return(ifelse(
+    x %in% c("black", "african american", "black or african american"),
     TRUE,
-    ifelse(
-      x == "african american",
-      TRUE,
-      ifelse(
-        x == "black or african american",
-        TRUE,
-        FALSE
-      )
-    )
+    FALSE
   ))
 }
 
@@ -135,7 +127,7 @@ is_hispanic_or_latino <- function(x) {
   x <- tolower(x)
 
   return (ifelse(
-    x == "hispanic or latino",
+    x %in% c("hispanic or latino", "hispanic", "latino"),
     TRUE,
     FALSE
   ))
@@ -160,7 +152,7 @@ is_not_hispanic_or_latino <- function(x) {
   x <- tolower(x)
 
   return (ifelse(
-    x == "not hispanic or latino",
+    x %in% c("not hispanic or latino", "not hispanic", "not latino"),
     TRUE,
     FALSE
   ))

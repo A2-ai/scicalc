@@ -4,7 +4,7 @@
 #' @param raceb a boolean representing if the patient is black.
 #' @param age the age of a patient in years.
 #' @param creat the serum creatinine levels in mg/dL.
-#' @param cystc the cystain C levels in mg/L - only used in CKDEPI 2021 method
+#' @param cystc the cystatin C levels in mg/L - only used in CKDEPI 2021 cystatin method
 #' @param height the height of a patient in cm.
 #' @param method a string specifying the method to use. Available options are "CKDEPI 2009", "MDRD", "CKDEPI 2021", "Schwartz".
 #'
@@ -22,7 +22,7 @@
 #'    )
 #' df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
 egfr <- function(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009") {
-  checkmate::assert_choice(tolower(method), c("ckdepi 2009", "mdrd", "ckdepi 2021", "schwartz"))
+  checkmate::assert_choice(tolower(method), c("ckdepi 2009", "mdrd", "ckdepi 2021 cystatin", "ckdepi 2021", "schwartz"))
 
   method_low = tolower(method)
 
@@ -31,7 +31,9 @@ egfr <- function(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009")
   } else if (method_low == "mdrd") {
     egfr <- mdrd_egfr(sexf, raceb, age, creat)
   } else if (method_low == "ckdepi 2021") {
-    egfr <- ckdepi_2021_egfr(sexf, age, creat, cystc)
+    egfr <- ckdepi_2021_egfr(sexf, age, creat)
+  } else if (method_low == "ckdepi 2021 cystatin") {
+    egfr <- ckdepi_2021_egfr_cystatin(sexf, age, creat, cystc)
   } else if (method_low == "schwartz") {
     egfr <- schwartz_egfr(height, creat)
   }
@@ -99,18 +101,73 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   return (egfr)
 }
 
-#' Calculates eGFR with CKDEPI 2021 equation
+#' Calculates eGFR using the CKDEPI 2021 creatinine equation
+#'
+#' @param sexf boolean value of sex Female: TRUE, Male: FALSE
+#' @param age age of subject (years)
+#' @param creat creatinine levels of subject (mg/dL)
+#'
+#' @return the eGFR value (mL/min/1.73m2)
+#' @export
+#'
+#' @examples
+#' e <- ckdepi_2021_egfr(TRUE, 24, 1)
+#'
+#' df <- data.frame(
+#'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+#'    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+#'    "AGE" = c(24, 24, 23, 24),
+#'    "CREAT" = c(1, 1, 2, 1)
+#'    )
+#' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
+ckdepi_2021_egfr <- function(sexf, age, creat) {
+  checkmate::assert_logical(sexf)
+  checkmate::assertNumeric(age)
+  checkmate::assertNumeric(creat)
+
+  if (any(is.na(sexf))) {
+    message('sexf contains missing values')
+  }
+  if (any(is.na(age))) {
+    message('age contains missing values')
+  }
+  if (any(is.na(creat))) {
+    message('creat contains missing values')
+  }
+
+  if (any(stats::na.omit(age) < 18)) {
+    message("Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects")
+  }
+
+  K <- dplyr::if_else(sexf, 0.7, 0.9)
+  alpha <- dplyr::if_else(sexf, -0.241, -0.302)
+  sex_mult <- dplyr::if_else(sexf, 1.012, 1)
+
+  ratio <- creat/K
+  scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
+  scr_k_max <- dplyr::if_else(ratio > 1, ratio^-1.200, 1)
+
+  egfr <- 142 *
+    scr_k_min *
+    scr_k_max *
+    (0.9938^age) *
+    sex_mult
+
+  return (egfr)
+}
+
+#' Calculates eGFR with CKDEPI 2021 cystatin equation
 #'
 #' @param sexf a boolean representing if the patient is female.
 #' @param age age of patient in years
 #' @param creat serum creatinine levels in mg/dL.
-#' @param cystc serum cystain C levels in mg/L.
+#' @param cystc serum cystatin C levels in mg/L.
 #'
 #' @return eGFR in mL/min/1.73 m^2
 #' @export
 #'
 #' @examples
-#' e <- ckdepi_2021_egfr(TRUE, 24, 1, 2)
+#' e <- ckdepi_2021_egfr_cystatin(TRUE, 24, 1, 2)
 #'
 #' df <- data.frame(
 #'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
@@ -119,8 +176,8 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
 #'    "CREAT" = c(1, 1, 2, 1),
 #'    "CYSTC" = c(0.4, 0.8, 1, 2)
 #'    )
-#' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT, CYSTC))
-ckdepi_2021_egfr <- function(sexf, age, creat, cystc) {
+#' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
+ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
@@ -191,7 +248,6 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assert_logical(raceb)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
-
 
   if (any(is.na(sexf))) {
     message('sexf contains missing values')

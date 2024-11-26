@@ -2,34 +2,31 @@
 % Please edit documentation in R/egfr.R
 \name{ckdepi_2021_egfr}
 \alias{ckdepi_2021_egfr}
-\title{Calculates eGFR with CKDEPI 2021 equation}
+\title{Calculates eGFR using the CKDEPI 2021 creatinine equation}
 \usage{
-ckdepi_2021_egfr(sexf, age, creat, cystc)
+ckdepi_2021_egfr(sexf, age, creat)
 }
 \arguments{
-\item{sexf}{a boolean representing if the patient is female.}
+\item{sexf}{boolean value of sex Female: TRUE, Male: FALSE}
 
-\item{age}{age of patient in years}
+\item{age}{age of subject (years)}
 
-\item{creat}{serum creatinine levels in mg/dL.}
-
-\item{cystc}{serum cystain C levels in mg/L.}
+\item{creat}{creatinine levels of subject (mg/dL)}
 }
 \value{
-eGFR in mL/min/1.73 m^2
+the eGFR value (mL/min/1.73m2)
 }
 \description{
-Calculates eGFR with CKDEPI 2021 equation
+Calculates eGFR using the CKDEPI 2021 creatinine equation
 }
 \examples{
-e <- ckdepi_2021_egfr(TRUE, 24, 1, 2)
+e <- ckdepi_2021_egfr(TRUE, 24, 1)
 
 df <- data.frame(
    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
    "AGE" = c(24, 24, 23, 24),
-   "CREAT" = c(1, 1, 2, 1),
-   "CYSTC" = c(0.4, 0.8, 1, 2)
+   "CREAT" = c(1, 1, 2, 1)
    )
-df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT, CYSTC))
+df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
 }

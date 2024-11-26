@@ -26,7 +26,7 @@ test_that("egfr with MDRD method works and can be used in a mutate", {
   expect_equal(df$mdrd_egfr %>% round(3), c(91.803, 68.118, 50.434, 68.118))
 })
 
-test_that("egfr with ckdepi_2021_egfr can be used in a mutate", {
+test_that("egfr with ckdepi_2021_egfr_cystatin can be used in a mutate", {
   df <- data.frame(
     "SEXN" = c(FALSE, TRUE, FALSE, TRUE),
     "RACEN" = c(FALSE, FALSE, TRUE, FALSE),
@@ -35,7 +35,7 @@ test_that("egfr with ckdepi_2021_egfr can be used in a mutate", {
     "CYSTC" = c(0.4, 0.8, 1, 2)
   )
   df <- df %>%
-    dplyr::mutate(ckdepi_2021_egfr = egfr(sexf = SEXN, age = AGE, creat = CREAT, cystc = CYSTC, method = "CKDEPI 2021"))
+    dplyr::mutate(ckdepi_2021_egfr = egfr(sexf = SEXN, age = AGE, creat = CREAT, cystc = CYSTC, method = "CKDEPI 2021 CYSTATIN"))
 
   expect_equal(df$ckdepi_2021_egfr %>% round(3), c(145.193, 97.491, 67.182, 47.793))
 })
