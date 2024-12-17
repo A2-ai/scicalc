@@ -13,7 +13,7 @@
 read_file_with_hash <- function(file_path, ...) {
   checkmate::assert(file.exists(file_path))
 
-  extension <- strsplit(basename(file_path), split = "\\.")[[1]][[2]]
+  extension <- tools::file_ext(file_path)
   if (extension == "csv") {
     read_csv_with_hash(file_path, ...)
   } else if (extension == "parquet") {
@@ -40,9 +40,8 @@ read_file_with_hash <- function(file_path, ...) {
 #' }
 read_csv_with_hash <- function(csv_file_path, ...) {
   checkmate::assert(file.exists(csv_file_path))
-  checkmate::assert(strsplit(
-    basename(csv_file_path),
-    split = "\\.")[[1]][2] == "csv"
+  checkmate::assert(
+    tools::file_ext(basename(csv_file_path)) == "csv"
   )
   args <- rlang::list2(...)
 
@@ -72,9 +71,8 @@ read_csv_with_hash <- function(csv_file_path, ...) {
 #' }
 read_parquet_with_hash <- function(parquet_file_path, ...) {
   checkmate::assert(file.exists(parquet_file_path))
-  checkmate::assert(strsplit(
-    basename(parquet_file_path),
-    split = "\\.")[[1]][[2]] == "parquet"
+  checkmate::assert(
+    tools::file_ext(basename(parquet_file_path)) == "parquet"
   )
   args <- rlang::list2(...)
 
@@ -103,9 +101,8 @@ read_parquet_with_hash <- function(parquet_file_path, ...) {
 #' }
 read_sas_with_hash <- function(sas_file_path, ...) {
   checkmate::assert(file.exists(sas_file_path))
-  checkmate::assert(strsplit(
-    basename(sas_file_path),
-    split = "\\.")[[1]][[2]] == "sas7bdat"
+  checkmate::assert(
+    tools::file_ext(basename(sas_file_path)) == "sas7bdat"
   )
   args <- rlang::list2(...)
 
@@ -134,9 +131,8 @@ read_sas_with_hash <- function(sas_file_path, ...) {
 #' }
 read_pzfx_with_hash <- function(pzfx_file_path, ...) {
   checkmate::assert(file.exists(pzfx_file_path))
-  checkmate::assert(strsplit(
-    basename(pzfx_file_path),
-    split = "\\.")[[1]][[2]] == "pzfx"
+  checkmate::assert(
+    tools::file_ext(basename(pzfx_file_path)) == "pzfx"
   )
   args <- rlang::list2(...)
 
@@ -181,7 +177,7 @@ read_hashed_file <- function(file_path, hash, ...) {
   digest_args$file = file_path
 
   file_hash <- do.call(digest::digest, digest_args)
-  extension <- strsplit(basename(file_path), split = "\\.")[[1]][[2]]
+  extension <- tools::file_ext(basename(file_path))
 
   if (file_hash == hash) {
     if (extension == "csv") {

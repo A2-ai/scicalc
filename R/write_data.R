@@ -23,7 +23,7 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ...) {
   args <- rlang::list2(...)
 
   #overwrite == true and/or file doesn't already exist
-  extension <- strsplit(basename(path), split = "\\.")[[1]][[2]]
+  extension <- tools::file_ext(basename(path))
   if (extension %in% c("csv", "parquet")) {
     if (!dir.exists(dirname(path))) {
       fs::dir_create(dirname(path), recurse = TRUE)
@@ -55,7 +55,7 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ...) {
 #' write_csv_with_hash(df, "test/test.csv")
 #' }
 write_csv_with_hash <- function(data, csv_path, ...) {
-  checkmate::assert(strsplit(basename(csv_path), split = "\\.")[[1]][[2]] == "csv")
+  checkmate::assert(tools::file_ext(basename(csv_path)) == "csv")
 
   args <- rlang::list2(...)
 
@@ -89,7 +89,7 @@ write_csv_with_hash <- function(data, csv_path, ...) {
 #' write_parquet_with_hash(df, "test/test.parquet")
 #' }
 write_parquet_with_hash <- function(data, parquet_path, ...) {
-  checkmate::assert(strsplit(basename(parquet_path), split = "\\.")[[1]][[2]] == "parquet")
+  checkmate::assert(tools::file_ext(basename(parquet_path)) == "parquet")
 
   args <- rlang::list2(...)
 
