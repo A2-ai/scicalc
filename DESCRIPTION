@@ -1,6 +1,6 @@
 Package: scicalc
 Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9002
+Version: 0.0.0.9003
 Authors@R: c( 
     person("Matthew", "Smith", , "matthews@a2-ai.com", role = c("aut", "cre")),
     person("Jenna", "Johnson", , "jenna@a2-ai.com", role = "aut"),
@@ -8,6 +8,7 @@ Authors@R: c(
     person("Wesley", "Cummings", , "wes@a2-ai.com", role = "ctb"),
     person("Emily", "Schapiro", , "emily@a2-ai.com", role = "ctb"),
     person("Ryan", "Crass", , "ryan@a2-ai.com", role = "ctb"),
+    person("Jonah", "Lyon", , "jonah@a2-ai.com", role = "ctb"),
     person("Elizabeth", "LeBeau", ,"elizabeth@a2-ai.com", role = "ctb")
   )
 Description: What the package does (one paragraph).
