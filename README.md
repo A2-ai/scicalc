@@ -18,7 +18,8 @@ You can install the development version of scicalc from
 
 ``` r
 # install.packages("devtools")
-devtools::install_github("a2-ai/scicalc")
+options(repos = c('scicalc' = "https://a2-ai.github.io/gh-pkg-mirror/scicalc", getOption("repos")))
+install.packages("scicalc")
 ```
 
 ## Example
