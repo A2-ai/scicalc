@@ -1,7 +1,7 @@
 #' Reads the data from a file (csv or parquet) and prints the hash
 #'
 #' @param file_path path to data file
-#' @param ... additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx
+#' @param ... additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx, read_xpt
 #'
 #' @return data within the supplied file
 #' @export
@@ -22,6 +22,8 @@ read_file_with_hash <- function(file_path, ...) {
     read_sas_with_hash(file_path, ...)
   } else if (extension == "pzfx") {
     read_pzfx_with_hash(file_path, ...)
+  } else if (extension == "xpt") {
+    read_xpt_with_hash(file_path, ...)
   } else {
     warning(paste0("File type: ", extension, " not currently supported\n"))
   }
@@ -117,6 +119,37 @@ read_sas_with_hash <- function(sas_file_path, ...) {
   cat("\n")
   do.call(haven::read_sas, read_sas_args)
 }
+
+#' Reads data from xpt file and prints hash of contents.
+#'
+#' @param xpt_file_path an xpt file to ingest
+#' @param ... additional arguments to digest or read_xpt
+#'
+#' @return a dataframe(?) of data within file
+#' @export
+#'
+#' @examples \dontrun{
+#' read_xpt_with_hash("data/source/example.xpt")
+#' }
+read_xpt_with_hash <- function(xpt_file_path, ...) {
+  checkmate::assert(file.exists(xpt_file_path))
+  checkmate::assert(
+    tools::file_ext(basename(xpt_file_path)) == "xpt"
+  )
+  args <- rlang::list2(...)
+
+  digest_args <- args[names(args) %in% names(formals(digest::digest))]
+  digest_args$file = xpt_file_path
+
+  read_xpt_args <- args[names(args) %in% names(formals(haven::read_xpt))]
+  read_xpt_args$file = xpt_file_path
+
+  hash <- do.call(digest::digest, digest_args)
+  cat(basename(xpt_file_path), hash, sep = ": ")
+  cat("\n")
+  do.call(haven::read_xpt, read_xpt_args)
+}
+
 
 #' Reads in table from a prism pzfx file.
 #'
