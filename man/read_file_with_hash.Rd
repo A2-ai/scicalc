@@ -9,7 +9,7 @@ read_file_with_hash(file_path, ...)
 \arguments{
 \item{file_path}{path to data file}
 
-\item{...}{additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx}
+\item{...}{additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx, read_xpt}
 }
 \value{
 data within the supplied file
