@@ -220,11 +220,21 @@ read_hashed_file <- function(file_path, hash, ...) {
     } else if (extension == "parquet") {
       read_parquet_args <- args[names(args) %in% names(formals(arrow::read_parquet))]
       read_parquet_args$file = file_path
-      arrow::read_parquet(file_path)
+      do.call(arrow::read_parquet, read_parquet_args)
     } else if (extension == "sas7bdat") {
       read_sas_args <- args[names(args) %in% names(formals(haven::read_sas))]
       read_sas_args$data_file = file_path
-      haven::read_sas(file_path)
+      do.call(haven::read_sas, read_sas_args)
+    } else if (extension == "xpt") {
+      read_xpt_args <- args[names(args) %in% names(formals(haven::read_xpt))]
+      read_xpt_args$file <- file_path
+      do.call(haven::read_xpt, read_xpt_args)
+    } else if (extension == "pzfx") {
+      read_pzfx_args <- args[names(args) %in% names(formals(pzfx::read_pzfx))]
+      read_pzfx_args$path = file_path
+      checkmate::assert(!is.null(read_pzfx_args$table))
+      checkmate::assert_choice(read_pzfx_args$table, pzfx::pzfx_tables(read_pzfx_args$path))
+      do.call(pzfx::read_pzfx, read_pzfx_args)
     } else {
       warning(paste0("File type: ", extension, " not currently supported\n"))
     }
