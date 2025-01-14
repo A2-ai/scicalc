@@ -24,6 +24,8 @@ read_file_with_hash <- function(file_path, ...) {
     read_pzfx_with_hash(file_path, ...)
   } else if (extension == "xpt") {
     read_xpt_with_hash(file_path, ...)
+  } else if (extension %in% c("xlsx", "xls")) {
+    read_excel_with_hash(file_path, ...)
   } else {
     warning(paste0("File type: ", extension, " not currently supported\n"))
   }
@@ -151,6 +153,39 @@ read_xpt_with_hash <- function(xpt_file_path, ...) {
 }
 
 
+#' Reads data from xlsx/xls file and prints hash of contents.
+#'
+#' @param xlsx_file_path an xlsx/xls file to ingest
+#' @param ... additional arguments to digest or read_excel
+#'
+#' @return a dataframe(?) of data within file
+#' @export
+#'
+#' @examples \dontrun{
+#' read_excel_with_hash("data/source/example.xpt")
+#' }
+read_excel_with_hash <- function(xlsx_file_path, ...) {
+  checkmate::assert(file.exists(xlsx_file_path))
+  checkmate::assert(
+    tools::file_ext(basename(xlsx_file_path)) %in% c("xlsx", "xls")
+  )
+  args <- rlang::list2(...)
+
+  digest_args <- args[names(args) %in% names(formals(digest::digest))]
+  digest_args$file = xlsx_file_path
+
+  read_excel_args <- args[names(args) %in% names(formals(readxl::read_excel))]
+  read_excel_args$path = xlsx_file_path
+
+  hash <- do.call(digest::digest, digest_args)
+  cat(basename(xlsx_file_path), hash, sep = ": ")
+  cat("\n")
+  cat(sprintf("Sheets in %s: ", basename(xlsx_file_path)))
+  cat(readxl::excel_sheets(xlsx_file_path), sep = ", ")
+  cat("\n")
+  do.call(readxl::read_excel, read_excel_args)
+}
+
 #' Reads in table from a prism pzfx file.
 #'
 #' @param pzfx_file_path path to pzfx file
@@ -183,8 +218,7 @@ read_pzfx_with_hash <- function(pzfx_file_path, ...) {
   do.call(pzfx::read_pzfx, read_pzfx_args)
 }
 
-################################################################################
-##### read in hashed file
+#####     read in hashed file     #####
 
 #' Reads a file if the supplied hash matches the file's hash
 #'
@@ -235,6 +269,10 @@ read_hashed_file <- function(file_path, hash, ...) {
       checkmate::assert(!is.null(read_pzfx_args$table))
       checkmate::assert_choice(read_pzfx_args$table, pzfx::pzfx_tables(read_pzfx_args$path))
       do.call(pzfx::read_pzfx, read_pzfx_args)
+    } else if (extension %in% c("xlsx", "xls")) {
+      read_excel_args <- args[names(args) %in% names(formals(readxl::read_excel))]
+      read_excel_args$path = file_path
+      do.call(readxl::read_excel, read_excel_args)
     } else {
       warning(paste0("File type: ", extension, " not currently supported\n"))
     }
