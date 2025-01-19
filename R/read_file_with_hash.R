@@ -198,6 +198,7 @@ read_excel_with_hash <- function(xlsx_file_path, ...) {
 #' read_pzfx_with_hash("mydata.pzfx", table = "experiment1")
 #' }
 read_pzfx_with_hash <- function(pzfx_file_path, ...) {
+  rlang::check_installed("pzfx")
   checkmate::assert(file.exists(pzfx_file_path))
   checkmate::assert(
     tools::file_ext(basename(pzfx_file_path)) == "pzfx"
