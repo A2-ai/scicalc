@@ -1,5 +1,5 @@
 Package: scicalc
-Title: What the Package Does (One Line, Title Case)
+Title: Scientific Calculations for Quantitative Clinical Pharmacology and Pharmacometrics Analysis
 Version: 0.1.0
 Authors@R: c( 
     person("Matthew", "Smith", , "matthews@a2-ai.com", role = c("aut", "cre")),
@@ -11,7 +11,7 @@ Authors@R: c(
     person("Jonah", "Lyon", , "jonah@a2-ai.com", role = "ctb"),
     person("Elizabeth", "LeBeau", ,"elizabeth@a2-ai.com", role = "ctb")
   )
-Description: What the package does (one paragraph).
+Description: Utility functions helpful for reproducible scientific calculations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
