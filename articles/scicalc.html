@@ -14,8 +14,8 @@
 <link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.4.2/css/all.min.css" rel="stylesheet">
-<link href="../deps/font-awesome-6.4.2/css/v4-shims.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><link href="../extra.css" rel="stylesheet">
 <meta property="og:title" content="scicalc">
 </head>
@@ -27,7 +27,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scicalc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.0.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,7 @@ code across analysts and projects. It is in no way complete or all
 encompassing, but we hope this is a good start. Please let us know if
 there are additional functions we should include!</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://potential-broccoli-9pe6wkn.pages.github.io/">scicalc</a></span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://a2-ai.github.io/scicalc">scicalc</a></span><span class="op">)</span></span></code></pre></div>
 <div class="section level3">
 <h3 id="reading-in-data">Reading in data<a class="anchor" aria-label="anchor" href="#reading-in-data"></a>
 </h3>
@@ -95,7 +95,8 @@ a Project starter <code>data/source</code> directory.</p>
 <span><span class="op">}</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "dm.sas7bdat" "lb.csv"      "pc.parquet"  "test.txt"    "vs.parquet"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "dm.sas7bdat"     "lb.csv"          "pc.parquet"      "test_excel.xlsx"</span></span>
+<span><span class="co">#&gt; [5] "test.txt"        "vs.parquet"</span></span></code></pre></div>
 <p>This is a contrived example, but there are several different file
 types in source data representing different SDTM domains. As well as a
 <code>test.txt</code> file. We can use the
@@ -107,7 +108,7 @@ this source directory. No more creating
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; dm.sas7bdat: e7e5f583f14708468eee6e688f093b92</span></span>
+<span><span class="co">#&gt; dm.sas7bdat: 5e6795b6084bd39af1f235e86b0d5727</span></span>
 <span><span class="co">#&gt; lb.csv: b5e4122d4df0ec79401eb6bb0d2d0d85</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">12</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">11</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
@@ -117,9 +118,11 @@ this source directory. No more creating
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; pc.parquet: 9331b2932087bb4bb11fb680f993d2d9</span></span>
+<span><span class="co">#&gt; pc.parquet: 2fada724fc254792587bb16a7183145c</span></span>
+<span><span class="co">#&gt; test_excel.xlsx: f665dce4222df738750216bb9cd53819</span></span>
+<span><span class="co">#&gt; Sheets in test_excel.xlsx: model_summary, sheet with space, empty</span></span>
 <span><span class="co">#&gt; Warning in .f(.x[[i]], ...): File type: txt not currently supported</span></span>
-<span><span class="co">#&gt; vs.parquet: ffa9de2ebf03e2b343c696331055abfb</span></span></code></pre></div>
+<span><span class="co">#&gt; vs.parquet: 8bb048faa17703eab465d500d393d1e5</span></span></code></pre></div>
 <p>These hashes come from <code><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest::digest</a></code>’s default
 algorithm <code>md5</code>, but we can alter this by supplying
 <code>algo = 'blake3'</code> to the read_file_with_hash function.</p>
@@ -128,7 +131,7 @@ algorithm <code>md5</code>, but we can alter this by supplying
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
 <span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; dm.sas7bdat: 66638065deebc52dbe71f09630446a5bc613232207c598ce657070d008611fad</span></span>
+<span><span class="co">#&gt; dm.sas7bdat: 8e9a5c84f0d06f0d67780a3ebf9b31a65845feee4d95e1be7f568af720c86768</span></span>
 <span><span class="co">#&gt; lb.csv: 577007ecd6292a122b6fdf48add5112ba0976d43db617bb087d8fca07da5b126</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">12</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">11</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
@@ -138,12 +141,15 @@ algorithm <code>md5</code>, but we can alter this by supplying
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; pc.parquet: 018a9afea928fb431bfe422107a70c861c8840b2b0011b2b95eedaaedbb8db3a</span></span>
+<span><span class="co">#&gt; pc.parquet: 1fbb225647da2a6df6a14adf6dde22ae783054000ba5cc56255139caf87b87de</span></span>
+<span><span class="co">#&gt; test_excel.xlsx: 99bf0f59e74683f3173aba85b083dd928f827d6619b01e1afe80dc1830e7859d</span></span>
+<span><span class="co">#&gt; Sheets in test_excel.xlsx: model_summary, sheet with space, empty</span></span>
 <span><span class="co">#&gt; Warning in .f(.x[[i]], ...): File type: txt not currently supported</span></span>
-<span><span class="co">#&gt; vs.parquet: b52fe4605508cf6e4a098c8801c930553ee2cd2ebb3e1a0542cfa58438a2021e</span></span></code></pre></div>
+<span><span class="co">#&gt; vs.parquet: f0ad72f0b3ac385081baa07461dbbeba70bc8edf0df2bf91820a05b73657137b</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">raw_data</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "dm"   "lb"   "pc"   "test" "vs"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "dm"         "lb"         "pc"         "test_excel" "test"      </span></span>
+<span><span class="co">#&gt; [6] "vs"</span></span></code></pre></div>
 <p>We can see that each different file type was read with
 read_file_with_hash and saved to <code>raw_data</code>. We also got a
 warning for <code>test.txt</code> file was not currently supported. If
@@ -264,7 +270,6 @@ estimated glomerular filtration rate, and renal function.</p>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">dm</span>, </span>
 <span>    CRCL <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/crcl.html">crcl</a></span><span class="op">(</span><span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, <span class="va">AGE</span>, <span class="va">CREAT</span>, <span class="va">WEIGHT</span><span class="op">)</span>,</span>
 <span>    BRFC <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/brfc.html">brfc</a></span><span class="op">(</span><span class="va">CRCL</span><span class="op">)</span>,</span>
-<span>    </span>
 <span>    ckdepi_2009_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
 <span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, </span>
 <span>      raceb <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_black.html">is_black</a></span><span class="op">(</span><span class="va">RACE</span><span class="op">)</span>, </span>
@@ -272,11 +277,16 @@ estimated glomerular filtration rate, and renal function.</p>
 <span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
 <span>      method <span class="op">=</span> <span class="st">"CKDEPI 2009"</span><span class="op">)</span>,</span>
 <span>    ckdepi_2021_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
+<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>,</span>
+<span>      age <span class="op">=</span> <span class="va">AGE</span>,</span>
+<span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
+<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021"</span><span class="op">)</span>,</span>
+<span>    ckdepi_2021_egfr_cystatin <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
 <span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, </span>
 <span>      age <span class="op">=</span> <span class="va">AGE</span>, </span>
 <span>      creat <span class="op">=</span> <span class="va">CREAT</span>, </span>
 <span>      cystc <span class="op">=</span> <span class="va">CYSTC</span>, </span>
-<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021"</span><span class="op">)</span>,</span>
+<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021 CYSTATIN"</span><span class="op">)</span>,</span>
 <span>    mdrd_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
 <span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, </span>
 <span>      raceb <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_black.html">is_black</a></span><span class="op">(</span><span class="va">RACE</span><span class="op">)</span>, </span>
@@ -291,7 +301,7 @@ estimated glomerular filtration rate, and renal function.</p>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 28</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 29</span></span></span>
 <span><span class="co">#&gt;    ID    SEX   RACE    AGE CREAT CREATU CYSTC CYSTCU   AST ULNAST  BILI ULNBILI</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     F     WHITE    24     1 mg/dL    0.4 mg/L      15     33   0.8     1.2</span></span>
@@ -306,10 +316,10 @@ estimated glomerular filtration rate, and renal function.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 16 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   DV &lt;dbl&gt;, NTLD &lt;dbl&gt;, BBMI &lt;dbl&gt;, DBSA &lt;dbl&gt;, MBSA &lt;dbl&gt;, BHFC &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, BRFC &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="writting-data">Writting data<a class="anchor" aria-label="anchor" href="#writting-data"></a>
@@ -334,7 +344,7 @@ for the digest.</p>
 <span>    <span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; [1] "Overwriting data!"</span></span>
-<span><span class="co">#&gt; /home/runner/work/scicalc/scicalc/inst/extdata/data/derived/pk_data_v01.parquet: b991f17ac1ccd95511497cd36bf22dcc0b6e8ea1e10731cee1efba89e8d82d93</span></span></code></pre></div>
+<span><span class="co">#&gt; /home/runner/work/scicalc/scicalc/inst/extdata/data/derived/pk_data_v01.parquet: 153bb3587d8082270a4e019364be974e8a5edd29d40b98df4ae8d5e973dd0eea</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="reading-in-derived-data">Reading in derived data<a class="anchor" aria-label="anchor" href="#reading-in-derived-data"></a>
@@ -361,14 +371,14 @@ supply the <code>md5</code> hash.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correct_hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">correct_hash</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "b991f17ac1ccd95511497cd36bf22dcc0b6e8ea1e10731cee1efba89e8d82d93"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "153bb3587d8082270a4e019364be974e8a5edd29d40b98df4ae8d5e973dd0eea"</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
 <span>  algo <span class="op">=</span> <span class="st">"blake3"</span>,</span>
 <span>  <span class="va">correct_hash</span><span class="op">)</span></span>
 <span><span class="va">data</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 28</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 29</span></span></span>
 <span><span class="co">#&gt;    ID    SEX   RACE    AGE CREAT CREATU CYSTC CYSTCU   AST ULNAST  BILI ULNBILI</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     F     WHITE    24     1 mg/dL    0.4 mg/L      15     33   0.8     1.2</span></span>
@@ -383,23 +393,23 @@ supply the <code>md5</code> hash.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 16 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   DV &lt;dbl&gt;, NTLD &lt;dbl&gt;, BBMI &lt;dbl&gt;, DBSA &lt;dbl&gt;, MBSA &lt;dbl&gt;, BHFC &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, BRFC &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>giving the <code>md5</code> hash works</li>
 </ol>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md5_hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">md5_hash</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "aeb8b6110fc22b6d0c30af2a840c0917"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "5ddba88109c5d84eed47f9d7376e58e6"</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, </span>
 <span>  <span class="va">md5_hash</span><span class="op">)</span></span>
 <span><span class="va">data</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 28</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 29</span></span></span>
 <span><span class="co">#&gt;    ID    SEX   RACE    AGE CREAT CREATU CYSTC CYSTCU   AST ULNAST  BILI ULNBILI</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     F     WHITE    24     1 mg/dL    0.4 mg/L      15     33   0.8     1.2</span></span>
@@ -414,10 +424,10 @@ supply the <code>md5</code> hash.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 16 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   DV &lt;dbl&gt;, NTLD &lt;dbl&gt;, BBMI &lt;dbl&gt;, DBSA &lt;dbl&gt;, MBSA &lt;dbl&gt;, BHFC &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, BRFC &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
