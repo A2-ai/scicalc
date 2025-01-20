@@ -169,7 +169,6 @@ df <- df %>%
   dplyr::mutate(.data = raw_data$dm, 
     CRCL = scicalc::crcl(scicalc::is_female(SEX), AGE, CREAT, WEIGHT),
     BRFC = scicalc::brfc(CRCL),
-    
     ckdepi_2009_egfr = scicalc::egfr(
       sexf = scicalc::is_female(SEX), 
       raceb = scicalc::is_black(RACE), 
@@ -177,11 +176,16 @@ df <- df %>%
       creat = CREAT,
       method = "CKDEPI 2009"),
     ckdepi_2021_egfr = scicalc::egfr(
+      sexf = scicalc::is_female(SEX),
+      age = AGE,
+      creat = CREAT,
+      method = "CKDEPI 2021"),
+    ckdepi_2021_egfr_cystatin = scicalc::egfr(
       sexf = scicalc::is_female(SEX), 
       age = AGE, 
       creat = CREAT, 
       cystc = CYSTC, 
-      method = "CKDEPI 2021"),
+      method = "CKDEPI 2021 CYSTATIN"),
     mdrd_egfr = scicalc::egfr(
       sexf = scicalc::is_female(SEX), 
       raceb = scicalc::is_black(RACE), 
@@ -243,5 +247,8 @@ data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"), 
   md5_hash)
 data
+```
+```{r, include=FALSE}
+
 ```
 

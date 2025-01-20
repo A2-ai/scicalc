@@ -1,4 +1,4 @@
-url: https://a2-ai.github.io/scicalc/ 
+url: https://a2-ai.github.io/scicalc/
 template:
   bootstrap: 5
   bslib:
@@ -35,6 +35,8 @@ reference:
   - read_parquet_with_hash
   - read_pzfx_with_hash
   - read_sas_with_hash
+  - read_xpt_with_hash
+  - read_excel_with_hash
 - subtitle: File Writing Functions
   contents:
   - write_csv_with_hash
@@ -65,8 +67,9 @@ reference:
   - bhfc
   - egfr
   - ckdepi_2009_egfr
-  - mdrd_egfr
   - ckdepi_2021_egfr
+  - ckdepi_2021_egfr_cystatin
+  - mdrd_egfr
   - schwartz_egfr
 - title: Statistical Functions
   contents:
@@ -74,6 +77,7 @@ reference:
   - geom_cv
   - geom_mean
   - geom_sd
+  - categorize
 - title: Unit Checks
   contents:
   - check_for_unique_units
