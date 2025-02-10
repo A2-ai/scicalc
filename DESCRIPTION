@@ -1,6 +1,6 @@
 Package: scicalc
 Title: Scientific Calculations for Quantitative Clinical Pharmacology and Pharmacometrics Analysis
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: c( 
     person("Matthew", "Smith", , "matthews@a2-ai.com", role = c("aut", "cre")),
     person("Jenna", "Johnson", , "jenna@a2-ai.com", role = "aut"),
