@@ -24,7 +24,7 @@ read_file_with_hash <- function(file_path, ...) {
     read_pzfx_with_hash(file_path, ...)
   } else if (extension == "xpt") {
     read_xpt_with_hash(file_path, ...)
-  } else if (extension %in% c("xlsx", "xls")) {
+  } else if (extension %in% c("xlsx", "xls", "xlsm")) {
     read_excel_with_hash(file_path, ...)
   } else {
     warning(paste0("File type: ", extension, " not currently supported\n"))
@@ -167,7 +167,7 @@ read_xpt_with_hash <- function(xpt_file_path, ...) {
 read_excel_with_hash <- function(xlsx_file_path, ...) {
   checkmate::assert(file.exists(xlsx_file_path))
   checkmate::assert(
-    tools::file_ext(basename(xlsx_file_path)) %in% c("xlsx", "xls")
+    tools::file_ext(basename(xlsx_file_path)) %in% c("xlsx", "xls", "xlsm")
   )
   args <- rlang::list2(...)
 
@@ -270,7 +270,7 @@ read_hashed_file <- function(file_path, hash, ...) {
       checkmate::assert(!is.null(read_pzfx_args$table))
       checkmate::assert_choice(read_pzfx_args$table, pzfx::pzfx_tables(read_pzfx_args$path))
       do.call(pzfx::read_pzfx, read_pzfx_args)
-    } else if (extension %in% c("xlsx", "xls")) {
+    } else if (extension %in% c("xlsx", "xls", "xlsm")) {
       read_excel_args <- args[names(args) %in% names(formals(readxl::read_excel))]
       read_excel_args$path = file_path
       do.call(readxl::read_excel, read_excel_args)
