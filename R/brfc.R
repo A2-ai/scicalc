@@ -35,22 +35,23 @@
 #'   "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK"),
 #'   "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
 #'   "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
-#'   "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
+#'   "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65),
+#'	 "HEIGHT" = c(167, 172, 168, 162, 159, 163, 170, 166)
 #' )
 #'
 #' df <- df %>%
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(
 #'     CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT),
-#'     BRFC = brfc(CRCL)
+#'     BRFC = brfc(CRCL, "mL/min")
 #'   )
 brfc <- function(
   est,
   est_units = c("mL/min", "mL/min/1.73m2"),
-  bsa,
+  bsa = NULL,
   category_standard = c("regulatory", "clinical")
 ) {
-  checkmate::assertNumeric(crcl)
+  checkmate::assertNumeric(est)
 
   if (!missing(est_units)) {
     est_units <- match.arg(est_units)
