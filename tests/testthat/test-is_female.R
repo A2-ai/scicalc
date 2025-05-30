@@ -7,5 +7,8 @@ test_that("is_female works for full FEMALE/MALE", {
 })
 
 test_that("is_female works for vectors", {
-  expect_equal(is_female(c("male", "FEMALE", "Male", "Female")), c(FALSE, TRUE, FALSE, TRUE))
+  expect_equal(
+    is_female(c("male", "FEMALE", "Male", "Female")),
+    c(FALSE, TRUE, FALSE, TRUE)
+  )
 })

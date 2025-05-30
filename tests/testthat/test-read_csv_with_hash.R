@@ -1,6 +1,9 @@
 test_that("read_csv_with_hash prints hash", {
   hash <- digest::digest(file = "testdata/test_data.csv")
-  expect_output(read_csv_with_hash("testdata/test_data.csv"), paste0("test_data.csv: ", hash))
+  expect_output(
+    read_csv_with_hash("testdata/test_data.csv"),
+    paste0("test_data.csv: ", hash)
+  )
 })
 
 test_that('read_csv_with_hash gives data', {
@@ -48,7 +51,13 @@ test_that("read_csv_with_hash will not replace '.' by default", {
 
 test_that("read_csv_with_hash can hide column types", {
   hash <- digest::digest(file = "testdata/test_data_missing.csv")
-  expect_output(read_csv_with_hash("testdata/test_data_missing.csv", show_col_types = FALSE), paste0("test_data_missing.csv: ", hash))
+  expect_output(
+    read_csv_with_hash(
+      "testdata/test_data_missing.csv",
+      show_col_types = FALSE
+    ),
+    paste0("test_data_missing.csv: ", hash)
+  )
 })
 
 test_that("read_csv_with_hash can use different digest algorithms", {
@@ -60,9 +69,23 @@ test_that("read_csv_with_hash can use different digest algorithms", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c(NA, 186, 201, 193)
   )
-  df <- read_csv_with_hash("testdata/test_data_missing.csv", na = ".", algo = "blake3")
-  hash <- digest::digest(file = "testdata/test_data_missing.csv", algo = "blake3")
+  df <- read_csv_with_hash(
+    "testdata/test_data_missing.csv",
+    na = ".",
+    algo = "blake3"
+  )
+  hash <- digest::digest(
+    file = "testdata/test_data_missing.csv",
+    algo = "blake3"
+  )
 
-  expect_output(read_csv_with_hash("testdata/test_data_missing.csv", na = ".", algo = "blake3"), paste0("test_data_missing.csv: ", hash))
+  expect_output(
+    read_csv_with_hash(
+      "testdata/test_data_missing.csv",
+      na = ".",
+      algo = "blake3"
+    ),
+    paste0("test_data_missing.csv: ", hash)
+  )
   expect_equal(df %>% as.data.frame(), expected_df)
 })

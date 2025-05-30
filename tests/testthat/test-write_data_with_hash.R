@@ -82,8 +82,14 @@ test_that("write_file_with_hash can use different digest algorithms", {
   md5_hash <- digest::digest(file = path)
   blake3_hash <- digest::digest(file = path, algo = "blake3")
 
-  expect_output(write_file_with_hash(df, path, overwrite = TRUE), paste0("test_2.parquet: ", md5_hash))
+  expect_output(
+    write_file_with_hash(df, path, overwrite = TRUE),
+    paste0("test_2.parquet: ", md5_hash)
+  )
   unlink(path, recursive = TRUE)
-  expect_output(write_file_with_hash(df, path, overwrite = TRUE, algo = "blake3"), paste0("test_2.parquet: ", blake3_hash))
+  expect_output(
+    write_file_with_hash(df, path, overwrite = TRUE, algo = "blake3"),
+    paste0("test_2.parquet: ", blake3_hash)
+  )
   unlink(path, recursive = TRUE)
 })

@@ -10,7 +10,7 @@ test_that("bbmi works for dataframe columns", {
   expect_equal(
     bbmi(weight = df$WT, height = df$HT) %>% round(3),
     c(28.886, 27.595, 30.502, 26.089)
-    )
+  )
 })
 
 test_that("bbmi can be used in a mutate", {
@@ -40,14 +40,13 @@ test_that("bbmi can be used in a mutate after a group_by", {
     dplyr::mutate(
       bbmi = bbmi(WT, HT)
     )
-  expect_equal(df$bbmi %>% round(3),
-               c(28.886, 28.886, 28.886, 28.886,
-                 27.595, 27.595, 27.595, 27.595))
+  expect_equal(
+    df$bbmi %>% round(3),
+    c(28.886, 28.886, 28.886, 28.886, 27.595, 27.595, 27.595, 27.595)
+  )
 })
 
 test_that("bbmi messages about missing values", {
   expect_message(bbmi(NA, 167), "weight contains ")
   expect_message(bbmi(80.56, NA), "height contains ")
 })
-
-

@@ -1,7 +1,7 @@
 test_that("write_csv_with_hash creates a csv file", {
   df <- data.frame(
-     "a" = c(1, 2, 3, 4),
-     "b" = c("A", "B", "C", "D")
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
   )
   path <- "test.csv"
   expect_equal(!file.exists(path), TRUE)
@@ -23,7 +23,10 @@ test_that("write_csv_with_hash prints a hash", {
 
   expect_output(write_csv_with_hash(df, path), paste0("test.csv: ", md5_hash))
   unlink(path, recursive = TRUE)
-  expect_output(write_csv_with_hash(df, path, algo = "blake3"), paste0("test.csv: ", blake3_hash))
+  expect_output(
+    write_csv_with_hash(df, path, algo = "blake3"),
+    paste0("test.csv: ", blake3_hash)
+  )
   unlink(path, recursive = TRUE)
 })
 

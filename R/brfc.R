@@ -4,11 +4,26 @@
 #                  BCRCL<30 ~ 3,
 #                  .default =  -999)
 
-#' Calculates renal impairment categories based on CrCL
+#' Calculates renal impairment categories based on Renal Function Estimator
 #'
-#' @param crcl creatinine clearance rate (mL/min)
+#' @param est Renal Function Estimator, either EGFR (mL/min/1.73m2), AEGFR (mL/min) or creatinine clearance rate (mL/min)
+#' @param bsa Body surface are to normalize EGFR to AEGFR when calculating regulatory brfc
+#' @param category_standard either regulatory or clinical
 #'
 #' @return integer renal impairment category
+#' (Clinical category)
+#' 1: Normal, Estimator >= 90 mL/min/1.73m2
+#' 2: Mild, 90 > Estimator >=60
+#' 3: Moderate, 60 > Estimator >= 30
+#' 4: Severe, 30 > Estimator >= 15
+#' 5: End Stage, Estimator < 15
+#'
+#' (Regulatory category)
+#' 1: Normal, Estimator >= 90 mL/min
+#' 2: Mild, 90 > Estimator >=60
+#' 3: Moderate, 60 > Estimator >= 30
+#' 4: Severe, Estimator < 30
+#'
 #' @export
 #'
 #' @examples
@@ -29,19 +44,51 @@
 #'     CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT),
 #'     BRFC = brfc(CRCL)
 #'   )
-brfc <- function(crcl) {
+brfc <- function(
+  est,
+  est_units = c("mL/min", "mL/min/1.73m2"),
+  bsa,
+  category_standard = c("regulatory", "clinical")
+) {
   checkmate::assertNumeric(crcl)
 
-  if (any(is.na(crcl))) {
-    message("creatinine clearance input has missing values")
+  if (!missing(est_units)) {
+    est_units <- match.arg(est_units)
+  } else {
+    stop("Must supply estimator units: mL/min, mL/min/1.73m2")
+  }
+  category_standard <- match.arg(category_standard)
+
+  if (any(is.na(est))) {
+    message("Estimator input has missing values")
   }
 
-  brfc <- dplyr::case_when(
-    crcl >= 90 ~ 0,
-    crcl >= 60 ~ 1,
-    crcl >= 30 ~ 2,
-    crcl <  30 ~ 3,
-    .default = -999
-  )
+  if (category_standard == "clinical") {
+    brfc <- dplyr::case_when(
+      est >= 90 ~ 1,
+      est >= 60 ~ 2,
+      est >= 30 ~ 3,
+      est >= 15 ~ 4,
+      est < 15 ~ 5,
+      .default = -999
+    )
+  } else {
+    if (est_units == "mL/min/1.73m2") {
+      if (all(is.na(bsa))) {
+        stop("must supply bsa")
+      }
+      abs_est <- est * (bsa / 1.73)
+    } else {
+      abs_est <- est
+    }
+
+    brfc <- dplyr::case_when(
+      abs_est >= 90 ~ 1,
+      abs_est >= 60 ~ 2,
+      abs_est >= 30 ~ 3,
+      abs_est < 30 ~ 4,
+      .default = -999
+    )
+  }
   return(brfc)
 }

@@ -27,7 +27,7 @@ bbmi <- function(weight, height) {
     message('height contains missing values')
   }
 
-  bbmi <- weight/((height/100)^2)
+  bbmi <- weight / ((height / 100)^2)
 
   return(bbmi)
 } # bbmi

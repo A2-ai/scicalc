@@ -21,8 +21,19 @@
 #'    "CREAT" = c(1, 1, 2, 1)
 #'    )
 #' df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
-egfr <- function(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009") {
-  checkmate::assert_choice(tolower(method), c("ckdepi 2009", "mdrd", "ckdepi 2021 cystatin", "ckdepi 2021", "schwartz"))
+egfr <- function(
+  sexf,
+  raceb,
+  age,
+  creat,
+  cystc,
+  height,
+  method = "CKDEPI 2009"
+) {
+  checkmate::assert_choice(
+    tolower(method),
+    c("ckdepi 2009", "mdrd", "ckdepi 2021 cystatin", "ckdepi 2021", "schwartz")
+  )
 
   method_low = tolower(method)
 
@@ -79,7 +90,9 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   }
 
   if (any(stats::na.omit(age) < 18)) {
-    message("Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects")
+    message(
+      "Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects"
+    )
   }
 
   K <- dplyr::if_else(sexf, 0.7, 0.9)
@@ -87,7 +100,7 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   sex_mult <- dplyr::if_else(sexf, 1.018, 1)
   race_mult <- dplyr::if_else(raceb, 1.159, 1)
 
-  ratio <- creat/K
+  ratio <- creat / K
   scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
   scr_k_max <- dplyr::if_else(ratio > 1, ratio^-1.209, 1)
 
@@ -98,7 +111,7 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
-  return (egfr)
+  return(egfr)
 }
 
 #' Calculates eGFR using the CKDEPI 2021 creatinine equation
@@ -136,14 +149,16 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
   }
 
   if (any(stats::na.omit(age) < 18)) {
-    message("Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects")
+    message(
+      "Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects"
+    )
   }
 
   K <- dplyr::if_else(sexf, 0.7, 0.9)
   alpha <- dplyr::if_else(sexf, -0.241, -0.302)
   sex_mult <- dplyr::if_else(sexf, 1.012, 1)
 
-  ratio <- creat/K
+  ratio <- creat / K
   scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
   scr_k_max <- dplyr::if_else(ratio > 1, ratio^-1.200, 1)
 
@@ -153,7 +168,7 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
     (0.9938^age) *
     sex_mult
 
-  return (egfr)
+  return(egfr)
 }
 
 #' Calculates eGFR with CKDEPI 2021 cystatin equation
@@ -197,15 +212,17 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
   }
 
   if (any(stats::na.omit(age) < 18)) {
-    message("Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects")
+    message(
+      "Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects"
+    )
   }
 
   K <- dplyr::if_else(sexf, 0.7, 0.9)
   alpha <- dplyr::if_else(sexf, -0.219, -0.144)
   sex_mult <- dplyr::if_else(sexf, 0.963, 1)
 
-  ratio <- creat/K
-  cys_ratio <- cystc/0.8
+  ratio <- creat / K
+  cys_ratio <- cystc / 0.8
 
   scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
   scr_k_max <- dplyr::if_else(ratio > 1, ratio^-0.544, 1)
@@ -220,7 +237,7 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
     (0.9961^age) *
     sex_mult
 
-  return (egfr)
+  return(egfr)
 }
 
 #' Modification of Diet in Renal Disease eGFR calculation
@@ -263,15 +280,17 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
   }
 
   if (any(stats::na.omit(age) < 18)) {
-    message("Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects")
+    message(
+      "Ages less than 18 years old detected. You might want to calculate eGFR with method = 'Schwartz' for these subjects"
+    )
   }
 
   sex_mult <- dplyr::if_else(sexf, 0.742, 1)
   race_mult <- dplyr::if_else(raceb, 1.212, 1)
 
   egfr <- 175 *
-    creat ^ -1.154 *
-    age ^ -0.203 *
+    creat^-1.154 *
+    age^-0.203 *
     sex_mult *
     race_mult
 

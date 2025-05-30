@@ -55,7 +55,6 @@ test_that("racen returns expected value for default", {
 test_that("ethnicn returns expected value for hispanic or latino", {
   expect_equal(ethnicn("HISPANIC OR LATINO"), 1)
   expect_equal(ethnicn("hispanic or latino"), 1)
-
 })
 
 test_that("ethnicn returns expected value for hispanic or latino", {

@@ -12,42 +12,59 @@
 #' @examples
 #' x <- rnorm(1000, mean = 10, sd = 5)
 #' xc <- categorize(x, nbins = 5)
-categorize <- function(continuous_var, nbins = 4, units = "", type = 7, digits = 1) {
+categorize <- function(
+  continuous_var,
+  nbins = 4,
+  units = "",
+  type = 7,
+  digits = 1
+) {
   checkmate::assertNumeric(continuous_var)
 
-  if (continuous_var %>%
+  if (
+    continuous_var %>%
       stats::na.omit() %>%
       unique() %>%
-      length() < nbins) {
+      length() <
+      nbins
+  ) {
     stop("continuous_var contains less than nbins unique values.")
   }
   if (any(is.na(continuous_var))) {
-    warning("Input continuous_var has NA values, They will be removed in quantile calcuilation.")
+    warning(
+      "Input continuous_var has NA values, They will be removed in quantile calcuilation."
+    )
   }
 
   if (nbins < 2) stop("The number of bins (nbins) must be at least 2.")
 
-  quantiles <- stats::quantile(continuous_var,
-                                probs = seq(0, 1, length.out = nbins + 1),
-                                na.rm = TRUE,
-                                type = type)
+  quantiles <- stats::quantile(
+    continuous_var,
+    probs = seq(0, 1, length.out = nbins + 1),
+    na.rm = TRUE,
+    type = type
+  )
 
   labels <- sapply(1:nbins, function(i) {
     if (i == 1) {
       lab <- paste0("< ", round(quantiles[i + 1], digits))
-      if (units != ""){
+      if (units != "") {
         lab <- paste0(lab, " ", units)
       }
       lab
     } else if (i == nbins) {
       lab <- paste0("> ", round(quantiles[i], digits))
-      if (units != ""){
+      if (units != "") {
         lab <- paste0(lab, " ", units)
       }
       lab
     } else {
-      lab <- paste0(round(quantiles[i], digits), " - ", round(quantiles[i + 1], digits))
-      if (units != ""){
+      lab <- paste0(
+        round(quantiles[i], digits),
+        " - ",
+        round(quantiles[i + 1], digits)
+      )
+      if (units != "") {
         lab <- paste0(lab, " ", units)
       }
       lab

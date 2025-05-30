@@ -7,7 +7,8 @@ test_that("schwartz_egfr works for numerical input", {
 test_that("schwartz_egfr works for vector input", {
   expect_equal(
     schwartz_egfr(c(174, 202, 186, 179), c(0.4, 0.8, 1, 2)) %>% round(3),
-    c(179.655, 104.282, 76.818, 36.963))
+    c(179.655, 104.282, 76.818, 36.963)
+  )
 })
 
 test_that("schwartz_egfr works for dataframe columns", {
@@ -21,7 +22,8 @@ test_that("schwartz_egfr works for dataframe columns", {
   )
   expect_equal(
     schwartz_egfr(df$HEIGHT, df$CREAT) %>% round(3),
-    c(71.862, 83.426, 38.409, 73.927))
+    c(71.862, 83.426, 38.409, 73.927)
+  )
 })
 
 test_that("schwartz_egfr can be used in a mutate", {
@@ -47,7 +49,7 @@ test_that("schwartz_egfr can be used within mutate after a group_by", {
     "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
     "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
     "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9),
-    "HEIGHT" = c(174 ,174, 174, 174, 201, 201, 201, 201)
+    "HEIGHT" = c(174, 174, 174, 174, 201, 201, 201, 201)
   )
 
   df <- df %>%
@@ -55,7 +57,10 @@ test_that("schwartz_egfr can be used within mutate after a group_by", {
     dplyr::mutate(
       schwartz_egfr = schwartz_egfr(HEIGHT, CREAT)
     )
-  expect_equal(df$schwartz_egfr %>% round(3), c(71.862, 71.862, 71.862, 71.862, 20.753, 20.753, 20.753, 20.753))
+  expect_equal(
+    df$schwartz_egfr %>% round(3),
+    c(71.862, 71.862, 71.862, 71.862, 20.753, 20.753, 20.753, 20.753)
+  )
 })
 
 test_that("schwartz_egfr messages about missing values", {

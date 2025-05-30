@@ -83,7 +83,9 @@ read_parquet_with_hash <- function(parquet_file_path, ...) {
   digest_args <- args[names(args) %in% names(formals(digest::digest))]
   digest_args$file = parquet_file_path
 
-  read_parquet_args <- args[names(args) %in% names(formals(arrow::read_parquet))]
+  read_parquet_args <- args[
+    names(args) %in% names(formals(arrow::read_parquet))
+  ]
   read_parquet_args$file = parquet_file_path
 
   hash <- do.call(digest::digest, digest_args)
@@ -211,7 +213,10 @@ read_pzfx_with_hash <- function(pzfx_file_path, ...) {
   read_pzfx_args <- args[names(args) %in% names(formals(pzfx::read_pzfx))]
   read_pzfx_args$path = pzfx_file_path
   checkmate::assert(!is.null(read_pzfx_args$table))
-  checkmate::assert_choice(read_pzfx_args$table, pzfx::pzfx_tables(read_pzfx_args$path))
+  checkmate::assert_choice(
+    read_pzfx_args$table,
+    pzfx::pzfx_tables(read_pzfx_args$path)
+  )
 
   hash <- do.call(digest::digest, digest_args)
   cat(basename(pzfx_file_path), hash, sep = ": ")
@@ -253,7 +258,9 @@ read_hashed_file <- function(file_path, hash, ...) {
       read_csv_args$file = file_path
       do.call(readr::read_csv, read_csv_args)
     } else if (extension == "parquet") {
-      read_parquet_args <- args[names(args) %in% names(formals(arrow::read_parquet))]
+      read_parquet_args <- args[
+        names(args) %in% names(formals(arrow::read_parquet))
+      ]
       read_parquet_args$file = file_path
       do.call(arrow::read_parquet, read_parquet_args)
     } else if (extension == "sas7bdat") {
@@ -268,10 +275,15 @@ read_hashed_file <- function(file_path, hash, ...) {
       read_pzfx_args <- args[names(args) %in% names(formals(pzfx::read_pzfx))]
       read_pzfx_args$path = file_path
       checkmate::assert(!is.null(read_pzfx_args$table))
-      checkmate::assert_choice(read_pzfx_args$table, pzfx::pzfx_tables(read_pzfx_args$path))
+      checkmate::assert_choice(
+        read_pzfx_args$table,
+        pzfx::pzfx_tables(read_pzfx_args$path)
+      )
       do.call(pzfx::read_pzfx, read_pzfx_args)
     } else if (extension %in% c("xlsx", "xls", "xlsm")) {
-      read_excel_args <- args[names(args) %in% names(formals(readxl::read_excel))]
+      read_excel_args <- args[
+        names(args) %in% names(formals(readxl::read_excel))
+      ]
       read_excel_args$path = file_path
       do.call(readxl::read_excel, read_excel_args)
     } else {
@@ -281,4 +293,3 @@ read_hashed_file <- function(file_path, hash, ...) {
     rlang::abort("Hash does not match file's hash!")
   }
 }
-

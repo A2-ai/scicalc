@@ -65,5 +65,3 @@ check_for_unique_units <- function(params, units) {
     return(TRUE)
   }
 }
-
-

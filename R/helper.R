@@ -13,7 +13,7 @@ is_female <- function(x) {
   checkmate::assert_character(x)
   x <- tolower(x)
   first_letter <- substr(x, 1, 1)
-  return (ifelse(first_letter == "f", TRUE, FALSE))
+  return(ifelse(first_letter == "f", TRUE, FALSE))
 }
 
 #' Takes character input and returns TRUE/FALSE if white/other
@@ -32,7 +32,7 @@ is_white <- function(x) {
 
   x <- tolower(x)
 
-  return (ifelse(
+  return(ifelse(
     x == "white",
     TRUE,
     FALSE
@@ -78,7 +78,7 @@ is_asian <- function(x) {
 
   x <- tolower(x)
 
-  return (ifelse(
+  return(ifelse(
     x == "asian",
     TRUE,
     FALSE
@@ -101,7 +101,7 @@ is_other <- function(x) {
 
   x <- tolower(x)
 
-  return (ifelse(
+  return(ifelse(
     x == "other",
     TRUE,
     FALSE
@@ -126,7 +126,7 @@ is_hispanic_or_latino <- function(x) {
 
   x <- tolower(x)
 
-  return (ifelse(
+  return(ifelse(
     x %in% c("hispanic or latino", "hispanic", "latino"),
     TRUE,
     FALSE
@@ -151,14 +151,9 @@ is_not_hispanic_or_latino <- function(x) {
 
   x <- tolower(x)
 
-  return (ifelse(
+  return(ifelse(
     x %in% c("not hispanic or latino", "not hispanic", "not latino"),
     TRUE,
     FALSE
   ))
 }
-
-
-
-
-

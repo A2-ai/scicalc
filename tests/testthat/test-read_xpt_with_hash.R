@@ -1,6 +1,9 @@
 test_that("read_xpt_with_hash prints hash", {
   hash <- digest::digest(file = "testdata/test_data.xpt")
-  expect_output(read_xpt_with_hash("testdata/test_data.xpt"), paste0("test_data.xpt: ", hash))
+  expect_output(
+    read_xpt_with_hash("testdata/test_data.xpt"),
+    paste0("test_data.xpt: ", hash)
+  )
 })
 
 test_that('read_xpt_with_hash gives data', {

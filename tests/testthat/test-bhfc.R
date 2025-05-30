@@ -23,7 +23,16 @@ test_that("bhfc works within dpylr pipes", {
   df <- data.frame(
     "ID" = c(1, 1, 1, 1, 2, 2, 2, 2),
     "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M"),
-    "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK"),
+    "RACE" = c(
+      "WHITE",
+      "WHITE",
+      "WHITE",
+      "WHITE",
+      "BLACK",
+      "BLACK",
+      "BLACK",
+      "BLACK"
+    ),
     "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
     "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
     "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65),
@@ -36,5 +45,5 @@ test_that("bhfc works within dpylr pipes", {
   df <- df %>%
     dplyr::group_by(ID) %>%
     dplyr::mutate(BHFC = bhfc(AST, ULNAST, BILI, ULNBILI))
-  expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1 ,1))
+  expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1))
 })

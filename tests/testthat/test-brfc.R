@@ -15,7 +15,16 @@ test_that("brfc works within piped functions", {
   df <- data.frame(
     "ID" = c(1, 1, 1, 1, 2, 2, 2, 2),
     "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M"),
-    "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK"),
+    "RACE" = c(
+      "WHITE",
+      "WHITE",
+      "WHITE",
+      "WHITE",
+      "BLACK",
+      "BLACK",
+      "BLACK",
+      "BLACK"
+    ),
     "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
     "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
     "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
@@ -29,5 +38,4 @@ test_that("brfc works within piped functions", {
     )
 
   expect_equal(df$BRFC, c(0, 0, 0, 0, 3, 3, 3, 3))
-
 })
