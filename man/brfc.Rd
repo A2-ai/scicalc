@@ -5,53 +5,98 @@
 \title{Calculates renal impairment categories based on Renal Function Estimator}
 \usage{
 brfc(
-  est,
-  est_units = c("mL/min", "mL/min/1.73m2"),
-  bsa,
+  estimator = NULL,
+  absolute_units = NULL,
+  bsa = NULL,
   category_standard = c("regulatory", "clinical")
 )
 }
 \arguments{
-\item{est}{Renal Function Estimator, either EGFR (mL/min/1.73m2), AEGFR (mL/min) or creatinine clearance rate (mL/min)}
+\item{estimator}{Numeric vector of renal function estimator values (eGFR, CrCL, etc.)}
 
-\item{bsa}{Body surface are to normalize EGFR to AEGFR when calculating regulatory brfc}
+\item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
+or mL/min/1.73m² (\code{FALSE})}
 
-\item{category_standard}{either regulatory or clinical}
+\item{bsa}{Numeric vector of body surface area in m² for unit conversion. Required when
+converting between absolute and relative units}
+
+\item{category_standard}{Character string specifying categorization standard:
+\code{"regulatory"} (default) or \code{"clinical"}}
 }
 \value{
-integer renal impairment category
-(Clinical category)
-1: Normal, Estimator >= 90 mL/min/1.73m2
-2: Mild, 90 > Estimator >=60
-3: Moderate, 60 > Estimator >= 30
-4: Severe, 30 > Estimator >= 15
-5: End Stage, Estimator < 15
-
-(Regulatory category)
-1: Normal, Estimator >= 90 mL/min
-2: Mild, 90 > Estimator >=60
-3: Moderate, 60 > Estimator >= 30
-4: Severe, Estimator < 30
+Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
+Returns \code{-999} for missing values.
 }
 \description{
-Calculates renal impairment categories based on Renal Function Estimator
+This function categorizes renal function based on estimated glomerular filtration rate (eGFR),
+creatinine clearance, or other renal function estimators. It supports both clinical and
+regulatory categorization standards and can convert between absolute (mL/min) and relative
+(mL/min/1.73m²) units using body surface area.
+}
+\details{
+The function applies different categorization schemes based on the \code{category_standard}:
+
+\strong{Regulatory categories} (uses mL/min):
+\itemize{
+\item 1 = Normal: ≥90 mL/min
+\item 2 = Mild impairment: 60-89 mL/min
+\item 3 = Moderate impairment: 30-59 mL/min
+\item 4 = Severe impairment: <30 mL/min
+}
+
+\strong{Clinical categories} (uses mL/min/1.73m²):
+\itemize{
+\item 1 = Normal: ≥90 mL/min/1.73m²
+\item 2 = Mild impairment: 60-89 mL/min/1.73m²
+\item 3 = Moderate impairment: 30-59 mL/min/1.73m²
+\item 4 = Severe impairment: 15-29 mL/min/1.73m²
+\item 5 = End-stage: <15 mL/min/1.73m²
+}
+
+When unit conversion is required, the function uses:
+\itemize{
+\item Absolute to relative: \code{relative = 1.73 (absolute / bsa)}
+\item Relative to absolute: \code{absolute = relative (bsa / 1.73)}
+}
 }
 \examples{
-brfc(crcl(FALSE, 20, 10, 70))
+# Regulatory categories with absolute units (creatinine clearance)
+brfc(estimator = c(95, 75, 45, 25), absolute_units = TRUE)
 
+# Clinical categories with relative units (eGFR)
+brfc(estimator = c(95, 75, 45, 25, 10),
+     absolute_units = FALSE,
+     category_standard = "clinical")
+
+# Convert relative eGFR to regulatory categories
+brfc(estimator = 65,
+     absolute_units = FALSE,
+     bsa = 1.8)
+
+# Pipeline example with realistic data
 df <- data.frame(
-  "ID" = c(1, 1, 1, 1, 2, 2, 2, 2),
-  "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M"),
-  "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK"),
-  "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
-  "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
-  "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
+  ID = 1:4,
+  SEX = c("F", "M", "F", "M"),
+  AGE = c(65, 45, 70, 50),
+  CREAT = c(1.2, 0.9, 1.5, 1.1),
+  WEIGHT = c(70, 80, 60, 85),
+  HEIGHT = c(165, 175, 160, 180),
+  RACE = c("WHITE", "BLACK", "OTHER", "ASIAN")
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
-  dplyr::mutate(
-    CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT),
-    BRFC = brfc(CRCL)
+library(dplyr)
+df \%>\%
+  mutate(
+    EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
+    BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
+    # Clinical categories using eGFR directly
+    BRFC_CLINICAL = brfc(EGFR, FALSE, category_standard = "clinical"),
+    # Regulatory categories converting eGFR to absolute
+    BRFC_REGULATORY = brfc(EGFR, FALSE, BSA)
   )
+
+}
+\seealso{
+\code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,
+\code{\link{bsa}} for body surface area calculation
 }

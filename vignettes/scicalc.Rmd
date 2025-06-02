@@ -168,7 +168,6 @@ Now we'll need the demographics needed for Creatinine clearance, estimated glome
 df <- df %>% 
   dplyr::mutate(.data = raw_data$dm, 
     CRCL = scicalc::crcl(scicalc::is_female(SEX), AGE, CREAT, WEIGHT),
-    BRFC = scicalc::brfc(CRCL),
     ckdepi_2009_egfr = scicalc::egfr(
       sexf = scicalc::is_female(SEX), 
       raceb = scicalc::is_black(RACE), 
@@ -196,7 +195,9 @@ df <- df %>%
       height = HEIGHT,
       creat = CREAT,
       method = "Schwartz"
-    )
+    ),
+    BSA = scicalc::bsa(WEIGHT, HEIGHT),
+    BRFC = scicalc::brfc(ckdepi_2009_egfr, bsa = BSA, absolute_units = FALSE),
   )
 
 df

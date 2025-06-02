@@ -1,95 +1,166 @@
-# BRFC = case_when(BCRCL>=90   ~ 0,
-#                  BCRCL>=60 & BCRCL<90 ~ 1,
-#                  BCRCL>=30 & BCRCL<60 ~ 2,
-#                  BCRCL<30 ~ 3,
-#                  .default =  -999)
-
 #' Calculates renal impairment categories based on Renal Function Estimator
 #'
-#' @param est Renal Function Estimator, either EGFR (mL/min/1.73m2), AEGFR (mL/min) or creatinine clearance rate (mL/min)
-#' @param bsa Body surface are to normalize EGFR to AEGFR when calculating regulatory brfc
-#' @param category_standard either regulatory or clinical
+#' This function categorizes renal function based on estimated glomerular filtration rate (eGFR),
+#' creatinine clearance, or other renal function estimators. It supports both clinical and
+#' regulatory categorization standards and can convert between absolute (mL/min) and relative
+#' (mL/min/1.73m²) units using body surface area.
 #'
-#' @return integer renal impairment category
-#' (Clinical category)
-#' 1: Normal, Estimator >= 90 mL/min/1.73m2
-#' 2: Mild, 90 > Estimator >=60
-#' 3: Moderate, 60 > Estimator >= 30
-#' 4: Severe, 30 > Estimator >= 15
-#' 5: End Stage, Estimator < 15
+#' @param estimator Numeric vector of renal function estimator values (eGFR, CrCL, etc.)
+#' @param absolute_units Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
+#'   or mL/min/1.73m² (\code{FALSE})
+#' @param bsa Numeric vector of body surface area in m² for unit conversion. Required when
+#'   converting between absolute and relative units
+#' @param category_standard Character string specifying categorization standard:
+#'   \code{"regulatory"} (default) or \code{"clinical"}
 #'
-#' (Regulatory category)
-#' 1: Normal, Estimator >= 90 mL/min
-#' 2: Mild, 90 > Estimator >=60
-#' 3: Moderate, 60 > Estimator >= 30
-#' 4: Severe, Estimator < 30
+#' @details
+#' The function applies different categorization schemes based on the \code{category_standard}:
 #'
-#' @export
+#' \strong{Regulatory categories} (uses mL/min):
+#' \itemize{
+#'   \item 1 = Normal: ≥90 mL/min
+#'   \item 2 = Mild impairment: 60-89 mL/min
+#'   \item 3 = Moderate impairment: 30-59 mL/min
+#'   \item 4 = Severe impairment: <30 mL/min
+#' }
+#'
+#' \strong{Clinical categories} (uses mL/min/1.73m²):
+#' \itemize{
+#'   \item 1 = Normal: ≥90 mL/min/1.73m²
+#'   \item 2 = Mild impairment: 60-89 mL/min/1.73m²
+#'   \item 3 = Moderate impairment: 30-59 mL/min/1.73m²
+#'   \item 4 = Severe impairment: 15-29 mL/min/1.73m²
+#'   \item 5 = End-stage: <15 mL/min/1.73m²
+#' }
+#'
+#' When unit conversion is required, the function uses:
+#' \itemize{
+#'   \item Absolute to relative: \code{relative = 1.73 (absolute / bsa)}
+#'   \item Relative to absolute: \code{absolute = relative (bsa / 1.73)}
+#' }
+#'
+#' @return Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
+#'   Returns \code{-999} for missing values.
+#'
+#' @seealso
+#' \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,
+#' \code{\link{bsa}} for body surface area calculation
 #'
 #' @examples
-#' brfc(crcl(FALSE, 20, 10, 70))
+#' # Regulatory categories with absolute units (creatinine clearance)
+#' brfc(estimator = c(95, 75, 45, 25), absolute_units = TRUE)
 #'
+#' # Clinical categories with relative units (eGFR)
+#' brfc(estimator = c(95, 75, 45, 25, 10),
+#'      absolute_units = FALSE,
+#'      category_standard = "clinical")
+#'
+#' # Convert relative eGFR to regulatory categories
+#' brfc(estimator = 65,
+#'      absolute_units = FALSE,
+#'      bsa = 1.8)
+#'
+#' # Pipeline example with realistic data
 #' df <- data.frame(
-#'   "ID" = c(1, 1, 1, 1, 2, 2, 2, 2),
-#'   "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M"),
-#'   "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK"),
-#'   "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
-#'   "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
-#'   "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65),
-#'	 "HEIGHT" = c(167, 172, 168, 162, 159, 163, 170, 166)
+#'   ID = 1:4,
+#'   SEX = c("F", "M", "F", "M"),
+#'   AGE = c(65, 45, 70, 50),
+#'   CREAT = c(1.2, 0.9, 1.5, 1.1),
+#'   WEIGHT = c(70, 80, 60, 85),
+#'   HEIGHT = c(165, 175, 160, 180),
+#'   RACE = c("WHITE", "BLACK", "OTHER", "ASIAN")
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
-#'   dplyr::mutate(
-#'     CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT),
-#'     BRFC = brfc(CRCL, "mL/min")
+#' library(dplyr)
+#' df %>%
+#'   mutate(
+#'     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
+#'     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
+#'     # Clinical categories using eGFR directly
+#'     BRFC_CLINICAL = brfc(EGFR, FALSE, category_standard = "clinical"),
+#'     # Regulatory categories converting eGFR to absolute
+#'     BRFC_REGULATORY = brfc(EGFR, FALSE, BSA)
 #'   )
+#'
+#' @export
 brfc <- function(
-  est,
-  est_units = c("mL/min", "mL/min/1.73m2"),
+  estimator = NULL,
+  absolute_units = NULL,
   bsa = NULL,
   category_standard = c("regulatory", "clinical")
 ) {
-  checkmate::assertNumeric(est)
-
-  if (!missing(est_units)) {
-    est_units <- match.arg(est_units)
-  } else {
-    stop("Must supply estimator units: mL/min, mL/min/1.73m2")
+  checkmate::assert_numeric(estimator, null.ok = FALSE)
+  if (missing(absolute_units)) {
+    stop("Must supply absolute flag to describe units.")
   }
   category_standard <- match.arg(category_standard)
 
-  if (any(is.na(est))) {
-    message("Estimator input has missing values")
-  }
-
   if (category_standard == "clinical") {
-    brfc <- dplyr::case_when(
-      est >= 90 ~ 1,
-      est >= 60 ~ 2,
-      est >= 30 ~ 3,
-      est >= 15 ~ 4,
-      est < 15 ~ 5,
-      .default = -999
-    )
-  } else {
-    if (est_units == "mL/min/1.73m2") {
-      if (all(is.na(bsa))) {
-        stop("must supply bsa")
-      }
-      abs_est <- est * (bsa / 1.73)
+    if (!absolute_units) {
+      rel_est <- estimator
     } else {
-      abs_est <- est
+      checkmate::assert_numeric(bsa, null.ok = FALSE)
+      rel_est <- convert_abs_to_rel(estimator, bsa)
     }
 
-    brfc <- dplyr::case_when(
-      abs_est >= 90 ~ 1,
-      abs_est >= 60 ~ 2,
-      abs_est >= 30 ~ 3,
-      abs_est < 30 ~ 4,
-      .default = -999
-    )
+    if (any(is.na(rel_est))) {
+      message("Estimator input has missing values")
+    }
+
+    brfc <- clinical_brfc(rel_est)
+  } else {
+    if (absolute_units) {
+      abs_est <- estimator
+    } else {
+      checkmate::assert_numeric(bsa, null.ok = FALSE)
+      abs_est <- convert_rel_to_abs(estimator, bsa)
+    }
+
+    if (any(is.na(abs_est))) {
+      message("Estimator input has missing values")
+    }
+
+    brfc <- regulatory_brfc(abs_est)
   }
   return(brfc)
 }
+
+convert_abs_to_rel <- function(est, bsa) {
+  if (any(!is.na(est) & is.na(bsa))) {
+    stop("bsa cannot be missing when absolute_est has values")
+  }
+  rel_est <- 1.73 * est / bsa
+}
+
+convert_rel_to_abs <- function(est, bsa) {
+  if (any(!is.na(est) & is.na(bsa))) {
+    stop("bsa cannot be missing when relative_est has values")
+  }
+  abs_est <- est * bsa / 1.73
+}
+
+clinical_brfc <- function(relative_est) {
+  # units on 90/60/30/15 mL/min/1.73m2
+  brfc <- dplyr::case_when(
+    relative_est >= 90 ~ 1,
+    relative_est >= 60 ~ 2,
+    relative_est >= 30 ~ 3,
+    relative_est >= 15 ~ 4,
+    relative_est < 15 ~ 5,
+    .default = -999
+  )
+}
+
+regulatory_brfc <- function(absolute_est) {
+  # units on 90/60/30 mL/min
+  brfc <- dplyr::case_when(
+    absolute_est >= 90 ~ 1,
+    absolute_est >= 60 ~ 2,
+    absolute_est >= 30 ~ 3,
+    absolute_est < 30 ~ 4,
+    .default = -999
+  )
+}
+
+
+

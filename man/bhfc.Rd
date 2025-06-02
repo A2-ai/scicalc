@@ -2,42 +2,116 @@
 % Please edit documentation in R/bhfc.R
 \name{bhfc}
 \alias{bhfc}
-\title{Calculates hepatic function criteria}
+\title{Calculates hepatic function categories based on NCI-ODWG criteria}
 \usage{
 bhfc(ast, ulnast, bili, ulnbili)
 }
 \arguments{
-\item{ast}{Aspartate aminotransferase concentration (IU/L)}
+\item{ast}{Numeric vector of aspartate aminotransferase concentrations (IU/L)}
 
-\item{ulnast}{Upper limit of normal AST (IU/L), typically 33}
+\item{ulnast}{Numeric vector of upper limit of normal AST values (IU/L).
+Typically 33 IU/L for most laboratories}
 
-\item{bili}{bilirubin concentration (mg/dL)}
+\item{bili}{Numeric vector of total bilirubin concentrations (mg/dL)}
 
-\item{ulnbili}{Upper limit of normal BILI (mg/dL), typically 1.2}
+\item{ulnbili}{Numeric vector of upper limit of normal bilirubin values (mg/dL).
+Typically 1.2 mg/dL for most laboratories}
 }
 \value{
-category of hepatic function
+Integer vector of hepatic function categories (1-4). Returns \code{-999}
+for missing values.
 }
 \description{
-Calculates hepatic function criteria
+This function categorizes hepatic function impairment using the National Cancer Institute
+Organ Dysfunction Working Group (NCI-ODWG) criteria. It evaluates aspartate aminotransferase
+(AST) and bilirubin levels relative to their upper limits of normal to determine hepatic
+impairment severity. The function handles edge cases where bilirubin values are very close
+to category boundaries using floating-point tolerant comparisons.
+}
+\details{
+The NCI-ODWG hepatic function categories are defined as:
+
+\strong{Category 1 - Normal:}
+\itemize{
+\item AST ≤ ULN AND bilirubin ≤ ULN
+}
+
+\strong{Category 2 - Mild impairment:}
+\itemize{
+\item AST > ULN OR bilirubin > ULN but ≤ 1.5 × ULN
+}
+
+\strong{Category 3 - Moderate impairment:}
+\itemize{
+\item Bilirubin > 1.5 × ULN but ≤ 3 × ULN
+}
+
+\strong{Category 4 - Severe impairment:}
+\itemize{
+\item Bilirubin > 3 × ULN
+}
+
+\strong{Special handling:}
+The function uses \code{dplyr::near()} for boundary comparisons when bilirubin
+values are very close to 1.5 × ULN or 3 × ULN to handle floating-point precision
+issues that can occur with calculated thresholds.
 }
 \examples{
-bhfc(15, 33, 0.6, 1.2)
+# Single patient with normal hepatic function
+bhfc(ast = 15, ulnast = 33, bili = 0.6, ulnbili = 1.2)
 
-df <- data.frame(
-  "ID" = c(1, 1, 1, 1, 2, 2, 2, 2),
-  "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M"),
-  "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK"),
-  "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22),
-  "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4),
-  "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65),
-  "AST" = c(15, 15, 15, 15, 23, 23, 23, 23),
-  "ULNAST" = c(33, 33, 33, 33, 33, 33, 33, 33),
-  "BILI" = c(1, 1, 1, 1, 0.4, 0.4, 0.4, 0.4),
-  "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2)
+# Multiple patients with different impairment levels
+bhfc(ast = c(25, 45, 30, 20),
+     ulnast = c(33, 33, 33, 33),
+     bili = c(0.8, 1.0, 2.5, 4.0),
+     ulnbili = c(1.2, 1.2, 1.2, 1.2))
+
+# Edge case: bilirubin exactly at boundary
+bhfc(ast = 25, ulnast = 33, bili = 1.8, ulnbili = 1.2)  # 1.8 = 1.5 * 1.2
+
+# Pipeline example with realistic data
+library(dplyr)
+
+patients <- data.frame(
+  ID = 1:6,
+  AST = c(15, 45, 28, 35, 22, 30),
+  ULNAST = 33,
+  BILI = c(0.8, 1.0, 2.2, 4.5, 1.8, 0.9),
+  ULNBILI = 1.2
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
-  dplyr::mutate(BHFC = bhfc(AST, ULNAST, BILI, ULNBILI))
+patients \%>\%
+  mutate(
+    BHFC = bhfc(AST, ULNAST, BILI, ULNBILI),
+    hepatic_status = case_when(
+      BHFC == 1 ~ "Normal",
+      BHFC == 2 ~ "Mild impairment",
+      BHFC == 3 ~ "Moderate impairment",
+      BHFC == 4 ~ "Severe impairment",
+      TRUE ~ "Missing data"
+    )
+  )
+
+# Grouped analysis by study site
+df <- data.frame(
+  ID = rep(1:2, each = 4),
+  VISIT = rep(c("Baseline", "Week 4", "Week 8", "Week 12"), 2),
+  AST = c(15, 15, 15, 15, 23, 23, 23, 23),
+  ULNAST = 33,
+  BILI = c(1.0, 1.0, 1.0, 1.0, 0.4, 0.4, 0.4, 0.4),
+  ULNBILI = 1.2
+)
+
+df \%>\%
+  group_by(ID) \%>\%
+  mutate(BHFC = bhfc(AST, ULNAST, BILI, ULNBILI)) \%>\%
+  summarise(
+    baseline_category = first(BHFC),
+    max_category = max(BHFC, na.rm = TRUE),
+    .groups = "drop"
+  )
+
+}
+\references{
+National Cancer Institute Organ Dysfunction Working Group criteria for hepatic impairment
 }
