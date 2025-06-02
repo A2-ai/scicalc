@@ -14,26 +14,12 @@
 #'   Typically 1.2 mg/dL for most laboratories
 #'
 #' @details
-#' The NCI-ODWG hepatic function categories are defined as:
-#'
-#' \strong{Category 1 - Normal:}
+#' \strong{The NCI-ODWG hepatic function categories are defined as}:
 #' \itemize{
-#'   \item AST ≤ ULN AND bilirubin ≤ ULN
-#' }
-#'
-#' \strong{Category 2 - Mild impairment:}
-#' \itemize{
-#'   \item AST > ULN OR bilirubin > ULN but ≤ 1.5 × ULN
-#' }
-#'
-#' \strong{Category 3 - Moderate impairment:}
-#' \itemize{
-#'   \item Bilirubin > 1.5 × ULN but ≤ 3 × ULN
-#' }
-#'
-#' \strong{Category 4 - Severe impairment:}
-#' \itemize{
-#'   \item Bilirubin > 3 × ULN
+#'   \item 1 = Normal: AST ≤ ULN AND bilirubin ≤ ULN
+#'   \item 2 = Mild impairment: AST > ULN OR bilirubin > ULN but ≤ 1.5 × ULN
+#'   \item 3 = Moderate impairment: Bilirubin > 1.5 × ULN but ≤ 3 × ULN
+#'   \item 4 = Severe impairment: Bilirubin > 3 × ULN
 #' }
 #'
 #' \strong{Special handling:}
