@@ -38,14 +38,19 @@ jobs:
       - uses: r-lib/actions/setup-r@v2
         with:
           r-version: ${{ matrix.config.r }}
-          http-user-agent: ${{ matrix.config.http-user-agent }}
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::rcmdcheck
-          needs: check
-
+      - uses: a2-ai/setup-rv@main
+      - name: replace-rversion
+        run: |
+          # we need to replace r_version = "4.x" with the matrixed R version
+          sed -i -E 's|^r_version = "4\.[0-9\.]+"$|r_version = "'"${{ matrix.config.r }}"'"|' rproject.toml
+      - name: rv-plan
+        run: |
+          rv plan
+      - name: rv-sync
+        run: |
+          rv sync
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
