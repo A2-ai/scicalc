@@ -120,7 +120,7 @@ df <- raw_data$pc
 
 df <- df %>% 
   dplyr::mutate(.data = raw_data$vs,
-    BBMI = scicalc::bbmi(WEIGHT, HEIGHT),
+    BBMI = scicalc::bmi(WEIGHT, HEIGHT),
     DBSA = scicalc::bsa(WEIGHT, HEIGHT),
     MBSA = scicalc::bsa(WEIGHT, HEIGHT, method = "mosteller"))
 df
@@ -159,7 +159,7 @@ Now we can use the lab data to calculate hepatic function.
 ```{r}
 df <- df %>% 
   dplyr::mutate(.data = raw_data$lb, 
-    BHFC = scicalc::bhfc(AST, ULNAST, BILI, ULNBILI),
+    BHFC = scicalc::hfc(AST, ULNAST, BILI, ULNBILI),
   )
 df
 ```
@@ -197,7 +197,7 @@ df <- df %>%
       method = "Schwartz"
     ),
     BSA = scicalc::bsa(WEIGHT, HEIGHT),
-    BRFC = scicalc::brfc(ckdepi_2009_egfr, bsa = BSA, absolute_units = FALSE),
+    BRFC = scicalc::rfc(ckdepi_2009_egfr, bsa = BSA, absolute_units = FALSE),
   )
 
 df

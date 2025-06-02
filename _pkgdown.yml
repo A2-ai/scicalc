@@ -58,13 +58,13 @@ reference:
   - is_female
 - subtitle: Vitals Functions
   contents:
-  - bbmi
+  - bmi
   - bsa
   - dubois_bsa
   - mosteller_bsa
   - crcl
-  - brfc
-  - bhfc
+  - rfc
+  - hfc
   - egfr
   - ckdepi_2009_egfr
   - ckdepi_2021_egfr
@@ -83,4 +83,3 @@ reference:
   - check_for_unique_units
   - get_unique_units_df
   - create_dir
-

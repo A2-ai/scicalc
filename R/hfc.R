@@ -16,10 +16,10 @@
 #' @details
 #' \strong{The NCI-ODWG hepatic function categories are defined as}:
 #' \itemize{
-#'   \item 1 = Normal: AST ≤ ULN AND bilirubin ≤ ULN
-#'   \item 2 = Mild impairment: AST > ULN OR bilirubin > ULN but ≤ 1.5 × ULN
-#'   \item 3 = Moderate impairment: Bilirubin > 1.5 × ULN but ≤ 3 × ULN
-#'   \item 4 = Severe impairment: Bilirubin > 3 × ULN
+#'   \item 1: Normal: AST ≤ ULN AND bilirubin ≤ ULN
+#'   \item 2: Mild impairment: AST > ULN OR bilirubin > ULN but ≤ 1.5 × ULN
+#'   \item 3: Moderate impairment: Bilirubin > 1.5 × ULN but ≤ 3 × ULN
+#'   \item 4: Severe impairment: Bilirubin > 3 × ULN
 #' }
 #'
 #' \strong{Special handling:}
@@ -35,16 +35,16 @@
 #'
 #' @examples
 #' # Single patient with normal hepatic function
-#' bhfc(ast = 15, ulnast = 33, bili = 0.6, ulnbili = 1.2)
+#' hfc(ast = 15, ulnast = 33, bili = 0.6, ulnbili = 1.2)
 #'
 #' # Multiple patients with different impairment levels
-#' bhfc(ast = c(25, 45, 30, 20),
+#' hfc(ast = c(25, 45, 30, 20),
 #'      ulnast = c(33, 33, 33, 33),
 #'      bili = c(0.8, 1.0, 2.5, 4.0),
 #'      ulnbili = c(1.2, 1.2, 1.2, 1.2))
 #'
 #' # Edge case: bilirubin exactly at boundary
-#' bhfc(ast = 25, ulnast = 33, bili = 1.8, ulnbili = 1.2)  # 1.8 = 1.5 * 1.2
+#' hfc(ast = 25, ulnast = 33, bili = 1.8, ulnbili = 1.2)  # 1.8 = 1.5 * 1.2
 #'
 #' # Pipeline example with realistic data
 #' library(dplyr)
@@ -59,7 +59,7 @@
 #'
 #' patients %>%
 #'   mutate(
-#'     BHFC = bhfc(AST, ULNAST, BILI, ULNBILI),
+#'     BHFC = hfc(AST, ULNAST, BILI, ULNBILI),
 #'     hepatic_status = case_when(
 #'       BHFC == 1 ~ "Normal",
 #'       BHFC == 2 ~ "Mild impairment",
@@ -81,7 +81,7 @@
 #'
 #' df %>%
 #'   group_by(ID) %>%
-#'   mutate(BHFC = bhfc(AST, ULNAST, BILI, ULNBILI)) %>%
+#'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI)) %>%
 #'   summarise(
 #'     baseline_category = first(BHFC),
 #'     max_category = max(BHFC, na.rm = TRUE),
@@ -89,7 +89,7 @@
 #'   )
 #'
 #' @export
-bhfc <- function(ast, ulnast, bili, ulnbili) {
+hfc <- function(ast, ulnast, bili, ulnbili) {
   checkmate::assertNumeric(ast)
   checkmate::assertNumeric(ulnast)
   checkmate::assertNumeric(bili)
@@ -125,21 +125,21 @@ bhfc <- function(ast, ulnast, bili, ulnbili) {
   }
 
   if (!edge_cases) {
-    bhfc <- dplyr::case_when(
+    hfc <- dplyr::case_when(
       ast <= ulnast & bili <= ulnbili ~ 1,
       ast > ulnast | dplyr::between(bili, ulnbili, 1.5 * ulnbili) ~ 2,
       dplyr::between(bili, 1.5 * ulnbili, 3 * ulnbili) ~ 3,
       bili > 3 * ulnbili ~ 4,
       .default = -999
     )
-    return(bhfc)
+    return(hfc)
   } else {
-    bhfc <- dplyr::case_when(
+    hfc <- dplyr::case_when(
       # bili is near 1.5 * ulnbili or 3 * ulnbili so it's either 2, 3
       ast > ulnast | dplyr::near(bili, 1.5 * ulnbili) ~ 2,
       dplyr::near(bili, 3 * ulnbili) ~ 3,
       .default = -999
     )
-    return(bhfc)
+    return(hfc)
   }
 }

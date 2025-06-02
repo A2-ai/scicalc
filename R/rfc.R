@@ -18,19 +18,19 @@
 #'
 #' \strong{Regulatory categories} (uses mL/min):
 #' \itemize{
-#'   \item 1 = Normal: ≥90 mL/min
-#'   \item 2 = Mild impairment: 60-89 mL/min
-#'   \item 3 = Moderate impairment: 30-59 mL/min
-#'   \item 4 = Severe impairment: <30 mL/min
+#'   \item 1: Normal: ≥90 mL/min
+#'   \item 2:  Mild impairment: 60-89 mL/min
+#'   \item 3: Moderate impairment: 30-59 mL/min
+#'   \item 4: Severe impairment: <30 mL/min
 #' }
 #'
 #' \strong{Clinical categories} (uses mL/min/1.73m²):
 #' \itemize{
-#'   \item 1 = Normal: ≥90 mL/min/1.73m²
-#'   \item 2 = Mild impairment: 60-89 mL/min/1.73m²
-#'   \item 3 = Moderate impairment: 30-59 mL/min/1.73m²
-#'   \item 4 = Severe impairment: 15-29 mL/min/1.73m²
-#'   \item 5 = End-stage: <15 mL/min/1.73m²
+#'   \item 1: Normal: ≥90 mL/min/1.73m²
+#'   \item 2: Mild impairment: 60-89 mL/min/1.73m²
+#'   \item 3: Moderate impairment: 30-59 mL/min/1.73m²
+#'   \item 4: Severe impairment: 15-29 mL/min/1.73m²
+#'   \item 5: End-stage: <15 mL/min/1.73m²
 #' }
 #'
 #' When unit conversion is required, the function uses:
@@ -48,17 +48,21 @@
 #'
 #' @examples
 #' # Regulatory categories with absolute units (creatinine clearance)
-#' brfc(estimator = c(95, 75, 45, 25), absolute_units = TRUE)
+#' rfc(estimator = c(95, 75, 45, 25), absolute_units = TRUE)
 #'
 #' # Clinical categories with relative units (eGFR)
-#' brfc(estimator = c(95, 75, 45, 25, 10),
-#'      absolute_units = FALSE,
-#'      category_standard = "clinical")
+#' rfc(
+#'   estimator = c(95, 75, 45, 25, 10),
+#'   absolute_units = FALSE,
+#'   category_standard = "clinical"
+#' )
 #'
 #' # Convert relative eGFR to regulatory categories
-#' brfc(estimator = 65,
-#'      absolute_units = FALSE,
-#'      bsa = 1.8)
+#' rfc(
+#'   estimator = 65,
+#'   absolute_units = FALSE,
+#'   bsa = 1.8
+#' )
 #'
 #' # Pipeline example with realistic data
 #' df <- data.frame(
@@ -77,18 +81,17 @@
 #'     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
 #'     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
 #'     # Clinical categories using eGFR directly
-#'     BRFC_CLINICAL = brfc(EGFR, FALSE, category_standard = "clinical"),
+#'     BRFC_CLINICAL = rfc(EGFR, FALSE, category_standard = "clinical"),
 #'     # Regulatory categories converting eGFR to absolute
-#'     BRFC_REGULATORY = brfc(EGFR, FALSE, BSA)
+#'     BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
 #'   )
 #'
 #' @export
-brfc <- function(
-  estimator = NULL,
-  absolute_units = NULL,
-  bsa = NULL,
-  category_standard = c("regulatory", "clinical")
-) {
+rfc <- function(
+    estimator = NULL,
+    absolute_units = NULL,
+    bsa = NULL,
+    category_standard = c("regulatory", "clinical")) {
   checkmate::assert_numeric(estimator, null.ok = FALSE)
   if (missing(absolute_units)) {
     stop("Must supply absolute flag to describe units.")
@@ -107,7 +110,7 @@ brfc <- function(
       message("Estimator input has missing values")
     }
 
-    brfc <- clinical_brfc(rel_est)
+    rfc <- clinical_rfc(rel_est)
   } else {
     if (absolute_units) {
       abs_est <- estimator
@@ -120,9 +123,9 @@ brfc <- function(
       message("Estimator input has missing values")
     }
 
-    brfc <- regulatory_brfc(abs_est)
+    rfc <- regulatory_rfc(abs_est)
   }
-  return(brfc)
+  return(rfc)
 }
 
 convert_abs_to_rel <- function(est, bsa) {
@@ -130,6 +133,7 @@ convert_abs_to_rel <- function(est, bsa) {
     stop("bsa cannot be missing when absolute_est has values")
   }
   rel_est <- 1.73 * est / bsa
+  rel_est
 }
 
 convert_rel_to_abs <- function(est, bsa) {
@@ -137,11 +141,12 @@ convert_rel_to_abs <- function(est, bsa) {
     stop("bsa cannot be missing when relative_est has values")
   }
   abs_est <- est * bsa / 1.73
+  abs_est
 }
 
-clinical_brfc <- function(relative_est) {
+clinical_rfc <- function(relative_est) {
   # units on 90/60/30/15 mL/min/1.73m2
-  brfc <- dplyr::case_when(
+  rfc <- dplyr::case_when(
     relative_est >= 90 ~ 1,
     relative_est >= 60 ~ 2,
     relative_est >= 30 ~ 3,
@@ -149,18 +154,17 @@ clinical_brfc <- function(relative_est) {
     relative_est < 15 ~ 5,
     .default = -999
   )
+  rfc
 }
 
-regulatory_brfc <- function(absolute_est) {
+regulatory_rfc <- function(absolute_est) {
   # units on 90/60/30 mL/min
-  brfc <- dplyr::case_when(
+  rfc <- dplyr::case_when(
     absolute_est >= 90 ~ 1,
     absolute_est >= 60 ~ 2,
     absolute_est >= 30 ~ 3,
     absolute_est < 30 ~ 4,
     .default = -999
   )
+  rfc
 }
-
-
-

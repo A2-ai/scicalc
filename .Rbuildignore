@@ -9,3 +9,8 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+
+^rv$
+^rproject.toml$
+^rv\.toml$
+^\.Rprofile$
