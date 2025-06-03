@@ -71,7 +71,7 @@ jobs:
       - name: rv-sysdeps-install (Linux)
         if: runner.os == 'Linux'
         run: |
-          MISSING_DEPS=$(rv plan --json | jq -r '.installed[].sys_deps[]? | select(.status == "missing") | .name')
+          MISSING_DEPS=$(rv plan --json | jq -r '.installed[].sys_deps[]? | select(.status == "absent") | .name')
           if [ -n "$MISSING_DEPS" ]; then
             echo "Found missing system dependencies:"
             echo "$MISSING_DEPS"
