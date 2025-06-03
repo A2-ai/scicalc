@@ -69,7 +69,7 @@ jobs:
         shell: cmd
         if: runner.os == 'Windows'
       - name: rv-sysdeps-install (Linux)
-        if: runner.os == 'ubuntu-latest'
+        if: runner.os == 'Linux'
         run: |
           MISSING_DEPS=$(rv plan --json | jq -r '.installed[].sys_deps[]? | select(.status == "missing") | .name')
           if [ -n "$MISSING_DEPS" ]; then
