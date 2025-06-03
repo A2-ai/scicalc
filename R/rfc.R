@@ -88,10 +88,11 @@
 #' df
 #' @export
 rfc <- function(
-    estimator = NULL,
-    absolute_units = NULL,
-    bsa = NULL,
-    category_standard = c("regulatory", "clinical")) {
+  estimator = NULL,
+  absolute_units = NULL,
+  bsa = NULL,
+  category_standard = c("regulatory", "clinical")
+) {
   checkmate::assert_numeric(estimator, null.ok = FALSE)
   if (missing(absolute_units)) {
     stop("Must supply absolute flag to describe units.")
