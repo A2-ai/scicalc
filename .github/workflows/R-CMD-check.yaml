@@ -60,13 +60,24 @@ jobs:
         shell: pwsh
         if: runner.os == 'Windows'
 
-
       - name: rv-plan
-        run: |
-          rv plan
+        run: rv plan
+        if: runner.os != 'Windows'
+        
+      - name: rv-plan (Windows)
+        run: rv.exe plan
+        shell: cmd
+        if: runner.os == 'Windows'
+        
       - name: rv-sync
-        run: |
-          rv sync
+        run: rv sync
+        if: runner.os != 'Windows'
+        
+      - name: rv-sync (Windows)
+        run: rv.exe sync
+        shell: cmd
+        if: runner.os == 'Windows'      
+     
       - uses: r-lib/actions/check-r-package@v2
         with:
           upload-snapshots: true
