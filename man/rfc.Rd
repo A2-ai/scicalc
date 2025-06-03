@@ -28,12 +28,14 @@ Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clini
 Returns \code{-999} for missing values.
 }
 \description{
+#' \ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+}
+\details{
 This function categorizes renal function based on estimated glomerular filtration rate (eGFR),
 creatinine clearance, or other renal function estimators. It supports both clinical and
 regulatory categorization standards and can convert between absolute (mL/min) and relative
 (mL/min/1.73m²) units using body surface area.
-}
-\details{
+
 The function applies different categorization schemes based on the \code{category_standard}:
 
 \strong{Regulatory categories} (uses mL/min):
