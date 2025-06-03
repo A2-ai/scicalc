@@ -38,6 +38,7 @@ bsa <- function(weight, height, method = "Dubois") {
 #' "HT" = c(167, 161, 163, 164)
 #' )
 #' df <- dplyr::mutate(df, bsa = dubois_bsa(WT, HT))
+#' df
 dubois_bsa <- function(weight, height) {
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)

@@ -98,7 +98,7 @@ df \%>\%
     # Regulatory categories converting eGFR to absolute
     BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
   )
-
+df
 }
 \seealso{
 \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,

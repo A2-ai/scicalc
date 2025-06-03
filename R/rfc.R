@@ -85,7 +85,7 @@
 #'     # Regulatory categories converting eGFR to absolute
 #'     BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
 #'   )
-#'
+#' df
 #' @export
 rfc <- function(
     estimator = NULL,

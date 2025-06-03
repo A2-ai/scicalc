@@ -32,4 +32,5 @@ df <- data.frame(
    "CYSTC" = c(0.4, 0.8, 1, 2)
    )
 df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
+df
 }

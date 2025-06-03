@@ -58,35 +58,7 @@
 #' )
 #'
 #' patients %>%
-#'   mutate(
-#'     BHFC = hfc(AST, ULNAST, BILI, ULNBILI),
-#'     hepatic_status = case_when(
-#'       BHFC == 1 ~ "Normal",
-#'       BHFC == 2 ~ "Mild impairment",
-#'       BHFC == 3 ~ "Moderate impairment",
-#'       BHFC == 4 ~ "Severe impairment",
-#'       TRUE ~ "Missing data"
-#'     )
-#'   )
-#'
-#' # Grouped analysis by study site
-#' df <- data.frame(
-#'   ID = rep(1:2, each = 4),
-#'   VISIT = rep(c("Baseline", "Week 4", "Week 8", "Week 12"), 2),
-#'   AST = c(15, 15, 15, 15, 23, 23, 23, 23),
-#'   ULNAST = 33,
-#'   BILI = c(1.0, 1.0, 1.0, 1.0, 0.4, 0.4, 0.4, 0.4),
-#'   ULNBILI = 1.2
-#' )
-#'
-#' df %>%
-#'   group_by(ID) %>%
-#'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI)) %>%
-#'   summarise(
-#'     baseline_category = first(BHFC),
-#'     max_category = max(BHFC, na.rm = TRUE),
-#'     .groups = "drop"
-#'   )
+#'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
 #'
 #' @export
 hfc <- function(ast, ulnast, bili, ulnbili) {
