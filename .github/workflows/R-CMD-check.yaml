@@ -48,7 +48,18 @@ jobs:
       - name: replace-rversion
         run: |
           # we need to replace r_version = "4.x" with the matrixed R version
+          echo "--- Replacing r_version with: ${{ matrix.config.r }} ---"
           sed -i -E 's|^r_version = "4\.[0-9\.]+"$|r_version = "'"${{ matrix.config.r }}"'"|' rproject.toml
+          cat rproject.toml
+        if: runner.os != 'Windows'
+      - name: replace-rversion (windows)
+        run: |
+          Write-Host "--- Replacing r_version with: ${{ matrix.config.r }} ---"
+          # Replace r_version using PowerShell
+          (Get-Content rproject.toml) -replace '^r_version = "4\.[0-9\.]+", 'r_version = "${{ matrix.config.r }}"' | Set-Content rproject.toml
+          Get-Content rproject.toml
+        shell: pwsh
+        if: runner.os == 'Windows'
       - name: rv-plan
         run: |
           rv plan
