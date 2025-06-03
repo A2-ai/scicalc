@@ -68,7 +68,18 @@ jobs:
         run: rv.exe plan
         shell: cmd
         if: runner.os == 'Windows'
-        
+      - name: rv-sysdeps-install (Linux)
+      - if: runner.os == 'ubuntu-latest'
+      - run: |
+          MISSING_DEPS=$(rv plan --json | jq -r '.installed[].sys_deps[]? | select(.status == "missing") | .name')
+          if [ -n "$MISSING_DEPS" ]; then
+            echo "Found missing system dependencies:"
+            echo "$MISSING_DEPS"
+            echo "Installing..."
+            echo "$MISSING_DEPS" | xargs sudo apt install
+          else
+            echo "All system dependencies are present"
+          fi
       - name: rv-sync
         run: rv sync
         if: runner.os != 'Windows'
