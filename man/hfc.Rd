@@ -22,15 +22,13 @@ Integer vector of hepatic function categories (1-4). Returns \code{-999}
 for missing values.
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
-}
-\details{
 This function categorizes hepatic function impairment using the National Cancer Institute
 Organ Dysfunction Working Group (NCI-ODWG) criteria. It evaluates aspartate aminotransferase
 (AST) and bilirubin levels relative to their upper limits of normal to determine hepatic
 impairment severity. The function handles edge cases where bilirubin values are very close
 to category boundaries using floating-point tolerant comparisons.
-
+}
+\details{
 \strong{The NCI-ODWG hepatic function categories are defined as}:
 \itemize{
 \item 1: Normal: AST ≤ ULN AND bilirubin ≤ ULN

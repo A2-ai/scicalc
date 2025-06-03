@@ -10,8 +10,6 @@ bhfc(...)
 \item{...}{Arguments passed to \code{\link[=hfc]{hfc()}}}
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
-
 \code{bhfc()} was renamed to \code{hfc()} to improve function naming consistency.
 }
 \keyword{internal}

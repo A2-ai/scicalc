@@ -6,9 +6,6 @@
 #' impairment severity. The function handles edge cases where bilirubin values are very close
 #' to category boundaries using floating-point tolerant comparisons.
 #'
-#' @description
-#' `r lifecycle::badge("stable")`
-#'
 #' @param ast Numeric vector of aspartate aminotransferase concentrations (IU/L)
 #' @param ulnast Numeric vector of upper limit of normal AST values (IU/L).
 #'   Typically 33 IU/L for most laboratories
@@ -122,8 +119,6 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
 
 
 #' Calculates hepatic function categories based on NCI-ODWG criteria
-#' @description
-#' `r lifecycle::badge("deprecated")`
 #'
 #' `bhfc()` was renamed to `hfc()` to improve function naming consistency.
 #'

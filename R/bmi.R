@@ -1,8 +1,5 @@
 #' Calculates Baseline Body Mass Index based on Weight and Height
 #'
-#' @description
-#' `r lifecycle::badge("stable")`
-#'
 #' @param weight weight of subject (kg)
 #' @param height height of subject (cm)
 #'
@@ -38,8 +35,6 @@ bmi <- function(weight, height) {
 
 
 #' @title Calculate BMI (Deprecated)
-#' @description
-#' `r lifecycle::badge("deprecated")`
 #'
 #' `bbmi()` was renamed to `bmi()` to improve function naming consistency.
 #'

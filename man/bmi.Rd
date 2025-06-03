@@ -15,7 +15,7 @@ bmi(weight, height)
 the BMI value (kg m^(-2))
 }
 \description{
-\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#stable}{\figure{lifecycle-stable.svg}{options: alt='[Stable]'}}}{\strong{[Stable]}}
+Calculates Baseline Body Mass Index based on Weight and Height
 }
 \examples{
 b <- bmi(80.56, 167)

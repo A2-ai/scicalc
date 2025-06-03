@@ -5,9 +5,6 @@
 #' regulatory categorization standards and can convert between absolute (mL/min) and relative
 #' (mL/min/1.73m²) units using body surface area.
 #'
-#' @description
-#' #' `r lifecycle::badge("stable")`
-#'
 #' @param estimator Numeric vector of renal function estimator values (eGFR, CrCL, etc.)
 #' @param absolute_units Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
 #'   or mL/min/1.73m² (\code{FALSE})
