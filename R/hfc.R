@@ -6,6 +6,9 @@
 #' impairment severity. The function handles edge cases where bilirubin values are very close
 #' to category boundaries using floating-point tolerant comparisons.
 #'
+#' @description
+#' `r lifecycle::badge("stable")`
+#'
 #' @param ast Numeric vector of aspartate aminotransferase concentrations (IU/L)
 #' @param ulnast Numeric vector of upper limit of normal AST values (IU/L).
 #'   Typically 33 IU/L for most laboratories
@@ -104,7 +107,7 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
       bili > 3 * ulnbili ~ 4,
       .default = -999
     )
-    return(hfc)
+    hfc
   } else {
     hfc <- dplyr::case_when(
       # bili is near 1.5 * ulnbili or 3 * ulnbili so it's either 2, 3
@@ -112,6 +115,26 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
       dplyr::near(bili, 3 * ulnbili) ~ 3,
       .default = -999
     )
-    return(hfc)
+
+    hfc
   }
+}
+
+
+#' Calculates hepatic function categories based on NCI-ODWG criteria
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `bhfc()` was renamed to `hfc()` to improve function naming consistency.
+#'
+#' @param ... Arguments passed to [hfc()]
+#' @keywords internal
+#' @export
+bhfc <- function(...) {
+  lifecycle::deprecate_warn(
+    when = "0.2.0",
+    what = "bhfc()",
+    with = "hfc()"
+  )
+  hfc(...)
 }

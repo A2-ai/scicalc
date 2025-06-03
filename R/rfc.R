@@ -5,6 +5,9 @@
 #' regulatory categorization standards and can convert between absolute (mL/min) and relative
 #' (mL/min/1.73m²) units using body surface area.
 #'
+#' @description
+#' #' `r lifecycle::badge("stable")`
+#'
 #' @param estimator Numeric vector of renal function estimator values (eGFR, CrCL, etc.)
 #' @param absolute_units Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
 #'   or mL/min/1.73m² (\code{FALSE})
@@ -88,11 +91,10 @@
 #' df
 #' @export
 rfc <- function(
-  estimator = NULL,
-  absolute_units = NULL,
-  bsa = NULL,
-  category_standard = c("regulatory", "clinical")
-) {
+    estimator = NULL,
+    absolute_units = NULL,
+    bsa = NULL,
+    category_standard = c("regulatory", "clinical")) {
   checkmate::assert_numeric(estimator, null.ok = FALSE)
   if (missing(absolute_units)) {
     stop("Must supply absolute flag to describe units.")
@@ -168,4 +170,28 @@ regulatory_rfc <- function(absolute_est) {
     .default = -999
   )
   rfc
+}
+
+
+#' @title Renal Function Classification (Deprecated)
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `brfc()` has been replaced by `rfc()` with a completely different interface.
+#'
+#' @param crcl Creatinine clearance value
+#' @keywords internal
+#' @export
+brfc <- function(crcl) {
+  lifecycle::deprecate_stop(
+    when = "0.2.0",
+    what = "brfc()",
+    with = "rfc()",
+    details = c(
+      "The function signature has completely changed.",
+      "Old: brfc(crcl)",
+      "New: rfc(estimator, absolute_units, bsa, category_standard)",
+      "Please see ?rfc for the new interface."
+    )
+  )
 }
