@@ -1,6 +1,9 @@
 test_that("read_parquet_with_hash prints hash", {
   hash <- digest::digest(file = "testdata/test_data.parquet")
-  expect_output(read_parquet_with_hash("testdata/test_data.parquet"), paste0("test_data.parquet: ", hash))
+  expect_output(
+    read_parquet_with_hash("testdata/test_data.parquet"),
+    paste0("test_data.parquet: ", hash)
+  )
 })
 
 test_that('read_parquet_with_hash gives data', {

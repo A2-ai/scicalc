@@ -25,4 +25,5 @@ df <- data.frame(
 "HT" = c(167, 161, 163, 164)
 )
 df <- dplyr::mutate(df, bsa = dubois_bsa(WT, HT))
+df
 }

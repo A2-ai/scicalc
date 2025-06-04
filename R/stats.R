@@ -15,11 +15,13 @@ cv <- function(x, na.rm = FALSE) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
     } else {
-      warning("Your data contains NA. Please make sure na.rm is appropriately set.")
+      warning(
+        "Your data contains NA. Please make sure na.rm is appropriately set."
+      )
     }
   }
 
-  return (stats::sd(x, na.rm = na.rm) / mean(x, na.rm = na.rm))
+  return(stats::sd(x, na.rm = na.rm) / mean(x, na.rm = na.rm))
 }
 
 
@@ -40,11 +42,13 @@ geom_mean <- function(x, na.rm = FALSE) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
     } else {
-      warning("Your data contains NA. Please make sure na.rm is appropriately set.")
+      warning(
+        "Your data contains NA. Please make sure na.rm is appropriately set."
+      )
     }
   }
 
-  return (exp(mean(log(x), na.rm = na.rm)))
+  return(exp(mean(log(x), na.rm = na.rm)))
 }
 
 #' Computes the geometric standard deviation of a vector x.
@@ -64,11 +68,13 @@ geom_sd <- function(x, na.rm = FALSE) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
     } else {
-      warning("Your data contains NA. Please make sure na.rm is appropriately set.")
+      warning(
+        "Your data contains NA. Please make sure na.rm is appropriately set."
+      )
     }
   }
 
-  return (exp(stats::sd(log(x), na.rm = na.rm)))
+  return(exp(stats::sd(log(x), na.rm = na.rm)))
 }
 
 #' Computes the geometric CV of a vector x
@@ -88,9 +94,11 @@ geom_cv <- function(x, na.rm = FALSE) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
     } else {
-      warning("Your data contains NA. Please make sure na.rm is appropriately set.")
+      warning(
+        "Your data contains NA. Please make sure na.rm is appropriately set."
+      )
     }
   }
 
-  return (sqrt(exp(stats::sd(log(x), na.rm = na.rm)**2) - 1))
+  return(sqrt(exp(stats::sd(log(x), na.rm = na.rm)**2) - 1))
 }

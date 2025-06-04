@@ -27,7 +27,8 @@ test_that("bsa can be used in a mutate", {
   df <- df %>%
     dplyr::mutate(
       dubois_bsa = bsa(WT, HT),
-      mosteller_bsa = bsa(WT, HT, method = "Mosteller"))
+      mosteller_bsa = bsa(WT, HT, method = "Mosteller")
+    )
 
   expect_equal(
     df$dubois_bsa %>% round(3),
@@ -52,13 +53,15 @@ test_that("bsa can be used in a mutate after a group_by", {
       dubois_bsa = bsa(WT, HT),
       mosteller_bsa = bsa(WT, HT, method = "Mosteller")
     )
-  
-  expect_equal(df$dubois_bsa %>% round(3),
-               c(1.896, 1.896, 1.896, 1.896,
-                 1.756, 1.756, 1.756, 1.756))
-  expect_equal(df$mosteller_bsa %>% round(3),
-               c(1.933, 1.933, 1.933, 1.933,
-                 1.789, 1.789, 1.789, 1.789))
+
+  expect_equal(
+    df$dubois_bsa %>% round(3),
+    c(1.896, 1.896, 1.896, 1.896, 1.756, 1.756, 1.756, 1.756)
+  )
+  expect_equal(
+    df$mosteller_bsa %>% round(3),
+    c(1.933, 1.933, 1.933, 1.933, 1.789, 1.789, 1.789, 1.789)
+  )
 })
 
 test_that("bsa messages about missing values", {

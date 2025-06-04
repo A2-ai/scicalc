@@ -5,5 +5,8 @@ test_that("is_black works for single entries", {
 })
 
 test_that("is_black works for vectors", {
-  expect_equal(is_black(c("Black", "White", "Black", "Asian")), c(TRUE, FALSE, TRUE, FALSE))
+  expect_equal(
+    is_black(c("Black", "White", "Black", "Asian")),
+    c(TRUE, FALSE, TRUE, FALSE)
+  )
 })

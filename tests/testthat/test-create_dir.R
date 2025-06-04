@@ -5,7 +5,10 @@ test_that("create_dir creates a directory from relative path", {
 })
 
 test_that("create_dir creates a directory from absolute path", {
-  absolute_path <- file.path(normalizePath(".", mustWork = FALSE), "abs_test_dir")
+  absolute_path <- file.path(
+    normalizePath(".", mustWork = FALSE),
+    "abs_test_dir"
+  )
   create_dir(absolute_path)
   expect_equal(dir.exists(absolute_path), TRUE)
   unlink(absolute_path, recursive = TRUE)

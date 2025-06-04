@@ -96,7 +96,9 @@ write_parquet_with_hash <- function(data, parquet_path, ...) {
   digest_args <- args[names(args) %in% names(formals(digest::digest))]
   digest_args$file = parquet_path
 
-  write_parquet_args <- args[names(args) %in% names(formals(arrow::read_parquet))]
+  write_parquet_args <- args[
+    names(args) %in% names(formals(arrow::read_parquet))
+  ]
   write_parquet_args$sink = parquet_path
   write_parquet_args$x = data
 

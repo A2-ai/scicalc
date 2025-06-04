@@ -18,14 +18,14 @@ test_that("read_hashed_file fails for unsupported file type", {
 
 test_that("read_hashed_file reads csvs too", {
   file_path <- "testdata/test_data.csv"
-  hash <-  digest::digest(file = file_path)
+  hash <- digest::digest(file = file_path)
 
   expect_no_error(read_hashed_file(file_path, hash))
 })
 
 test_that("read_hashed_file reads sas file", {
   file_path <- "testdata/test_data.sas7bdat"
-  hash <-  digest::digest(file = file_path)
+  hash <- digest::digest(file = file_path)
 
   expect_no_error(read_hashed_file(file_path, hash))
 })

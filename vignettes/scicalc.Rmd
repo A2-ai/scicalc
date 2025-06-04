@@ -28,16 +28,16 @@ df <- data.frame(
   "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK", "ASIAN", "ASIAN", "ASIAN", "ASIAN"),
   "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22, 35, 35, 35, 35),
   "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4, 3, 3, 3, 3),
-  "CREATU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
+  "CREATU" = c("mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL"),
   "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9, 0.7, 0.7, 0.7, 0.7),
-  "CYSTCU" = c("mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L","mg/L"),
+  "CYSTCU" = c("mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L"),
   "AST" = c(15, 15, 15, 15, 29, 29, 29, 29, 38, 38, 38, 38),
   "ULNAST" = c(33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33),
-  "ASTU" = c("U/L","U/L","U/L","U/L","U/L","U/L","U/L","U/L", "U/L", "U/L", "U/L", "U/L"),
+  "ASTU" = c("U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L"),
   "BILI" = c(0.8, 0.8, 0.8, 0.8, 1.9, 1.9, 1.9, 1.9, 1.1, 1.1, 1.1, 1.1),
   "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2),
-  "BILIU" = c("mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL","mg/dL"),
-  "HEIGHT" = c(174 ,174, 174, 174, 201, 201, 201, 201, 190, 190, 190, 190),
+  "BILIU" = c("mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL"),
+  "HEIGHT" = c(174, 174, 174, 174, 201, 201, 201, 201, 190, 190, 190, 190),
   "WEIGHT" = c(70, 70, 70, 70, 80, 80, 80, 80, 75, 75, 75, 75),
   "DV" = c(10, 150, 70, 9, 7, 140, 60, 7, 11, 156, 70, 7),
   "NTLD" = c(0, 0.25, 1, 8, 0, 0.25, 1, 8, 0, 0.25, 1, 8)
@@ -48,22 +48,21 @@ ggplot2::ggplot(df, aes(x = NTLD, y = DV, color = ID)) +
   geom_point() +
   geom_line()
 
-df %>% 
-  dplyr::select(c("ID", "SEX", "RACE", "AGE")) %>% 
+df %>%
+  dplyr::select(c("ID", "SEX", "RACE", "AGE")) %>%
   haven::write_sas(path = file.path(data_source, "dm.sas7bdat"))
 
-df %>% 
-  dplyr::select(c("ID", "HEIGHT", "WEIGHT")) %>% 
+df %>%
+  dplyr::select(c("ID", "HEIGHT", "WEIGHT")) %>%
   arrow::write_parquet(sink = file.path(data_source, "vs.parquet"))
 
-df %>% 
-  dplyr::select(c("ID", "CREAT", "CREATU", "CYSTC", "CYSTCU", "AST", "ULNAST", "BILI", "ULNBILI", "ASTU", "BILIU")) %>% 
+df %>%
+  dplyr::select(c("ID", "CREAT", "CREATU", "CYSTC", "CYSTCU", "AST", "ULNAST", "BILI", "ULNBILI", "ASTU", "BILIU")) %>%
   readr::write_csv(file = file.path(data_source, "lb.csv"))
 
-df %>% 
-  dplyr::select(c("ID", "DV", "NTLD")) %>% 
+df %>%
+  dplyr::select(c("ID", "DV", "NTLD")) %>%
   arrow::write_parquet(sink = file.path(data_source, "pc.parquet"))
-
 ```
 
 To install the scicalc package you can run the following two commands:
@@ -94,14 +93,17 @@ This is a contrived example, but there are several different file types in sourc
 ```{r}
 raw_data <- purrr::map(
   list.files(data_source, full.names = TRUE),
-  scicalc::read_file_with_hash) %>% 
+  scicalc::read_file_with_hash
+) %>%
   purrr::set_names(tools::file_path_sans_ext(list.files(data_source)))
 ```
 These hashes come from `digest::digest`'s default algorithm `md5`, but we can alter this by supplying `algo = 'blake3'` to the read_file_with_hash function.
 ```{r}
 raw_data <- purrr::map(
   list.files(data_source, full.names = TRUE),
-  scicalc::read_file_with_hash, algo = "blake3") %>% 
+  scicalc::read_file_with_hash,
+  algo = "blake3"
+) %>%
   purrr::set_names(tools::file_path_sans_ext(list.files(data_source)))
 ```
 
@@ -118,29 +120,35 @@ Let's do some bmi and bsa caclulations with the data in the vs domain
 ```{r}
 df <- raw_data$pc
 
-df <- df %>% 
-  dplyr::mutate(.data = raw_data$vs,
-    BBMI = scicalc::bbmi(WEIGHT, HEIGHT),
+df <- df %>%
+  dplyr::mutate(
+    .data = raw_data$vs,
+    BBMI = scicalc::bmi(WEIGHT, HEIGHT),
     DBSA = scicalc::bsa(WEIGHT, HEIGHT),
-    MBSA = scicalc::bsa(WEIGHT, HEIGHT, method = "mosteller"))
+    MBSA = scicalc::bsa(WEIGHT, HEIGHT, method = "mosteller")
+  )
 df
 ```
 
 Now we can verify the lab units before moving on - remember this is a contrived dataset, but the workflow should be somewhat similar.
 ```{r}
-dflb <- raw_data$lb %>% 
-  dplyr::select(c("ID", "CREAT", "CYSTC", "AST", "BILI", )) %>% 
-  dplyr::distinct() %>% 
-  tidyr::pivot_longer(cols = c("CREAT", "CYSTC", "AST", "BILI"), 
-                      names_to = "LBTESTCD", values_to = "LBORRES")
+dflb <- raw_data$lb %>%
+  dplyr::select(c("ID", "CREAT", "CYSTC", "AST", "BILI", )) %>%
+  dplyr::distinct() %>%
+  tidyr::pivot_longer(
+    cols = c("CREAT", "CYSTC", "AST", "BILI"),
+    names_to = "LBTESTCD", values_to = "LBORRES"
+  )
 
 dfu <- raw_data$lb %>%
-  dplyr::select(c("ID", "CREATU", "CYSTCU", "ASTU", "BILIU")) %>% 
-  dplyr::distinct() %>% 
-  tidyr::pivot_longer(cols = c("CREATU", "CYSTCU", "ASTU", "BILIU"), 
-                      names_to = "LBTESTCDU", values_to = "LBORRESU") 
+  dplyr::select(c("ID", "CREATU", "CYSTCU", "ASTU", "BILIU")) %>%
+  dplyr::distinct() %>%
+  tidyr::pivot_longer(
+    cols = c("CREATU", "CYSTCU", "ASTU", "BILIU"),
+    names_to = "LBTESTCDU", values_to = "LBORRESU"
+  )
 
-lb <- dflb %>% 
+lb <- dflb %>%
   dplyr::mutate(LBORRESU = dfu$LBORRESU)
 
 lb
@@ -157,46 +165,53 @@ scicalc::get_unique_units_df(lb$LBTESTCD, lb$LBORRESU)
 ```
 Now we can use the lab data to calculate hepatic function.
 ```{r}
-df <- df %>% 
-  dplyr::mutate(.data = raw_data$lb, 
-    BHFC = scicalc::bhfc(AST, ULNAST, BILI, ULNBILI),
+df <- df %>%
+  dplyr::mutate(
+    .data = raw_data$lb,
+    BHFC = scicalc::hfc(AST, ULNAST, BILI, ULNBILI),
   )
 df
 ```
 Now we'll need the demographics needed for Creatinine clearance, estimated glomerular filtration rate, and renal function.
 ```{r}
-df <- df %>% 
-  dplyr::mutate(.data = raw_data$dm, 
+df <- df %>%
+  dplyr::mutate(
+    .data = raw_data$dm,
     CRCL = scicalc::crcl(scicalc::is_female(SEX), AGE, CREAT, WEIGHT),
-    BRFC = scicalc::brfc(CRCL),
     ckdepi_2009_egfr = scicalc::egfr(
-      sexf = scicalc::is_female(SEX), 
-      raceb = scicalc::is_black(RACE), 
-      age = AGE, 
+      sexf = scicalc::is_female(SEX),
+      raceb = scicalc::is_black(RACE),
+      age = AGE,
       creat = CREAT,
-      method = "CKDEPI 2009"),
+      method = "CKDEPI 2009"
+    ),
     ckdepi_2021_egfr = scicalc::egfr(
       sexf = scicalc::is_female(SEX),
       age = AGE,
       creat = CREAT,
-      method = "CKDEPI 2021"),
+      method = "CKDEPI 2021"
+    ),
     ckdepi_2021_egfr_cystatin = scicalc::egfr(
-      sexf = scicalc::is_female(SEX), 
-      age = AGE, 
-      creat = CREAT, 
-      cystc = CYSTC, 
-      method = "CKDEPI 2021 CYSTATIN"),
-    mdrd_egfr = scicalc::egfr(
-      sexf = scicalc::is_female(SEX), 
-      raceb = scicalc::is_black(RACE), 
-      age = AGE, 
+      sexf = scicalc::is_female(SEX),
+      age = AGE,
       creat = CREAT,
-      method = "MDRD"),
+      cystc = CYSTC,
+      method = "CKDEPI 2021 CYSTATIN"
+    ),
+    mdrd_egfr = scicalc::egfr(
+      sexf = scicalc::is_female(SEX),
+      raceb = scicalc::is_black(RACE),
+      age = AGE,
+      creat = CREAT,
+      method = "MDRD"
+    ),
     schwartz_egfr = scicalc::egfr(
       height = HEIGHT,
       creat = CREAT,
       method = "Schwartz"
-    )
+    ),
+    BSA = scicalc::bsa(WEIGHT, HEIGHT),
+    BRFC = scicalc::rfc(ckdepi_2009_egfr, bsa = BSA, absolute_units = FALSE),
   )
 
 df
@@ -207,11 +222,15 @@ We can use the `write_file_with_hash` to write `parquet` files (We highly recomm
 data_derived <- file.path(here::here(), "inst", "extdata", "data", "derived")
 if (!file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
   scicalc::write_file_with_hash(
-    df, file.path(data_derived, "pk_data_v01.parquet"), algo = "blake3")  
+    df, file.path(data_derived, "pk_data_v01.parquet"),
+    algo = "blake3"
+  )
 } else {
   print("Overwriting data!")
   scicalc::write_file_with_hash(
-    df, file.path(data_derived, "pk_data_v01.parquet"), overwrite = TRUE, algo = "blake3")
+    df, file.path(data_derived, "pk_data_v01.parquet"),
+    overwrite = TRUE, algo = "blake3"
+  )
 }
 ```
 ## Reading in derived data
@@ -219,7 +238,7 @@ Now if we want to read in the derived data and verify it is the data we think it
 ```{r}
 hash <- digest::digest(file.path(data_derived, "pk_data_v01.parquet")) # This is a hash of the string to the file type so it will not match the hash for contents of the file.
 print(hash)
-#This hash is incorrect so the function errors
+# This hash is incorrect so the function errors
 if (file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
   testthat::expect_error(scicalc::read_hashed_file(file.path(data_derived, "pk_data_v01.parquet"), hash))
 }
@@ -233,7 +252,8 @@ print(correct_hash)
 data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"),
   algo = "blake3",
-  correct_hash)
+  correct_hash
+)
 data
 ```
 
@@ -244,8 +264,9 @@ print(md5_hash)
 ```
 ```{r}
 data <- scicalc::read_hashed_file(
-  file.path(data_derived, "pk_data_v01.parquet"), 
-  md5_hash)
+  file.path(data_derived, "pk_data_v01.parquet"),
+  md5_hash
+)
 data
 ```
 ```{r, include=FALSE}

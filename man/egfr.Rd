@@ -37,4 +37,5 @@ df <- data.frame(
    "CREAT" = c(1, 1, 2, 1)
    )
 df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
+df
 }
