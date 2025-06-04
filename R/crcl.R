@@ -23,6 +23,7 @@
 #' df <- df %>%
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
+#' df
 crcl <- function(sexf, age, creat, weight) {
   checkmate::assertLogical(sexf)
   checkmate::assertNumeric(age)

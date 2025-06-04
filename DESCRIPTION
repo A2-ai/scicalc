@@ -23,6 +23,7 @@ Imports:
     dplyr,
     fs,
     haven,
+    lifecycle,
     magrittr,
     readr,
     readxl,

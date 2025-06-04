@@ -85,7 +85,7 @@
 #'     # Regulatory categories converting eGFR to absolute
 #'     BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
 #'   )
-#'
+#' df
 #' @export
 rfc <- function(
     estimator = NULL,
@@ -167,4 +167,28 @@ regulatory_rfc <- function(absolute_est) {
     .default = -999
   )
   rfc
+}
+
+
+#' @title Renal Function Classification (Deprecated)
+#' @description
+#' `r lifecycle::badge("deprecated")`
+#'
+#' `brfc()` has been replaced by `rfc()` with a completely different interface.
+#'
+#' @param crcl Creatinine clearance value
+#' @keywords internal
+#' @export
+brfc <- function(crcl) {
+  lifecycle::deprecate_stop(
+    when = "0.2.0",
+    what = "brfc()",
+    with = "rfc()",
+    details = c(
+      "The function signature has completely changed.",
+      "Old: brfc(crcl)",
+      "New: rfc(estimator, absolute_units, bsa, category_standard)",
+      "Please see ?rfc for the new interface."
+    )
+  )
 }

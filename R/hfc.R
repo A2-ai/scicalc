@@ -58,35 +58,7 @@
 #' )
 #'
 #' patients %>%
-#'   mutate(
-#'     BHFC = hfc(AST, ULNAST, BILI, ULNBILI),
-#'     hepatic_status = case_when(
-#'       BHFC == 1 ~ "Normal",
-#'       BHFC == 2 ~ "Mild impairment",
-#'       BHFC == 3 ~ "Moderate impairment",
-#'       BHFC == 4 ~ "Severe impairment",
-#'       TRUE ~ "Missing data"
-#'     )
-#'   )
-#'
-#' # Grouped analysis by study site
-#' df <- data.frame(
-#'   ID = rep(1:2, each = 4),
-#'   VISIT = rep(c("Baseline", "Week 4", "Week 8", "Week 12"), 2),
-#'   AST = c(15, 15, 15, 15, 23, 23, 23, 23),
-#'   ULNAST = 33,
-#'   BILI = c(1.0, 1.0, 1.0, 1.0, 0.4, 0.4, 0.4, 0.4),
-#'   ULNBILI = 1.2
-#' )
-#'
-#' df %>%
-#'   group_by(ID) %>%
-#'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI)) %>%
-#'   summarise(
-#'     baseline_category = first(BHFC),
-#'     max_category = max(BHFC, na.rm = TRUE),
-#'     .groups = "drop"
-#'   )
+#'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
 #'
 #' @export
 hfc <- function(ast, ulnast, bili, ulnbili) {
@@ -132,7 +104,7 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
       bili > 3 * ulnbili ~ 4,
       .default = -999
     )
-    return(hfc)
+    hfc
   } else {
     hfc <- dplyr::case_when(
       # bili is near 1.5 * ulnbili or 3 * ulnbili so it's either 2, 3
@@ -140,6 +112,24 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
       dplyr::near(bili, 3 * ulnbili) ~ 3,
       .default = -999
     )
-    return(hfc)
+
+    hfc
   }
+}
+
+
+#' Calculates hepatic function categories based on NCI-ODWG criteria
+#'
+#' `bhfc()` was renamed to `hfc()` to improve function naming consistency.
+#'
+#' @param ... Arguments passed to [hfc()]
+#' @keywords internal
+#' @export
+bhfc <- function(...) {
+  lifecycle::deprecate_warn(
+    when = "0.2.0",
+    what = "bhfc()",
+    with = "hfc()"
+  )
+  hfc(...)
 }

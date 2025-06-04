@@ -21,6 +21,7 @@
 #'    "CREAT" = c(1, 1, 2, 1)
 #'    )
 #' df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
+#' df
 egfr <- function(
   sexf,
   raceb,
@@ -70,6 +71,7 @@ egfr <- function(
 #'    "CREAT" = c(1, 1, 2, 1)
 #'    )
 #' df <- dplyr::mutate(df, egfr = ckdepi_2009_egfr(SEXF, RACEB, AGE, CREAT))
+#' df
 ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assert_logical(sexf)
   checkmate::assert_logical(raceb)
@@ -133,6 +135,7 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
 #'    "CREAT" = c(1, 1, 2, 1)
 #'    )
 #' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
+#' df
 ckdepi_2021_egfr <- function(sexf, age, creat) {
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
@@ -192,6 +195,7 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
 #'    "CYSTC" = c(0.4, 0.8, 1, 2)
 #'    )
 #' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
+#' df
 ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
@@ -260,6 +264,7 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
 #'    "CREAT" = c(1, 1, 2, 1)
 #'    )
 #' df <- dplyr::mutate(df, egfr = mdrd_egfr(SEXF, RACEB, AGE, CREAT))
+#' df
 mdrd_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assert_logical(sexf)
   checkmate::assert_logical(raceb)

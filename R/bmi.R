@@ -10,10 +10,11 @@
 #' b <- bmi(80.56, 167)
 #'
 #' df <- data.frame(
-#' "WT" = c(80.56, 71.53, 81.04, 70.17),
-#' "HT" = c(167, 161, 163, 164)
+#'   "WT" = c(80.56, 71.53, 81.04, 70.17),
+#'   "HT" = c(167, 161, 163, 164)
 #' )
-#' df <- dplyr::mutate(df, bbmi = bmi(WT, HT))
+#' df <- dplyr::mutate(df, bmi = bmi(WT, HT))
+#' df
 bmi <- function(weight, height) {
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)
@@ -30,4 +31,21 @@ bmi <- function(weight, height) {
   bmi <- weight / ((height / 100)^2)
 
   bmi
+}
+
+
+#' @title Calculate BMI (Deprecated)
+#'
+#' `bbmi()` was renamed to `bmi()` to improve function naming consistency.
+#'
+#' @param ... Arguments passed to [bmi()]
+#' @keywords internal
+#' @export
+bbmi <- function(...) {
+  lifecycle::deprecate_warn(
+    when = "0.2.0",
+    what = "bbmi()",
+    with = "bmi()"
+  )
+  bmi(...)
 }

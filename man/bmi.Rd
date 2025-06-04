@@ -21,8 +21,9 @@ Calculates Baseline Body Mass Index based on Weight and Height
 b <- bmi(80.56, 167)
 
 df <- data.frame(
-"WT" = c(80.56, 71.53, 81.04, 70.17),
-"HT" = c(167, 161, 163, 164)
+  "WT" = c(80.56, 71.53, 81.04, 70.17),
+  "HT" = c(167, 161, 163, 164)
 )
-df <- dplyr::mutate(df, bbmi = bmi(WT, HT))
+df <- dplyr::mutate(df, bmi = bmi(WT, HT))
+df
 }

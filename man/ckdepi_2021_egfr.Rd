@@ -29,4 +29,5 @@ df <- data.frame(
    "CREAT" = c(1, 1, 2, 1)
    )
 df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
+df
 }
