@@ -1,5 +1,5 @@
-# Workflow derived from https://github.com/r-lib/actions/tree/v2/examples
-# Need help debugging build failures? Start at https://github.com/r-lib/actions#where-to-find-help
+# workflow derived from https://github.com/r-lib/actions/tree/v2/examples
+# need help debugging build failures? start at https://github.com/r-lib/actions#where-to-find-help
 on:
   push:
     branches: [main, master]
@@ -13,35 +13,75 @@ name: pkgdown
 
 jobs:
   pkgdown:
-    runs-on: ubuntu-latest
-    # Only restrict concurrency for non-PR jobs
+    runs-on: ${{ matrix.config.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        config:
+          - {os: ubuntu-latest, r: "4.5"}
+
+    # only restrict concurrency for non-pr jobs
     concurrency:
       group: pkgdown-${{ github.event_name != 'pull_request' || github.run_id }}
     env:
-      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      github_pat: ${{ secrets.github_token }}
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - uses: r-lib/actions/setup-pandoc@v2
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: ${{ matrix.config.r }}
           use-public-rspm: true
 
-      - uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          extra-packages: any::pkgdown, local::.
-          needs: website
+      - uses: a2-ai/setup-rv@main
 
-      - name: Build site
-        run: pkgdown::build_site_github_pages(new_process = FALSE, install = FALSE)
-        shell: Rscript {0}
+      - name: replace-rversion
+        run: |
+          perl -i -pe 's|^r_version = "4\.[0-9\.]+"$|r_version = "${{ matrix.config.r }}"|' rproject.toml
+          cat rproject.toml
 
-      - name: Deploy to GitHub pages 🚀
+      - name: replace-dependencies-only
+        run: |
+          perl -i -pe 's/dependencies_only = true/dependencies_only = false/g' rproject.toml
+          cat rproject.toml
+
+      - name: add pkdown
+        run: rv add pkgdown --no-sync
+
+      - name: rv-plan
+        run: rv plan
+
+      - name: rv-sysdeps-install (linux)
+        run: |
+          missing_deps=$(rv plan --json | jq -r '.installed[].sys_deps[]? | select(.status == "absent") | .name')
+          if [ -n "$missing_deps" ]; then
+            echo "found missing system dependencies:"
+            echo "$missing_deps"
+            echo "installing..."
+            echo "$missing_deps" | xargs sudo apt install
+          else
+            echo "all system dependencies are present"
+          fi
+
+      - name: rv-sync
+        run: rv sync
+
+      #- uses: r-lib/actions/setup-r-dependencies@v2
+      #  with: extra-packages: any::pkgdown, local::.
+      #    needs: website
+
+      - name: build site
+        run: pkgdown::build_site_github_pages(new_process = false, install = false)
+        shell: rscript {0}
+
+      - name: deploy to github pages 🚀
         if: github.event_name != 'pull_request'
-        uses: JamesIves/github-pages-deploy-action@v4.4.1
+        uses: jamesives/github-pages-deploy-action@v4.4.1
         with:
           clean: false
           branch: gh-pages
