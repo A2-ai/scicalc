@@ -6,12 +6,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>scicalc • scicalc</title>
-<!-- favicons --><link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
-<link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
-<link rel="apple-touch-icon" type="image/png" sizes="180x180" href="../apple-touch-icon.png">
-<link rel="apple-touch-icon" type="image/png" sizes="120x120" href="../apple-touch-icon-120x120.png">
-<link rel="apple-touch-icon" type="image/png" sizes="76x76" href="../apple-touch-icon-76x76.png">
-<link rel="apple-touch-icon" type="image/png" sizes="60x60" href="../apple-touch-icon-60x60.png">
+<!-- favicons --><link rel="icon" type="image/png" sizes="96x96" href="../favicon-96x96.png">
+<link rel="icon" type="”image/svg+xml”" href="../favicon.svg">
+<link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="icon" sizes="any" href="../favicon.ico">
+<link rel="manifest" href="../site.webmanifest">
 <script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
 <script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
@@ -27,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">scicalc</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +88,7 @@ there are additional functions we should include!</p>
 in the <code>inst</code> directory, but we can pretend this is just like
 a Project starter <code>data/source</code> directory.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data_source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"data"</span>, <span class="st">"source"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">data_source</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"data"</span>, <span class="st">"source"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files2.html" class="external-link">dir.exists</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/create.html" class="external-link">dir_create</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span></span>
 <span><span class="op">}</span></span>
@@ -106,9 +105,10 @@ this source directory. No more creating
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raw_data</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span></span>
+<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; dm.sas7bdat: 900d253fa720b67ad5bab4fa9aab8487</span></span>
+<span><span class="co">#&gt; dm.sas7bdat: 95423a3861ae557bbde72b7b051ab089</span></span>
 <span><span class="co">#&gt; lb.csv: b5e4122d4df0ec79401eb6bb0d2d0d85</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">12</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">11</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
@@ -118,20 +118,22 @@ this source directory. No more creating
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; pc.parquet: 2fada724fc254792587bb16a7183145c</span></span>
+<span><span class="co">#&gt; pc.parquet: a251779c279ceaa90bca143cf6005ce5</span></span>
 <span><span class="co">#&gt; test_excel.xlsx: f665dce4222df738750216bb9cd53819</span></span>
 <span><span class="co">#&gt; Sheets in test_excel.xlsx: model_summary, sheet with space, empty</span></span>
 <span><span class="co">#&gt; Warning in .f(.x[[i]], ...): File type: txt not currently supported</span></span>
-<span><span class="co">#&gt; vs.parquet: 8bb048faa17703eab465d500d393d1e5</span></span></code></pre></div>
+<span><span class="co">#&gt; vs.parquet: 8ca03576f51da686103463ed6684e920</span></span></code></pre></div>
 <p>These hashes come from <code><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest::digest</a></code>’s default
 algorithm <code>md5</code>, but we can alter this by supplying
 <code>algo = 'blake3'</code> to the read_file_with_hash function.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">raw_data</span> <span class="op">&lt;-</span> <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
-<span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span>,</span>
+<span>  algo <span class="op">=</span> <span class="st">"blake3"</span></span>
+<span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; dm.sas7bdat: ebc8f25b765f8be20063010da48947afc8e64ab0d3c9018b20d9d8792731badd</span></span>
+<span><span class="co">#&gt; dm.sas7bdat: a4b97a562282efe6f9b5253453d9cf217a01cab024cbe417f1bb16d3033458a4</span></span>
 <span><span class="co">#&gt; lb.csv: 577007ecd6292a122b6fdf48add5112ba0976d43db617bb087d8fca07da5b126</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">12</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">11</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
@@ -141,11 +143,11 @@ algorithm <code>md5</code>, but we can alter this by supplying
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; pc.parquet: 1fbb225647da2a6df6a14adf6dde22ae783054000ba5cc56255139caf87b87de</span></span>
+<span><span class="co">#&gt; pc.parquet: 856fb38b5ab1c920b8389f1580150843d26d921bf5a1c0684489faf35c647c14</span></span>
 <span><span class="co">#&gt; test_excel.xlsx: 99bf0f59e74683f3173aba85b083dd928f827d6619b01e1afe80dc1830e7859d</span></span>
 <span><span class="co">#&gt; Sheets in test_excel.xlsx: model_summary, sheet with space, empty</span></span>
 <span><span class="co">#&gt; Warning in .f(.x[[i]], ...): File type: txt not currently supported</span></span>
-<span><span class="co">#&gt; vs.parquet: f0ad72f0b3ac385081baa07461dbbeba70bc8edf0df2bf91820a05b73657137b</span></span></code></pre></div>
+<span><span class="co">#&gt; vs.parquet: c0c86965c76a1de4d186533ebc7f546192467f4d945c19be5e405a662f5f1e33</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">raw_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "dm"         "lb"         "pc"         "test_excel" "test"      </span></span>
@@ -170,11 +172,13 @@ domain</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">pc</span></span>
 <span></span>
-<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">vs</span>,</span>
-<span>    BBMI <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bbmi.html">bbmi</a></span><span class="op">(</span><span class="va">WEIGHT</span>, <span class="va">HEIGHT</span><span class="op">)</span>,</span>
+<span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    .data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">vs</span>,</span>
+<span>    BBMI <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bmi.html">bmi</a></span><span class="op">(</span><span class="va">WEIGHT</span>, <span class="va">HEIGHT</span><span class="op">)</span>,</span>
 <span>    DBSA <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bsa.html">bsa</a></span><span class="op">(</span><span class="va">WEIGHT</span>, <span class="va">HEIGHT</span><span class="op">)</span>,</span>
-<span>    MBSA <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bsa.html">bsa</a></span><span class="op">(</span><span class="va">WEIGHT</span>, <span class="va">HEIGHT</span>, method <span class="op">=</span> <span class="st">"mosteller"</span><span class="op">)</span><span class="op">)</span></span>
+<span>    MBSA <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bsa.html">bsa</a></span><span class="op">(</span><span class="va">WEIGHT</span>, <span class="va">HEIGHT</span>, method <span class="op">=</span> <span class="st">"mosteller"</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="va">df</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 8</span></span></span>
 <span><span class="co">#&gt;    ID    HEIGHT WEIGHT    DV  NTLD  BBMI  DBSA  MBSA</span></span>
@@ -194,19 +198,23 @@ domain</p>
 <p>Now we can verify the lab units before moving on - remember this is a
 contrived dataset, but the workflow should be somewhat similar.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dflb</span> <span class="op">&lt;-</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">lb</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"CREAT"</span>, <span class="st">"CYSTC"</span>, <span class="st">"AST"</span>, <span class="st">"BILI"</span>, <span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CREAT"</span>, <span class="st">"CYSTC"</span>, <span class="st">"AST"</span>, <span class="st">"BILI"</span><span class="op">)</span>, </span>
-<span>                      names_to <span class="op">=</span> <span class="st">"LBTESTCD"</span>, values_to <span class="op">=</span> <span class="st">"LBORRES"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">dflb</span> <span class="op">&lt;-</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">lb</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"CREAT"</span>, <span class="st">"CYSTC"</span>, <span class="st">"AST"</span>, <span class="st">"BILI"</span>, <span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
+<span>    cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CREAT"</span>, <span class="st">"CYSTC"</span>, <span class="st">"AST"</span>, <span class="st">"BILI"</span><span class="op">)</span>,</span>
+<span>    names_to <span class="op">=</span> <span class="st">"LBTESTCD"</span>, values_to <span class="op">=</span> <span class="st">"LBORRES"</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">dfu</span> <span class="op">&lt;-</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">lb</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"CREATU"</span>, <span class="st">"CYSTCU"</span>, <span class="st">"ASTU"</span>, <span class="st">"BILIU"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CREATU"</span>, <span class="st">"CYSTCU"</span>, <span class="st">"ASTU"</span>, <span class="st">"BILIU"</span><span class="op">)</span>, </span>
-<span>                      names_to <span class="op">=</span> <span class="st">"LBTESTCDU"</span>, values_to <span class="op">=</span> <span class="st">"LBORRESU"</span><span class="op">)</span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ID"</span>, <span class="st">"CREATU"</span>, <span class="st">"CYSTCU"</span>, <span class="st">"ASTU"</span>, <span class="st">"BILIU"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span></span>
+<span>    cols <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"CREATU"</span>, <span class="st">"CYSTCU"</span>, <span class="st">"ASTU"</span>, <span class="st">"BILIU"</span><span class="op">)</span>,</span>
+<span>    names_to <span class="op">=</span> <span class="st">"LBTESTCDU"</span>, values_to <span class="op">=</span> <span class="st">"LBORRESU"</span></span>
+<span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="va">lb</span> <span class="op">&lt;-</span> <span class="va">dflb</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="va">lb</span> <span class="op">&lt;-</span> <span class="va">dflb</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>LBORRESU <span class="op">=</span> <span class="va">dfu</span><span class="op">$</span><span class="va">LBORRESU</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">lb</span></span>
@@ -241,9 +249,10 @@ contrived dataset, but the workflow should be somewhat similar.</p>
 <span><span class="co">#&gt; 4  BILI mg/dL</span></span></code></pre></div>
 <p>Now we can use the lab data to calculate hepatic function.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">lb</span>, </span>
-<span>    BHFC <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bhfc.html">bhfc</a></span><span class="op">(</span><span class="va">AST</span>, <span class="va">ULNAST</span>, <span class="va">BILI</span>, <span class="va">ULNBILI</span><span class="op">)</span>,</span>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    .data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">lb</span>,</span>
+<span>    BHFC <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/hfc.html">hfc</a></span><span class="op">(</span><span class="va">AST</span>, <span class="va">ULNAST</span>, <span class="va">BILI</span>, <span class="va">ULNBILI</span><span class="op">)</span>,</span>
 <span>  <span class="op">)</span></span>
 <span><span class="va">df</span></span>
 <span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 19</span></span></span>
@@ -266,42 +275,48 @@ contrived dataset, but the workflow should be somewhat similar.</p>
 <p>Now we’ll need the demographics needed for Creatinine clearance,
 estimated glomerular filtration rate, and renal function.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
-<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>.data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">dm</span>, </span>
+<code class="sourceCode R"><span><span class="va">df</span> <span class="op">&lt;-</span> <span class="va">df</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    .data <span class="op">=</span> <span class="va">raw_data</span><span class="op">$</span><span class="va">dm</span>,</span>
 <span>    CRCL <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/crcl.html">crcl</a></span><span class="op">(</span><span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, <span class="va">AGE</span>, <span class="va">CREAT</span>, <span class="va">WEIGHT</span><span class="op">)</span>,</span>
-<span>    BRFC <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/brfc.html">brfc</a></span><span class="op">(</span><span class="va">CRCL</span><span class="op">)</span>,</span>
 <span>    ckdepi_2009_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
-<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, </span>
-<span>      raceb <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_black.html">is_black</a></span><span class="op">(</span><span class="va">RACE</span><span class="op">)</span>, </span>
-<span>      age <span class="op">=</span> <span class="va">AGE</span>, </span>
+<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>,</span>
+<span>      raceb <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_black.html">is_black</a></span><span class="op">(</span><span class="va">RACE</span><span class="op">)</span>,</span>
+<span>      age <span class="op">=</span> <span class="va">AGE</span>,</span>
 <span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
-<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2009"</span><span class="op">)</span>,</span>
+<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2009"</span></span>
+<span>    <span class="op">)</span>,</span>
 <span>    ckdepi_2021_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
 <span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>,</span>
 <span>      age <span class="op">=</span> <span class="va">AGE</span>,</span>
 <span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
-<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021"</span><span class="op">)</span>,</span>
+<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021"</span></span>
+<span>    <span class="op">)</span>,</span>
 <span>    ckdepi_2021_egfr_cystatin <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
-<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, </span>
-<span>      age <span class="op">=</span> <span class="va">AGE</span>, </span>
-<span>      creat <span class="op">=</span> <span class="va">CREAT</span>, </span>
-<span>      cystc <span class="op">=</span> <span class="va">CYSTC</span>, </span>
-<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021 CYSTATIN"</span><span class="op">)</span>,</span>
-<span>    mdrd_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
-<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>, </span>
-<span>      raceb <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_black.html">is_black</a></span><span class="op">(</span><span class="va">RACE</span><span class="op">)</span>, </span>
-<span>      age <span class="op">=</span> <span class="va">AGE</span>, </span>
+<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>,</span>
+<span>      age <span class="op">=</span> <span class="va">AGE</span>,</span>
 <span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
-<span>      method <span class="op">=</span> <span class="st">"MDRD"</span><span class="op">)</span>,</span>
+<span>      cystc <span class="op">=</span> <span class="va">CYSTC</span>,</span>
+<span>      method <span class="op">=</span> <span class="st">"CKDEPI 2021 CYSTATIN"</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    mdrd_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
+<span>      sexf <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_female.html">is_female</a></span><span class="op">(</span><span class="va">SEX</span><span class="op">)</span>,</span>
+<span>      raceb <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/is_black.html">is_black</a></span><span class="op">(</span><span class="va">RACE</span><span class="op">)</span>,</span>
+<span>      age <span class="op">=</span> <span class="va">AGE</span>,</span>
+<span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
+<span>      method <span class="op">=</span> <span class="st">"MDRD"</span></span>
+<span>    <span class="op">)</span>,</span>
 <span>    schwartz_egfr <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/egfr.html">egfr</a></span><span class="op">(</span></span>
 <span>      height <span class="op">=</span> <span class="va">HEIGHT</span>,</span>
 <span>      creat <span class="op">=</span> <span class="va">CREAT</span>,</span>
 <span>      method <span class="op">=</span> <span class="st">"Schwartz"</span></span>
-<span>    <span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    BSA <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/bsa.html">bsa</a></span><span class="op">(</span><span class="va">WEIGHT</span>, <span class="va">HEIGHT</span><span class="op">)</span>,</span>
+<span>    BRFC <span class="op">=</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/rfc.html">rfc</a></span><span class="op">(</span><span class="va">ckdepi_2009_egfr</span>, bsa <span class="op">=</span> <span class="va">BSA</span>, absolute_units <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span>,</span>
 <span>  <span class="op">)</span></span>
 <span></span>
 <span><span class="va">df</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 29</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 30</span></span></span>
 <span><span class="co">#&gt;    ID    SEX   RACE    AGE CREAT CREATU CYSTC CYSTCU   AST ULNAST  BILI ULNBILI</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     F     WHITE    24     1 mg/dL    0.4 mg/L      15     33   0.8     1.2</span></span>
@@ -316,10 +331,11 @@ estimated glomerular filtration rate, and renal function.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 18 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   DV &lt;dbl&gt;, NTLD &lt;dbl&gt;, BBMI &lt;dbl&gt;, DBSA &lt;dbl&gt;, MBSA &lt;dbl&gt;, BHFC &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, BRFC &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   BSA &lt;dbl&gt;, BRFC &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="writting-data">Writting data<a class="anchor" aria-label="anchor" href="#writting-data"></a>
@@ -334,17 +350,21 @@ file unless we supply <code>overwrite = TRUE</code>. Like
 <code>read_file_with_hash</code> we can choose which algorithm to use
 for the digest.</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data_derived</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org//reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"data"</span>, <span class="st">"derived"</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">data_derived</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"inst"</span>, <span class="st">"extdata"</span>, <span class="st">"data"</span>, <span class="st">"derived"</span><span class="op">)</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/write_file_with_hash.html">write_file_with_hash</a></span><span class="op">(</span></span>
-<span>    <span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span>  </span>
+<span>    <span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
+<span>    algo <span class="op">=</span> <span class="st">"blake3"</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">}</span> <span class="kw">else</span> <span class="op">{</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="st">"Overwriting data!"</span><span class="op">)</span></span>
 <span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/write_file_with_hash.html">write_file_with_hash</a></span><span class="op">(</span></span>
-<span>    <span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, overwrite <span class="op">=</span> <span class="cn">TRUE</span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span></span>
+<span>    <span class="va">df</span>, <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
+<span>    overwrite <span class="op">=</span> <span class="cn">TRUE</span>, algo <span class="op">=</span> <span class="st">"blake3"</span></span>
+<span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; [1] "Overwriting data!"</span></span>
-<span><span class="co">#&gt; /home/runner/work/scicalc/scicalc/inst/extdata/data/derived/pk_data_v01.parquet: 153bb3587d8082270a4e019364be974e8a5edd29d40b98df4ae8d5e973dd0eea</span></span></code></pre></div>
+<span><span class="co">#&gt; /home/runner/work/scicalc/scicalc/inst/extdata/data/derived/pk_data_v01.parquet: c6aa6463a5a3e09c867a23acd0465e2f539502e5ca5805ee6f3fba30b9493608</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="reading-in-derived-data">Reading in derived data<a class="anchor" aria-label="anchor" href="#reading-in-derived-data"></a>
@@ -361,7 +381,7 @@ supply the <code>md5</code> hash.</p>
 <code class="sourceCode R"><span><span class="va">hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span><span class="op">)</span> <span class="co"># This is a hash of the string to the file type so it will not match the hash for contents of the file.</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">hash</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "16719721ab4cf192479f02ae956dc51b"</span></span>
-<span><span class="co">#This hash is incorrect so the function errors</span></span>
+<span><span class="co"># This hash is incorrect so the function errors</span></span>
 <span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/files.html" class="external-link">file.exists</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">testthat</span><span class="fu">::</span><span class="fu"><a href="https://testthat.r-lib.org/reference/expect_error.html" class="external-link">expect_error</a></span><span class="op">(</span><span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, <span class="va">hash</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
@@ -371,14 +391,15 @@ supply the <code>md5</code> hash.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correct_hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">correct_hash</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "153bb3587d8082270a4e019364be974e8a5edd29d40b98df4ae8d5e973dd0eea"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "c6aa6463a5a3e09c867a23acd0465e2f539502e5ca5805ee6f3fba30b9493608"</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
 <span>  algo <span class="op">=</span> <span class="st">"blake3"</span>,</span>
-<span>  <span class="va">correct_hash</span><span class="op">)</span></span>
+<span>  <span class="va">correct_hash</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">data</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 29</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 30</span></span></span>
 <span><span class="co">#&gt;    ID    SEX   RACE    AGE CREAT CREATU CYSTC CYSTCU   AST ULNAST  BILI ULNBILI</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     F     WHITE    24     1 mg/dL    0.4 mg/L      15     33   0.8     1.2</span></span>
@@ -393,23 +414,25 @@ supply the <code>md5</code> hash.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 18 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   DV &lt;dbl&gt;, NTLD &lt;dbl&gt;, BBMI &lt;dbl&gt;, DBSA &lt;dbl&gt;, MBSA &lt;dbl&gt;, BHFC &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, BRFC &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   BSA &lt;dbl&gt;, BRFC &lt;dbl&gt;</span></span></span></code></pre></div>
 <ol start="2" style="list-style-type: decimal">
 <li>giving the <code>md5</code> hash works</li>
 </ol>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md5_hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">md5_hash</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "5ddba88109c5d84eed47f9d7376e58e6"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "20c5558174552a787d4572a4534a3b3e"</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, </span>
-<span>  <span class="va">md5_hash</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
+<span>  <span class="va">md5_hash</span></span>
+<span><span class="op">)</span></span>
 <span><span class="va">data</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 29</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># A tibble: 12 × 30</span></span></span>
 <span><span class="co">#&gt;    ID    SEX   RACE    AGE CREAT CREATU CYSTC CYSTCU   AST ULNAST  BILI ULNBILI</span></span>
 <span><span class="co">#&gt;    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;"> 1</span> 1     F     WHITE    24     1 mg/dL    0.4 mg/L      15     33   0.8     1.2</span></span>
@@ -424,10 +447,11 @@ supply the <code>md5</code> hash.</p>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">10</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">11</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
 <span><span class="co">#&gt; <span style="color: #BCBCBC;">12</span> 3     F     ASIAN    35     3 mg/dL    0.7 mg/L      38     33   1.1     1.2</span></span>
-<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 17 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;"># ℹ 18 more variables: ASTU &lt;chr&gt;, BILIU &lt;chr&gt;, HEIGHT &lt;dbl&gt;, WEIGHT &lt;dbl&gt;,</span></span></span>
 <span><span class="co">#&gt; <span style="color: #949494;">#   DV &lt;dbl&gt;, NTLD &lt;dbl&gt;, BBMI &lt;dbl&gt;, DBSA &lt;dbl&gt;, MBSA &lt;dbl&gt;, BHFC &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, BRFC &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
-<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;</span></span></span></code></pre></div>
+<span><span class="co">#&gt; <span style="color: #949494;">#   CRCL &lt;dbl&gt;, ckdepi_2009_egfr &lt;dbl&gt;, ckdepi_2021_egfr &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   ckdepi_2021_egfr_cystatin &lt;dbl&gt;, mdrd_egfr &lt;dbl&gt;, schwartz_egfr &lt;dbl&gt;,</span></span></span>
+<span><span class="co">#&gt; <span style="color: #949494;">#   BSA &lt;dbl&gt;, BRFC &lt;dbl&gt;</span></span></span></code></pre></div>
 </div>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
@@ -441,7 +465,7 @@ supply the <code>md5</code> hash.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.1.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.2.</p>
 </div>
 
     </footer>

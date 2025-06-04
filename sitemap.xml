@@ -6,8 +6,10 @@
 <url><loc>https://a2-ai.github.io/scicalc/articles/scicalc.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/authors.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/index.html</loc></url>
+<url><loc>https://a2-ai.github.io/scicalc/news/index.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/bbmi.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/bhfc.html</loc></url>
+<url><loc>https://a2-ai.github.io/scicalc/reference/bmi.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/brfc.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/bsa.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/categorize.html</loc></url>
@@ -25,6 +27,7 @@
 <url><loc>https://a2-ai.github.io/scicalc/reference/geom_mean.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/geom_sd.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/get_unique_units_df.html</loc></url>
+<url><loc>https://a2-ai.github.io/scicalc/reference/hfc.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/index.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/is_asian.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/is_black.html</loc></url>
@@ -45,6 +48,7 @@
 <url><loc>https://a2-ai.github.io/scicalc/reference/read_pzfx_with_hash.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/read_sas_with_hash.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/read_xpt_with_hash.html</loc></url>
+<url><loc>https://a2-ai.github.io/scicalc/reference/rfc.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/schwartz_egfr.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/sexf.html</loc></url>
 <url><loc>https://a2-ai.github.io/scicalc/reference/write_csv_with_hash.html</loc></url>
