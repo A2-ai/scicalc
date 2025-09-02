@@ -9,7 +9,7 @@ test_that("hfc computes all levels of hfc", {
   expect_equal(hfc(100, 33, 1.8, 1.2), 2)
   expect_equal(hfc(4, 33, 3.6, 1.2), 3)
   expect_equal(hfc(4, 33, 3.8, 1.2), 4)
-  expect_equal(hfc(NA, 33, 0.6, 1.2), -999)
+  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999)
 })
 
 test_that("hfc messages about NA values", {
@@ -17,6 +17,15 @@ test_that("hfc messages about NA values", {
   expect_message(hfc(10, NA, 0.6, 1.2), "ULNAST contains")
   expect_message(hfc(10, 33, NA, 1.2), "BILI contains")
   expect_message(hfc(10, 33, 0.6, NA), "ULNBILI contains")
+})
+
+test_that("hfc returns -999 for NA values", {
+  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, NA, 0.6, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, 33, NA, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, 33, 0.6, NA)), -999)
+  expect_equal(suppressMessages(hfc(NA, NA, 0.6, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, 33, NA, NA)), -999)
 })
 
 test_that("hfc works within dpylr pipes", {

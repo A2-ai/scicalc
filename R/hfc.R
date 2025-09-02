@@ -81,8 +81,6 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
   }
 
   dplyr::case_when(
-    # CASE 0: if either is na
-    is.na(bili) | is.na(ulnbili) ~ -999,
     # CASE 1: AST ≤ ULN AND bilirubin ≤ ULN
     ast <= ulnast & bili <= ulnbili ~ 1,
     # CASE 2.a: AST > ULN OR bilirubin > ULN but < 1.5 × ULN (misses the = in ≤)
