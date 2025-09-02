@@ -47,3 +47,19 @@ test_that("hfc works within dpylr pipes", {
     dplyr::mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
   expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1))
 })
+
+test_that("hfc handles edge cases", {
+  # entry 1: bili == 1.5 * ulnbili, this "triggers" edge case -> expect 2
+  # entry 2: ast <= unlast and bili <= ulnbili -> expect 1
+  # entry 3: bili == ulnbili * 3, this "triggers" edgase case -> expect 3
+  # entry 4: bili > 3 * ulnbilit -> expect 4
+  df <- data.frame(
+    "AST" = c(33, 15, 15, 15),
+    "ULNAST" = c(15, 33, 33, 33),
+    "BILI" = c(1.5, 1, 3, 3.1),
+    "ULNBILI" = c(1, 1.5, 1, 1)
+  )
+
+  bhfc <- hfc(df$AST, df$ULNAST, df$BILI, df$ULNBILI)
+  expect_equal(bhfc, c(2, 1, 3, 4))
+})
