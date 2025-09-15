@@ -108,7 +108,7 @@ this source directory. No more creating
 <span>  <span class="fu">scicalc</span><span class="fu">::</span><span class="va"><a href="../reference/read_file_with_hash.html">read_file_with_hash</a></span></span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; dm.sas7bdat: 1a2ab86fd7b8a59c92050a87e484c862</span></span>
+<span><span class="co">#&gt; dm.sas7bdat: 357712bbec9d87bce1c39d469440b373</span></span>
 <span><span class="co">#&gt; lb.csv: b5e4122d4df0ec79401eb6bb0d2d0d85</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">12</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">11</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
@@ -118,11 +118,11 @@ this source directory. No more creating
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; pc.parquet: a251779c279ceaa90bca143cf6005ce5</span></span>
+<span><span class="co">#&gt; pc.parquet: fe05aac77074be6b172fa2c13e9acf45</span></span>
 <span><span class="co">#&gt; test_excel.xlsx: f665dce4222df738750216bb9cd53819</span></span>
 <span><span class="co">#&gt; Sheets in test_excel.xlsx: model_summary, sheet with space, empty</span></span>
 <span><span class="co">#&gt; Warning in .f(.x[[i]], ...): File type: txt not currently supported</span></span>
-<span><span class="co">#&gt; vs.parquet: 8ca03576f51da686103463ed6684e920</span></span></code></pre></div>
+<span><span class="co">#&gt; vs.parquet: ff6d382111f1bd882e33af7dedb0a7f8</span></span></code></pre></div>
 <p>These hashes come from <code><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest::digest</a></code>’s default
 algorithm <code>md5</code>, but we can alter this by supplying
 <code>algo = 'blake3'</code> to the read_file_with_hash function.</p>
@@ -133,7 +133,7 @@ algorithm <code>md5</code>, but we can alter this by supplying
 <span>  algo <span class="op">=</span> <span class="st">"blake3"</span></span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://rlang.r-lib.org/reference/set_names.html" class="external-link">set_names</a></span><span class="op">(</span><span class="fu">tools</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/tools/fileutils.html" class="external-link">file_path_sans_ext</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">data_source</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; dm.sas7bdat: f8f0873e822652a5ea3a8131057480b73af8ec64d7d4de82145e63fa3003322c</span></span>
+<span><span class="co">#&gt; dm.sas7bdat: 6fb452c9e51aac74de0d73825883367024b5d99fba72bd649286a366c1d87b50</span></span>
 <span><span class="co">#&gt; lb.csv: 577007ecd6292a122b6fdf48add5112ba0976d43db617bb087d8fca07da5b126</span></span>
 <span><span class="co">#&gt; <span style="font-weight: bold;">Rows: </span><span style="color: #0000BB;">12</span> <span style="font-weight: bold;">Columns: </span><span style="color: #0000BB;">11</span></span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">──</span> <span style="font-weight: bold;">Column specification</span> <span style="color: #00BBBB;">────────────────────────────────────────────────────────</span></span></span>
@@ -143,11 +143,11 @@ algorithm <code>md5</code>, but we can alter this by supplying
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Use `spec()` to retrieve the full column specification for this data.</span></span>
 <span><span class="co">#&gt; <span style="color: #00BBBB;">ℹ</span> Specify the column types or set `show_col_types = FALSE` to quiet this message.</span></span>
-<span><span class="co">#&gt; pc.parquet: 856fb38b5ab1c920b8389f1580150843d26d921bf5a1c0684489faf35c647c14</span></span>
+<span><span class="co">#&gt; pc.parquet: 894693336ec5e4deb6d707613e35e0206edb47858b119c0fb7684d2240ba294b</span></span>
 <span><span class="co">#&gt; test_excel.xlsx: 99bf0f59e74683f3173aba85b083dd928f827d6619b01e1afe80dc1830e7859d</span></span>
 <span><span class="co">#&gt; Sheets in test_excel.xlsx: model_summary, sheet with space, empty</span></span>
 <span><span class="co">#&gt; Warning in .f(.x[[i]], ...): File type: txt not currently supported</span></span>
-<span><span class="co">#&gt; vs.parquet: c0c86965c76a1de4d186533ebc7f546192467f4d945c19be5e405a662f5f1e33</span></span></code></pre></div>
+<span><span class="co">#&gt; vs.parquet: c73eece828a6b0cb4a139b10269d47ba1ce8a134ccf66656b64cc98482eef9d9</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">raw_data</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "dm"         "lb"         "pc"         "test_excel" "test"      </span></span>
@@ -364,7 +364,7 @@ for the digest.</p>
 <span>  <span class="op">)</span></span>
 <span><span class="op">}</span></span>
 <span><span class="co">#&gt; [1] "Overwriting data!"</span></span>
-<span><span class="co">#&gt; /home/runner/work/scicalc/scicalc/inst/extdata/data/derived/pk_data_v01.parquet: c6aa6463a5a3e09c867a23acd0465e2f539502e5ca5805ee6f3fba30b9493608</span></span></code></pre></div>
+<span><span class="co">#&gt; /home/runner/work/scicalc/scicalc/inst/extdata/data/derived/pk_data_v01.parquet: 1e6d74bffa0f1a2f9627872aa63403cd7a34ea7be9798eaab489f1fe401a619a</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="reading-in-derived-data">Reading in derived data<a class="anchor" aria-label="anchor" href="#reading-in-derived-data"></a>
@@ -391,7 +391,7 @@ supply the <code>md5</code> hash.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correct_hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>, algo <span class="op">=</span> <span class="st">"blake3"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">correct_hash</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "c6aa6463a5a3e09c867a23acd0465e2f539502e5ca5805ee6f3fba30b9493608"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "1e6d74bffa0f1a2f9627872aa63403cd7a34ea7be9798eaab489f1fe401a619a"</span></span></code></pre></div>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
@@ -425,7 +425,7 @@ supply the <code>md5</code> hash.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">md5_hash</span> <span class="op">&lt;-</span> <span class="fu">digest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/digest/man/digest.html" class="external-link">digest</a></span><span class="op">(</span>file <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">md5_hash</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "20c5558174552a787d4572a4534a3b3e"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "fe2e4c0564cfd5099a3fa1cb38b10283"</span></span></code></pre></div>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">data</span> <span class="op">&lt;-</span> <span class="fu">scicalc</span><span class="fu">::</span><span class="fu"><a href="../reference/read_hashed_file.html">read_hashed_file</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">data_derived</span>, <span class="st">"pk_data_v01.parquet"</span><span class="op">)</span>,</span>
