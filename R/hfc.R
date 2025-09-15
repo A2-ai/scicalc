@@ -80,41 +80,22 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
     message("ULNBILI contains missing values")
   }
 
-  edge_cases <- FALSE
-  if (
-    !any(is.na(bili)) &&
-      !any(is.na(ulnbili)) &&
-      any(dplyr::near(bili, 1.5 * ulnbili))
-  ) {
-    edge_cases <- TRUE
-  }
-  if (
-    !any(is.na(bili)) &&
-      !any(is.na(ulnbili)) &&
-      any(dplyr::near(bili, 3 * ulnbili))
-  ) {
-    edge_cases <- TRUE
-  }
-
-  if (!edge_cases) {
-    hfc <- dplyr::case_when(
-      ast <= ulnast & bili <= ulnbili ~ 1,
-      ast > ulnast | dplyr::between(bili, ulnbili, 1.5 * ulnbili) ~ 2,
-      dplyr::between(bili, 1.5 * ulnbili, 3 * ulnbili) ~ 3,
-      bili > 3 * ulnbili ~ 4,
-      .default = -999
-    )
-    hfc
-  } else {
-    hfc <- dplyr::case_when(
-      # bili is near 1.5 * ulnbili or 3 * ulnbili so it's either 2, 3
-      ast > ulnast | dplyr::near(bili, 1.5 * ulnbili) ~ 2,
-      dplyr::near(bili, 3 * ulnbili) ~ 3,
-      .default = -999
-    )
-
-    hfc
-  }
+  dplyr::case_when(
+    # CASE 1: AST ≤ ULN AND bilirubin ≤ ULN
+    ast <= ulnast & bili <= ulnbili ~ 1,
+    # CASE 2.a: AST > ULN OR bilirubin > ULN but < 1.5 × ULN (misses the = in ≤)
+    ast > ulnast | dplyr::between(bili, ulnbili, 1.5 * ulnbili) ~ 2,
+    # CASE 2.b: AST > ULN OR bilirubin == 1.5 × ULN (handles the = in ≤)
+    ast > ulnast | dplyr::near(bili, 1.5 * ulnbili) ~ 2,
+    # CASE 3.a: Bilirubin > 1.5 × ULN but < 3 × ULN (misses the = in ≤)
+    dplyr::between(bili, 1.5 * ulnbili, 3 * ulnbili) ~ 3,
+    # CASE 3.b: Bilirubin == 3 × ULN (handles the = in ≤)
+    dplyr::near(bili, 3 * ulnbili) ~ 3,
+    # CASE 4: Bilirubin > 3 × ULN
+    bili > 3 * ulnbili ~ 4,
+    # ELSE
+    .default = -999
+  )
 }
 
 

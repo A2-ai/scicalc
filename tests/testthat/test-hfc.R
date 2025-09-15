@@ -9,7 +9,7 @@ test_that("hfc computes all levels of hfc", {
   expect_equal(hfc(100, 33, 1.8, 1.2), 2)
   expect_equal(hfc(4, 33, 3.6, 1.2), 3)
   expect_equal(hfc(4, 33, 3.8, 1.2), 4)
-  expect_equal(hfc(NA, 33, 0.6, 1.2), -999)
+  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999)
 })
 
 test_that("hfc messages about NA values", {
@@ -17,6 +17,15 @@ test_that("hfc messages about NA values", {
   expect_message(hfc(10, NA, 0.6, 1.2), "ULNAST contains")
   expect_message(hfc(10, 33, NA, 1.2), "BILI contains")
   expect_message(hfc(10, 33, 0.6, NA), "ULNBILI contains")
+})
+
+test_that("hfc returns -999 for NA values", {
+  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, NA, 0.6, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, 33, NA, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, 33, 0.6, NA)), -999)
+  expect_equal(suppressMessages(hfc(NA, NA, 0.6, 1.2)), -999)
+  expect_equal(suppressMessages(hfc(10, 33, NA, NA)), -999)
 })
 
 test_that("hfc works within dpylr pipes", {
@@ -46,4 +55,20 @@ test_that("hfc works within dpylr pipes", {
     dplyr::group_by(ID) %>%
     dplyr::mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
   expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1))
+})
+
+test_that("hfc handles edge cases", {
+  # entry 1: bili == 1.5 * ulnbili, this "triggers" edge case -> expect 2
+  # entry 2: ast <= unlast and bili <= ulnbili -> expect 1
+  # entry 3: bili == ulnbili * 3, this "triggers" edgase case -> expect 3
+  # entry 4: bili > 3 * ulnbilit -> expect 4
+  df <- data.frame(
+    "AST" = c(33, 15, 15, 15),
+    "ULNAST" = c(15, 33, 33, 33),
+    "BILI" = c(1.5, 1, 3, 3.1),
+    "ULNBILI" = c(1, 1.5, 1, 1)
+  )
+
+  bhfc <- hfc(df$AST, df$ULNAST, df$BILI, df$ULNBILI)
+  expect_equal(bhfc, c(2, 1, 3, 4))
 })
