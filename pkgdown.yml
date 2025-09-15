@@ -3,7 +3,7 @@ pkgdown: 2.1.2
 pkgdown_sha: ~
 articles:
   scicalc: scicalc.html
-last_built: 2025-09-15T12:50Z
+last_built: 2025-09-15T12:54Z
 urls:
   reference: https://a2-ai.github.io/scicalc/reference
   article: https://a2-ai.github.io/scicalc/articles
