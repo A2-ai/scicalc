@@ -34,7 +34,7 @@ bmi <- function(weight, height) {
 }
 
 
-#' @title Calculate BMI (Deprecated)
+#' Calculate BMI (Deprecated)
 #'
 #' `bbmi()` was renamed to `bmi()` to improve function naming consistency.
 #'

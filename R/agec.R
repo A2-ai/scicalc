@@ -14,27 +14,44 @@
 #' Guideline for Industry Studies in Support of
 #' Special Populations: Geriatrics
 #'
-#' @examples 
+#' @examples
 #' age_cat <- agec(24)
 #'
 #' df <- data.frame(
-#'    ID = 1:20,
-#'    AGE = c(18, 24, 24, 23, 24, 40, 50, 55, 65, 70),
-#'    )
-#' df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
+#'   ID = 1:12,
+#'   AGE = c(0.07, 28 / 365, 0.25, 1, 2, 4, 12, 16, 18, 24, 65, 70)
+#' )
+#' df <- dplyr::mutate(df, AGEC = agec(AGE))
 #' df
 agec <- function(age) {
   checkmate::assertNumeric(age)
 
   # give message if any NAs
   if (any(is.na(age))) {
-    message("weight contains missing values")
+    message("age contains missing values")
   }
-	
-	#TODO: fix up division check. Maybe age * 365 < 28
+
+  if (any(age < 0, na.rm = TRUE)) {
+    warning("age contains values less than 0 years. Confirm data is correct.")
+  }
+
+  # Oldest person alive currently is 116
+  if (any(age > 116, na.rm = TRUE)) {
+    warning("age contains values > 116 years. Confirm data is correct.")
+  }
+
+  if (any(0 <= age & age < 28 / 365, na.rm = TRUE)) {
+    warning("Neonate ages detected. Confirm assignment.")
+  }
+
+  if (any(dplyr::near(age, 28 / 365), na.rm = TRUE)) {
+    message("Age near Neonate boundary (28 days)")
+  }
+
+  # TODO: fix up division check. Maybe age * 365 < 28
   dplyr::case_when(
-    age < 28 / 365 ~ 1, # Neonate
-    28 / 265 <= age & age < 2 ~ 2, # Infant
+    0 <= age & age < 28 / 365 ~ 1, # Neonate
+    28 / 365 <= age & age < 2 ~ 2, # Infant
     2 <= age & age < 12 ~ 3, # Child
     12 <= age & age < 18 ~ 4, # Adolescent
     18 <= age & age < 65 ~ 5, # Adult
