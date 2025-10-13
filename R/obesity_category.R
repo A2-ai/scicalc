@@ -5,7 +5,7 @@
 #' to ensure appropriate application of adult BMI categories.
 #'
 #' @param bmi Numeric vector of baseline Body Mass Index values (kg/m²)
-#' @param age Numeric vector of baseline age in years (optional).
+#' @param age Numeric vector of baseline age in years.
 #'   the function will issue warnings for individuals under 18 years old, as
 #'   adult BMI categories may not be appropriate for pediatric populations
 #'
@@ -19,7 +19,7 @@
 #' }
 #'
 #' \strong{Age Considerations:}
-#' When age is provided, the function will warn if any individuals are under
+#' The function will warn if any individuals are under
 #' 18 years old, as standard adult BMI categories may not be appropriate for
 #' children and adolescents.
 #'
@@ -42,8 +42,9 @@
 #'   HEIGHT = c(165, 175, 170, 180, 160, 175)
 #' )
 #'
-#' patients %>%
-#'   mutate(
+#' patients <-
+#'   dplyr::mutate(
+#'     patients,
 #'     BMI = bmi(WEIGHT, HEIGHT),
 #'     OBESITY_CAT = obesity_category(BMI, AGE)
 #'   )
