@@ -4,7 +4,7 @@
 \alias{egfr}
 \title{Calculates eGFR based on the method specified}
 \usage{
-egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009")
+egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2021")
 }
 \arguments{
 \item{sexf}{a boolean representing if the patient is female.}

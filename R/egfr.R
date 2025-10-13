@@ -29,7 +29,7 @@ egfr <- function(
   creat,
   cystc,
   height,
-  method = "CKDEPI 2009"
+  method = "CKDEPI 2021"
 ) {
   checkmate::assert_choice(
     tolower(method),
