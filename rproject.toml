@@ -5,12 +5,10 @@ name = "scicalc"
 r_version = "4.5"
 
 repositories = [
-  { alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2025-05-09/"},
-  { alias = "PPM", url = "https://packagemanager.posit.co/cran/latest"}
+  { alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2025-09-29/"},
 ]
 
 dependencies = [
   "devtools",
-  { name = "arrow", repository = "PPM" },
   {name = "scicalc", path = ".", dependencies_only = true, install_suggestions = true}
 ]
