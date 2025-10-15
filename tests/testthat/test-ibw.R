@@ -98,3 +98,12 @@ test_that("ibw handles missing age values", {
   expect_message(result <- ibw(170, 0, NA))
   expect_equal(result, ibw(170, 0, 25)) # Should give same result
 })
+
+test_that("ibw warns about recycling", {
+  # Test with different length vectors
+  heights <- c(160, 170, 175)
+  expect_warning(ibw(heights, 0, 30), "Inputs have different lengths! Please check data.")
+
+  # Test another combination
+  expect_warning(ibw(170, c(0, 1), 25), "Inputs have different lengths! Please check data.")
+})

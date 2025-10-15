@@ -67,3 +67,9 @@ test_that("schwartz_egfr messages about missing values", {
   expect_message(schwartz_egfr(NA, 0.9), "height contains ")
   expect_message(schwartz_egfr(174, NA), "creat contains ")
 })
+
+test_that("schwartz_egfr warns about recycling", {
+  heights <- c(160, 170, 180)
+  expect_warning(schwartz_egfr(heights, 1.0), "Inputs have different lengths! Please check data.")
+  expect_warning(schwartz_egfr(170, c(1.0, 1.2)), "Inputs have different lengths! Please check data.")
+})

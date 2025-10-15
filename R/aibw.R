@@ -33,7 +33,7 @@ aibw <- function(
 
   input_lengths <- lengths(list(weight, height, sexf, age))
   if (length(unique(input_lengths)) != 1) {
-    warning("Inputs have different lengths! Please check data")
+    warning("Inputs have different lengths! Please check data.")
   }
 
   if (any(is.na(weight), na.rm = TRUE)) {

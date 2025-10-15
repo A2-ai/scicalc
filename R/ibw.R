@@ -32,6 +32,11 @@ ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
   checkmate::assert_numeric(sexf)
   checkmate::assert_numeric(age)
 
+  input_lengths <- lengths(list(height, sexf, age))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(height))) {
     message("height contains missing values")
   }

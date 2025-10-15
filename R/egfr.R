@@ -78,6 +78,11 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
 
+  input_lengths <- lengths(list(sexf, raceb, age, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
     message('sexf contains missing values')
   }
@@ -141,6 +146,11 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
 
+  input_lengths <- lengths(list(sexf, age, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
     message('sexf contains missing values')
   }
@@ -201,6 +211,11 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
   checkmate::assertNumeric(cystc)
+
+  input_lengths <- lengths(list(sexf, age, creat, cystc))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
 
   if (any(is.na(sexf))) {
     message('sexf contains missing values')
@@ -271,6 +286,11 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
 
+  input_lengths <- lengths(list(sexf, raceb, age, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
     message('sexf contains missing values')
   }
@@ -315,6 +335,11 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
 schwartz_egfr <- function(height, creat) {
   checkmate::assertNumeric(height)
   checkmate::assertNumeric(creat)
+
+  input_lengths <- lengths(list(height, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
 
   if (any(is.na(height))) {
     message("height contains missing values")

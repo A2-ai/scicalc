@@ -20,6 +20,11 @@ bmi <- function(weight, height) {
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
 
+  input_lengths <- lengths(list(weight, height))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   # give message if any NAs
   if (any(is.na(weight))) {
     message("weight contains missing values")
