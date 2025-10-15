@@ -146,19 +146,26 @@ geom_cv <- function(x, na.rm = FALSE) {
 #' cor_df(df, columns = c("A", "B", "C"))
 #'
 cor_df <- function(
-    data,
-    columns = NULL,
-    use = "complete.obs",
-    method = "pearson") {
+  data,
+  columns = NULL,
+  use = "complete.obs",
+  method = "pearson"
+) {
   # Input validation
   checkmate::assert_data_frame(data)
   if (nrow(data) == 0) stop("data cannot be empty")
 
   checkmate::assert_character(columns, null.ok = TRUE)
-  checkmate::assert_choice(use, c(
-    "everything", "all.obs", "complete.obs",
-    "na.or.complete", "pairwise.complete.obs"
-  ))
+  checkmate::assert_choice(
+    use,
+    c(
+      "everything",
+      "all.obs",
+      "complete.obs",
+      "na.or.complete",
+      "pairwise.complete.obs"
+    )
+  )
   checkmate::assert_choice(method, c("pearson", "kendall", "spearman"))
 
   # Column selection
@@ -179,7 +186,10 @@ cor_df <- function(
     numeric_mask <- sapply(data[columns], is.numeric)
     non_numeric <- columns[!numeric_mask]
     if (length(non_numeric) > 0) {
-      warning("Non-numeric columns removed: ", paste(non_numeric, collapse = ", "))
+      warning(
+        "Non-numeric columns removed: ",
+        paste(non_numeric, collapse = ", ")
+      )
       columns <- columns[numeric_mask]
     }
   }

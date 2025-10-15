@@ -2,7 +2,7 @@ test_that("aibw works for basic calculations", {
   # Test with realistic clinical data similar to function example
   weights <- c(53, 71, 78, 55, 72, 43)
   heights <- c(160, 170, 175, 165, 180, 150)
-  sexes <- c(1, 0, 0, 1, 0, 1)  # female, male, male, female, male, female
+  sexes <- c(1, 0, 0, 1, 0, 1) # female, male, male, female, male, female
   ages <- c(18, 27, 34, 33, 29, 30)
 
   results <- aibw(weights, heights, sexes, ages)
@@ -19,16 +19,22 @@ test_that("aibw works for basic calculations", {
 
 test_that("aibw handles allow_tbw_lt_ibw parameter correctly", {
   # Test with underweight patients where parameter makes a difference
-  weights <- c(45, 38, 42)  # All underweight
+  weights <- c(45, 38, 42) # All underweight
   heights <- c(170, 165, 180)
-  sexes <- c(0, 1, 0)  # male, female, male
+  sexes <- c(0, 1, 0) # male, female, male
   ages <- c(25, 30, 35)
 
   # Default behavior: allow_tbw_lt_ibw = TRUE (AIBW can be < IBW)
   results_allow <- aibw(weights, heights, sexes, ages, allow_tbw_lt_ibw = TRUE)
 
   # Conservative behavior: allow_tbw_lt_ibw = FALSE (AIBW cannot be < IBW)
-  results_conservative <- aibw(weights, heights, sexes, ages, allow_tbw_lt_ibw = FALSE)
+  results_conservative <- aibw(
+    weights,
+    heights,
+    sexes,
+    ages,
+    allow_tbw_lt_ibw = FALSE
+  )
 
   # Get corresponding IBW values for comparison
   ibw_values <- ibw(heights, sexes, ages)
@@ -46,15 +52,27 @@ test_that("aibw handles allow_tbw_lt_ibw parameter correctly", {
 test_that("aibw handles allow_ibw_lt_intercept parameter correctly", {
   # Test with short patients where this parameter affects IBW calculation
   weights <- c(45, 40, 48)
-  heights <- c(140, 135, 145)  # All below 152.4cm
-  sexes <- c(0, 1, 0)  # male, female, male
+  heights <- c(140, 135, 145) # All below 152.4cm
+  sexes <- c(0, 1, 0) # male, female, male
   ages <- c(25, 30, 28)
 
   # Allow IBW to be less than intercept
-  results_allow <- aibw(weights, heights, sexes, ages, allow_ibw_lt_intercept = TRUE)
+  results_allow <- aibw(
+    weights,
+    heights,
+    sexes,
+    ages,
+    allow_ibw_lt_intercept = TRUE
+  )
 
   # Clamp IBW to intercept
-  results_clamp <- aibw(weights, heights, sexes, ages, allow_ibw_lt_intercept = FALSE)
+  results_clamp <- aibw(
+    weights,
+    heights,
+    sexes,
+    ages,
+    allow_ibw_lt_intercept = FALSE
+  )
 
   # Results should be different (underlying IBW calculation differs)
   expect_false(all(results_allow == results_clamp))
@@ -84,11 +102,19 @@ test_that("aibw can be used in a mutate", {
 
   # Verify a few manual calculations
   expect_equal(df$AIBW[1], aibw(53, 160, 1, 18))
-  expect_equal(df$AIBW[7], aibw(95, 168, 0, 45))  # Overweight case
+  expect_equal(df$AIBW[7], aibw(95, 168, 0, 45)) # Overweight case
 
   # Test with both parameter variations in mutate
   df_conservative <- df %>%
-    dplyr::mutate(AIBW_CONSERVATIVE = aibw(WEIGHT, HEIGHT, SEX, AGE, allow_tbw_lt_ibw = FALSE))
+    dplyr::mutate(
+      AIBW_CONSERVATIVE = aibw(
+        WEIGHT,
+        HEIGHT,
+        SEX,
+        AGE,
+        allow_tbw_lt_ibw = FALSE
+      )
+    )
 
   expect_length(df_conservative$AIBW_CONSERVATIVE, 8)
   expect_true(all(!is.na(df_conservative$AIBW_CONSERVATIVE)))
@@ -116,8 +142,8 @@ test_that("aibw handles missing weight values", {
   # Ensure calculation continues with NA weights
   expect_message(results <- aibw(weights, heights, sexes, ages))
   expect_length(results, 3)
-  expect_true(is.na(results[2]))  # NA weight should give NA result
-  expect_false(is.na(results[1]))  # Valid weights should give valid results
+  expect_true(is.na(results[2])) # NA weight should give NA result
+  expect_false(is.na(results[1])) # Valid weights should give valid results
   expect_false(is.na(results[3]))
 })
 
@@ -125,12 +151,18 @@ test_that("aibw handles missing values in other parameters", {
   # Should inherit missing value handling from ibw function
   weights <- c(70, 65, 75)
 
-  expect_message(aibw(weights, c(170, NA, 180), c(0, 1, 0), c(25, 30, 35)),
-                 "height contains missing values")
-  expect_message(aibw(weights, c(170, 160, 180), c(0, NA, 0), c(25, 30, 35)),
-                 "sexf contains missing values")
-  expect_message(aibw(weights, c(170, 160, 180), c(0, 1, 0), c(25, NA, 35)),
-                 "age contains missing values")
+  expect_message(
+    aibw(weights, c(170, NA, 180), c(0, 1, 0), c(25, 30, 35)),
+    "height contains missing values"
+  )
+  expect_message(
+    aibw(weights, c(170, 160, 180), c(0, NA, 0), c(25, 30, 35)),
+    "sexf contains missing values"
+  )
+  expect_message(
+    aibw(weights, c(170, 160, 180), c(0, 1, 0), c(25, NA, 35)),
+    "age contains missing values"
+  )
 })
 
 test_that("aibw warns for pediatric ages", {
@@ -138,7 +170,7 @@ test_that("aibw warns for pediatric ages", {
   weights <- c(45, 50, 48)
   heights <- c(160, 170, 165)
   sexes <- c(1, 0, 1)
-  ages <- c(17, 16, 15)  # All pediatric
+  ages <- c(17, 16, 15) # All pediatric
 
   expect_warning(
     aibw(weights, heights, sexes, ages),

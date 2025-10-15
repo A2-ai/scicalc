@@ -130,7 +130,16 @@ test_that("ckdepi_2009_egfr messages about missing values", {
 
 test_that("ckdepi_2009_egfr warns about recycling", {
   sexf <- c(TRUE, FALSE, TRUE)
-  expect_warning(ckdepi_2009_egfr(sexf, TRUE, 24, 1), "Inputs have different lengths! Please check data.")
-  expect_warning(ckdepi_2009_egfr(TRUE, c(TRUE, FALSE), 24, 1), "Inputs have different lengths! Please check data.")
-  expect_warning(ckdepi_2009_egfr(TRUE, FALSE, c(25, 30, 35), 1), "Inputs have different lengths! Please check data.")
+  expect_warning(
+    ckdepi_2009_egfr(sexf, TRUE, 24, 1),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    ckdepi_2009_egfr(TRUE, c(TRUE, FALSE), 24, 1),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    ckdepi_2009_egfr(TRUE, FALSE, c(25, 30, 35), 1),
+    "Inputs have different lengths! Please check data."
+  )
 })

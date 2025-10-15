@@ -53,6 +53,12 @@ test_that("bmi messages about missing values", {
 
 test_that("bmi warns about recycling", {
   weights <- c(60, 70, 80)
-  expect_warning(bmi(weights, 170), "Inputs have different lengths! Please check data.")
-  expect_warning(bmi(70, c(160, 170)), "Inputs have different lengths! Please check data.")
+  expect_warning(
+    bmi(weights, 170),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    bmi(70, c(160, 170)),
+    "Inputs have different lengths! Please check data."
+  )
 })

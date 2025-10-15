@@ -2,9 +2,9 @@ test_that("cor_df basic structure and sorting", {
   set.seed(123)
   df <- data.frame(
     A = c(1, 2, 3, 4, 5),
-    B = c(2, 4, 6, 8, 10),  # Perfect + correlation with A
-    C = c(5, 4, 3, 2, 1),   # Perfect - correlation with A
-    D = c(1, 1, 1, 1, 1)    # Constant (NA correlations)
+    B = c(2, 4, 6, 8, 10), # Perfect + correlation with A
+    C = c(5, 4, 3, 2, 1), # Perfect - correlation with A
+    D = c(1, 1, 1, 1, 1) # Constant (NA correlations)
   )
 
   result <- cor_df(df)
@@ -37,8 +37,8 @@ test_that("cor_df basic structure and sorting", {
 test_that("cor_df computes correct correlations on known data", {
   df <- data.frame(
     X = c(1, 2, 3, 4, 5),
-    Y = c(2, 4, 6, 8, 10),  # r = +1 with X
-    Z = c(5, 4, 3, 2, 1)    # r = -1 with X
+    Y = c(2, 4, 6, 8, 10), # r = +1 with X
+    Z = c(5, 4, 3, 2, 1) # r = -1 with X
   )
 
   result <- cor_df(df)
@@ -57,7 +57,7 @@ test_that("cor_df works with column specification and warns on non-numeric", {
     A = 1:5,
     B = 2:6,
     C = 3:7,
-    D = letters[1:5]  # non-numeric
+    D = letters[1:5] # non-numeric
   )
 
   # Specific columns
@@ -95,12 +95,12 @@ test_that("cor_df auto-detects numeric columns and returns correct pair count", 
 test_that("cor_df handles different correlation methods (pearson/spearman/kendall)", {
   df <- data.frame(
     X = c(1, 2, 3, 4, 5),
-    Y = c(1, 4, 9, 16, 25)  # monotone increasing but non-linear
+    Y = c(1, 4, 9, 16, 25) # monotone increasing but non-linear
   )
 
-  pearson  <- cor_df(df, method = "pearson")
+  pearson <- cor_df(df, method = "pearson")
   spearman <- cor_df(df, method = "spearman")
-  kendall  <- cor_df(df, method = "kendall")
+  kendall <- cor_df(df, method = "kendall")
 
   expect_equal(nrow(pearson), 1)
   expect_equal(nrow(spearman), 1)
@@ -176,9 +176,9 @@ test_that("cor_df handles edge cases: constant columns and tiny data", {
 
 test_that("cor_df preserves lexicographic pair ordering (name1 <= name2)", {
   df <- data.frame(
-    Z = 1:5,  # lexicographically last
-    A = 2:6,  # first
-    M = 3:7   # middle
+    Z = 1:5, # lexicographically last
+    A = 2:6, # first
+    M = 3:7 # middle
   )
   res <- cor_df(df)
 
@@ -186,14 +186,14 @@ test_that("cor_df preserves lexicographic pair ordering (name1 <= name2)", {
 
   # Each pair appears exactly once
   want <- rbind(
-    c("A","M"),
-    c("A","Z"),
-    c("M","Z")
+    c("A", "M"),
+    c("A", "Z"),
+    c("M", "Z")
   )
   got <- cbind(res$name1, res$name2)
   # order rows to compare unordered
-  want_ord <- want[order(want[,1], want[,2]), , drop = FALSE]
-  got_ord  <- got[order(got[,1],  got[,2]),  , drop = FALSE]
+  want_ord <- want[order(want[, 1], want[, 2]), , drop = FALSE]
+  got_ord <- got[order(got[, 1], got[, 2]), , drop = FALSE]
   expect_equal(got_ord, want_ord)
 })
 

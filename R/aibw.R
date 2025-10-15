@@ -23,12 +23,13 @@
 #' df <- dplyr::mutate(df, AIBW = aibw(WEIGHT, HEIGHT, SEX, AGE))
 #' df
 aibw <- function(
-    weight,
-    height,
-    sexf,
-    age,
-    allow_ibw_lt_intercept = TRUE,
-    allow_tbw_lt_ibw = TRUE) {
+  weight,
+  height,
+  sexf,
+  age,
+  allow_ibw_lt_intercept = TRUE,
+  allow_tbw_lt_ibw = TRUE
+) {
   checkmate::assert_numeric(weight)
 
   input_lengths <- lengths(list(weight, height, sexf, age))
