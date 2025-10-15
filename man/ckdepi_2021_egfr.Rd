@@ -23,11 +23,11 @@ Calculates eGFR using the CKDEPI 2021 creatinine equation
 e <- ckdepi_2021_egfr(TRUE, 24, 1)
 
 df <- data.frame(
-   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-   "AGE" = c(24, 24, 23, 24),
-   "CREAT" = c(1, 1, 2, 1)
-   )
+  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+  "AGE" = c(24, 24, 23, 24),
+  "CREAT" = c(1, 1, 2, 1)
+)
 df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
 df
 }
