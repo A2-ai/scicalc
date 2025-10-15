@@ -2,6 +2,7 @@
 
 export("%>%")
 export(agec)
+export(aibw)
 export(bbmi)
 export(bhfc)
 export(bmi)

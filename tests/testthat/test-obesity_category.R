@@ -7,11 +7,11 @@ test_that("obesity_category works for basic BMI categorization and boundaries", 
 
   # Boundary values
   expect_equal(obesity_category(18.49, 25), 1) # Just under normal
-  expect_equal(obesity_category(18.5, 25), 2)  # Exactly normal
+  expect_equal(obesity_category(18.5, 25), 2) # Exactly normal
   expect_equal(obesity_category(24.99, 25), 2) # Just under overweight
-  expect_equal(obesity_category(25.0, 25), 3)  # Exactly overweight
+  expect_equal(obesity_category(25.0, 25), 3) # Exactly overweight
   expect_equal(obesity_category(29.99, 25), 3) # Just under obese
-  expect_equal(obesity_category(30.0, 25), 4)  # Exactly obese
+  expect_equal(obesity_category(30.0, 25), 4) # Exactly obese
 })
 
 test_that("obesity_category handles missing values correctly", {

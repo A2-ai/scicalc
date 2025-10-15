@@ -6,9 +6,10 @@
 #'
 #' @param height baseline height of subject in centimeters
 #' @param sexf 0 = male, 1 = female, from sexf()
-#' @param intercept_for_short logical indicating whether to apply intercepts
+#' @param age Numeric vector of baseline age in years.
+#' @param allow_ibw_lt_intercept logical indicating whether to apply intercepts
 #'   for heights < 152.4 cm (5 feet). When TRUE (default), ideal weight is
-#'	 set to intercept weight (50 kg for males, 45.5 kg for females)
+#' 	 set to intercept weight (50 kg for males, 45.5 kg for females)
 #'
 #' @return ideal body weight in kilograms
 #' @export
@@ -21,17 +22,37 @@
 #' df <- data.frame(
 #'   ID = 1:6,
 #'   HEIGHT = c(160, 170, 175, 165, 180, 150),
-#'   SEX = c(1, 0, 0, 1, 0, 1)
+#'   SEX = c(1, 0, 0, 1, 0, 1),
+#'	 AGE = c(18, 27, 34, 33, 29, 30)
 #' )
-#' df <- dplyr::mutate(df, IBW = ibw(HEIGHT, SEX))
+#' df <- dplyr::mutate(df, IBW = ibw(HEIGHT, SEX, AGE))
 #' df
-ibw <- function(height, sexf, intercept_for_short = TRUE) {
+ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
   checkmate::assert_numeric(height)
   checkmate::assert_numeric(sexf)
+  checkmate::assert_numeric(age)
+
+  if (any(is.na(height))) {
+    message("height contains missing values")
+  }
+
+  if (any(is.na(sexf))) {
+    message("sexf contains missing values")
+  }
+
+  if (any(is.na(age))) {
+    message("age contains missing values")
+  }
+
+  if (any(age < 18, na.rm = TRUE)) {
+    warning(
+      "Age contains values less than 18 years. Ideal body weight may not be appropriate for pediatric populations."
+    )
+  }
 
   ideal_weight <- ifelse(sexf == 0, 50, 45.5)
 
-  if (intercept_for_short) {
+  if (!allow_ibw_lt_intercept) {
     height <- ifelse(height < 152.4, 152.4, height)
   }
 

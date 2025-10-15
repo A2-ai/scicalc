@@ -67,7 +67,9 @@ obesity_category <- function(bmi, age) {
   }
 
   if (any(age < 18, na.rm = TRUE)) {
-    warning("Age contains values less than 18 years. Adult BMI categories may not be appropriate for pediatric populations.")
+    warning(
+      "Age contains values less than 18 years. Adult BMI categories may not be appropriate for pediatric populations."
+    )
   }
 
   # Categorize BMI
@@ -79,4 +81,3 @@ obesity_category <- function(bmi, age) {
     .default = -999
   )
 }
-

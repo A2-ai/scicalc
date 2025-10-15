@@ -4,14 +4,16 @@
 \alias{ibw}
 \title{Ideal Body Weight function}
 \usage{
-ibw(height, sexf, intercept_for_short = TRUE)
+ibw(height, sexf, age, allow_ibw_lt_intercept = TRUE)
 }
 \arguments{
 \item{height}{baseline height of subject in centimeters}
 
 \item{sexf}{0 = male, 1 = female, from sexf()}
 
-\item{intercept_for_short}{logical indicating whether to apply intercepts
+\item{age}{Numeric vector of baseline age in years.}
+
+\item{allow_ibw_lt_intercept}{logical indicating whether to apply intercepts
 for heights < 152.4 cm (5 feet). When TRUE (default), ideal weight is
 set to intercept weight (50 kg for males, 45.5 kg for females)}
 }
@@ -27,9 +29,10 @@ By default, applies intercepts for individuals shorter than 5 feet (152.4 cm).
 df <- data.frame(
   ID = 1:6,
   HEIGHT = c(160, 170, 175, 165, 180, 150),
-  SEX = c(1, 0, 0, 1, 0, 1)
+  SEX = c(1, 0, 0, 1, 0, 1),
+ AGE = c(18, 27, 34, 33, 29, 30)
 )
-df <- dplyr::mutate(df, IBW = ibw(HEIGHT, SEX))
+df <- dplyr::mutate(df, IBW = ibw(HEIGHT, SEX, AGE))
 df
 }
 \references{
