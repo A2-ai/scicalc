@@ -29,7 +29,8 @@ Imports:
     readxl,
     rlang,
     stats,
-    stringr
+    stringr,
+    tibble
 Suggests: 
     knitr,
     rmarkdown,
