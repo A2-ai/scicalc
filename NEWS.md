@@ -6,6 +6,7 @@
 * Added `agec` (age category) function
 * Added `cor_df` function that takes a dataframe and a vector of column names to compute all pairwise correlations.
 * Updated `egfr` equation default to use CKDEPI 2021 equation.
+* removed out of date pkgdown site
 
 # scicalc 0.2.1
 
