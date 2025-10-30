@@ -47,7 +47,7 @@ read_csv_with_hash <- function(csv_file_path, ...) {
     when = "0.6.0",
     what = "read_csv_with_hash()",
     with = "read_file_with_hash()",
-    details = "Use read_file_with_hash() which automatically detects file type."
+    details = "read_csv_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
 
   checkmate::assert(file.exists(csv_file_path))
@@ -89,7 +89,7 @@ read_parquet_with_hash <- function(parquet_file_path, ...) {
     when = "0.6.0",
     what = "read_parquet_with_hash()",
     with = "read_file_with_hash()",
-    details = "Use read_file_with_hash() which automatically detects file type."
+    details = "read_parquet_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
 
   checkmate::assert(file.exists(parquet_file_path))
@@ -132,7 +132,7 @@ read_sas_with_hash <- function(sas_file_path, ...) {
     when = "0.6.0",
     what = "read_sas_with_hash()",
     with = "read_file_with_hash()",
-    details = "Use read_file_with_hash() which automatically detects file type."
+    details = "read_sas_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
 
   checkmate::assert(file.exists(sas_file_path))
@@ -173,7 +173,7 @@ read_xpt_with_hash <- function(xpt_file_path, ...) {
     when = "0.6.0",
     what = "read_xpt_with_hash()",
     with = "read_file_with_hash()",
-    details = "Use read_file_with_hash() which automatically detects file type."
+    details = "read_xpt_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
 
   checkmate::assert(file.exists(xpt_file_path))
@@ -215,7 +215,7 @@ read_excel_with_hash <- function(xlsx_file_path, ...) {
     when = "0.6.0",
     what = "read_excel_with_hash()",
     with = "read_file_with_hash()",
-    details = "Use read_file_with_hash() which automatically detects file type."
+    details = "read_excel_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
 
   checkmate::assert(file.exists(xlsx_file_path))
@@ -259,7 +259,7 @@ read_pzfx_with_hash <- function(pzfx_file_path, ...) {
     when = "0.6.0",
     what = "read_pzfx_with_hash()",
     with = "read_file_with_hash()",
-    details = "Use read_file_with_hash() which automatically detects file type."
+    details = "read_pzfx_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
 
   rlang::check_installed("pzfx")
