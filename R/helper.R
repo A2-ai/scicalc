@@ -9,7 +9,18 @@
 #' is_female("F")
 #'
 #' is_female(c("MALE", "FEMALE"))
+#'
+#' is_female(c(1, 0, -999))
 is_female <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = Female, 0 = Male.")
+    return(dplyr::case_when(
+      x == 1    ~ TRUE,
+      x == 0    ~ FALSE,
+      .default  = NA
+    ))
+  }
+
   checkmate::assert_character(x)
   x <- tolower(x)
   first_letter <- substr(x, 1, 1)
@@ -27,7 +38,18 @@ is_female <- function(x) {
 #' is_white("WHITE")
 #'
 #' is_white("BLACK")
+#'
+#' is_white(1)
 is_white <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 1     ~ TRUE,
+      x %in% c(2, 3, 4) ~ FALSE,
+      .default   = NA
+    ))
+  }
+
   checkmate::assert_character(x)
 
   x <- tolower(x)
@@ -50,7 +72,18 @@ is_white <- function(x) {
 #' is_black("WHITE")
 #'
 #' is_black(c("AFRICAN AMERICAN", "BLACK"))
+#'
+#' is_black(2)
 is_black <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 2     ~ TRUE,
+      x %in% c(1, 3, 4) ~ FALSE,
+      .default   = NA
+    ))
+  }
+
   checkmate::assert_character(x)
 
   x <- tolower(x)
@@ -73,7 +106,18 @@ is_black <- function(x) {
 #' is_asian("ASIAN")
 #'
 #' is_asian("BLACK")
+#'
+#' is_asian(3)
 is_asian <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 3     ~ TRUE,
+      x %in% c(1, 2, 4) ~ FALSE,
+      .default   = NA
+    ))
+  }
+
   checkmate::assert_character(x)
 
   x <- tolower(x)
@@ -96,7 +140,18 @@ is_asian <- function(x) {
 #' is_other("OTHER")
 #'
 #' is_other("BLACK")
+#'
+#' is_other(4)
 is_other <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 4     ~ TRUE,
+      x %in% c(1, 2, 3) ~ FALSE,
+      .default   = NA
+    ))
+  }
+
   checkmate::assert_character(x)
 
   x <- tolower(x)
@@ -121,7 +176,18 @@ is_other <- function(x) {
 #' is_hispanic_or_latino("NOT HISPANIC OR LATINO")
 #'
 #' is_hispanic_or_latino("UNKNOWN")
+#'
+#' is_hispanic_or_latino(1)
 is_hispanic_or_latino <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = Hispanic or Latino, 0 = Not Hispanic or Latino, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 1     ~ TRUE,
+      x == 0     ~ FALSE,
+      .default   = NA
+    ))
+  }
+
   checkmate::assert_character(x)
 
   x <- tolower(x)
@@ -146,7 +212,18 @@ is_hispanic_or_latino <- function(x) {
 #' is_not_hispanic_or_latino("NOT HISPANIC OR LATINO")
 #'
 #' is_not_hispanic_or_latino("UNKNOWN")
+#'
+#' is_not_hispanic_or_latino(0)
 is_not_hispanic_or_latino <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected — assuming 1 = Hispanic or Latino, 0 = Not Hispanic or Latino, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 0     ~ TRUE,
+      x == 1     ~ FALSE,
+      .default   = NA
+    ))
+  }
+
   checkmate::assert_character(x)
 
   x <- tolower(x)
