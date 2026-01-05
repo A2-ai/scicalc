@@ -4,12 +4,14 @@
 \alias{read_file_with_hash}
 \title{Reads the data from a file (csv or parquet) and prints the hash}
 \usage{
-read_file_with_hash(file_path, ...)
+read_file_with_hash(file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{file_path}{path to data file}
 
 \item{...}{additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx, read_xpt}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 data within the supplied file

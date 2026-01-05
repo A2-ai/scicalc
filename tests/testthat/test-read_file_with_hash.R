@@ -1,5 +1,5 @@
 test_that("read_file_with_hash prints hash for parquet file", {
-  hash <- digest::digest(file = "testdata/test_data.parquet")
+  hash <- digest::digest(file = "testdata/test_data.parquet", algo = "blake3")
   expect_output(
     read_file_with_hash("testdata/test_data.parquet"),
     paste0("test_data.parquet: ", hash)
@@ -7,7 +7,7 @@ test_that("read_file_with_hash prints hash for parquet file", {
 })
 
 test_that("read_file_with_hash prints hash for csv file", {
-  hash <- digest::digest(file = "testdata/test_data.csv")
+  hash <- digest::digest(file = "testdata/test_data.csv", algo = "blake3")
   expect_output(
     read_file_with_hash("testdata/test_data.csv"),
     paste0("test_data.csv: ", hash)
@@ -23,7 +23,7 @@ test_that("read_file_with_hash warns about non-supported file type", {
 })
 
 test_that("read_file_with_hash prints for sas file", {
-  hash <- digest::digest(file = "testdata/test_data.sas7bdat")
+  hash <- digest::digest(file = "testdata/test_data.sas7bdat", algo = "blake3")
   expect_output(
     read_file_with_hash("testdata/test_data.sas7bdat"),
     paste0("test_data.sas7bdat: ", hash)
@@ -31,7 +31,7 @@ test_that("read_file_with_hash prints for sas file", {
 })
 
 test_that("read_file_with_hash prints for pzxf file", {
-  hash <- digest::digest(file = "testdata/test_data.pzfx")
+  hash <- digest::digest(file = "testdata/test_data.pzfx", algo = "blake3")
   expect_output(
     read_file_with_hash("testdata/test_data.pzfx", table = "Data 1"),
     paste0("test_data.pzfx: ", hash)
@@ -65,7 +65,7 @@ test_that("read_file_with_hash will not replace '.' by default", {
 })
 
 test_that("read_csv_with_hash can hide column types", {
-  hash <- digest::digest(file = "testdata/test_data_missing.csv")
+  hash <- digest::digest(file = "testdata/test_data_missing.csv", algo = "blake3")
   expect_output(
     read_file_with_hash(
       "testdata/test_data_missing.csv",
@@ -81,4 +81,8 @@ test_that("read_file_with_hash can use different algos", {
     read_file_with_hash("testdata/test_data.parquet", algo = "blake3"),
     paste0("test_data.parquet: ", hash)
   )
+})
+
+test_that("read_file_with_hash errors for pzfx without table arg", {
+  expect_error(read_file_with_hash("testdata/test_data.pzfx"))
 })

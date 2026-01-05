@@ -19,4 +19,6 @@ Takes character input and returns TRUE/FALSE if white/other
 is_white("WHITE")
 
 is_white("BLACK")
+
+is_white(1)
 }

@@ -78,32 +78,51 @@
 #' library(dplyr)
 #' df %>%
 #'   mutate(
-#'     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
 #'     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
-#'     # Clinical categories using eGFR directly
-#'     BRFC_CLINICAL = rfc(EGFR, FALSE, category_standard = "clinical"),
-#'     # Regulatory categories converting eGFR to absolute
-#'     BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
+#'     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
+#'     AEGFR = aegfr(EGFR, BSA),
+#'     # Clinical categories using relative eGFR directly
+#'     BRFC_CLINICAL = rfc(EGFR, category_standard = "clinical"),
+#'     # Regulatory categories - convert relative eGFR to absolute
+#'     BRFC_REGULATORY_REL = rfc(EGFR, BSA),
+#'     # Regulatory categories - AEGFR already absolute
+#'     BRFC_REGULATORY_ABS = rfc(AEGFR)
 #'   )
 #' df
 #' @export
 rfc <- function(
   estimator = NULL,
-  absolute_units = NULL,
   bsa = NULL,
-  category_standard = c("regulatory", "clinical")
+  category_standard = c("regulatory", "clinical"),
+  absolute_units = NULL
 ) {
   checkmate::assert_numeric(estimator, null.ok = FALSE)
-  if (missing(absolute_units)) {
-    stop("Must supply absolute flag to describe units.")
-  }
   category_standard <- match.arg(category_standard)
+
+
+  # Infer units from attribute if present
+  input_units <- attr(estimator, "units")
+  if (!is.null(input_units)) {
+    inferred_absolute <- (input_units == "mL/min")
+    if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
+      warning(
+        "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
+        input_units, "). Using attribute."
+      )
+    }
+    absolute_units <- inferred_absolute
+  } else if (is.null(absolute_units)) {
+    stop("Must supply absolute_units when input has no units attribute.")
+  }
 
   if (category_standard == "clinical") {
     if (!absolute_units) {
       rel_est <- estimator
     } else {
       checkmate::assert_numeric(bsa, null.ok = FALSE)
+      if (any(!is.na(estimator) & is.na(bsa))) {
+        stop("bsa cannot be missing when absolute_est has values")
+      }
       rel_est <- convert_abs_to_rel(estimator, bsa)
     }
 
@@ -117,6 +136,9 @@ rfc <- function(
       abs_est <- estimator
     } else {
       checkmate::assert_numeric(bsa, null.ok = FALSE)
+      if (any(!is.na(estimator) & is.na(bsa))) {
+        stop("bsa cannot be missing when relative_est has values")
+      }
       abs_est <- convert_rel_to_abs(estimator, bsa)
     }
 
@@ -127,22 +149,6 @@ rfc <- function(
     rfc <- regulatory_rfc(abs_est)
   }
   return(rfc)
-}
-
-convert_abs_to_rel <- function(est, bsa) {
-  if (any(!is.na(est) & is.na(bsa))) {
-    stop("bsa cannot be missing when absolute_est has values")
-  }
-  rel_est <- 1.73 * est / bsa
-  rel_est
-}
-
-convert_rel_to_abs <- function(est, bsa) {
-  if (any(!is.na(est) & is.na(bsa))) {
-    stop("bsa cannot be missing when relative_est has values")
-  }
-  abs_est <- est * bsa / 1.73
-  abs_est
 }
 
 clinical_rfc <- function(relative_est) {

@@ -21,4 +21,6 @@ is_not_hispanic_or_latino("HISPANIC OR LATINO")
 is_not_hispanic_or_latino("NOT HISPANIC OR LATINO")
 
 is_not_hispanic_or_latino("UNKNOWN")
+
+is_not_hispanic_or_latino(0)
 }

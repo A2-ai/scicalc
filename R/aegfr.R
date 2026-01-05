@@ -23,6 +23,14 @@ aegfr <- function(egfr, bsa) {
   checkmate::assertNumeric(egfr)
   checkmate::assertNumeric(bsa)
 
+  # Check if input already has absolute units
+
+  input_units <- attr(egfr, "units")
+  if (!is.null(input_units) && input_units == "mL/min") {
+    warning("Input eGFR already has absolute units (mL/min), returning unchanged")
+    return(egfr)
+  }
+
   if (any(is.na(egfr))) {
     message("egfr contains missing values")
   }
@@ -30,6 +38,27 @@ aegfr <- function(egfr, bsa) {
     message("bsa contains missing values")
   }
 
-  aegfr <- egfr * (bsa / 1.73)
+  aegfr <- convert_rel_to_abs(egfr, bsa)
+  attr(aegfr, "units") <- "mL/min"
   return(aegfr)
+}
+
+#' Convert absolute eGFR to relative eGFR
+#'
+#' @param est Absolute eGFR (mL/min)
+#' @param bsa Body surface area (m²)
+#' @return Relative eGFR (mL/min/1.73m²)
+#' @keywords internal
+convert_abs_to_rel <- function(est, bsa) {
+  1.73 * est / bsa
+}
+
+#' Convert relative eGFR to absolute eGFR
+#'
+#' @param est Relative eGFR (mL/min/1.73m²)
+#' @param bsa Body surface area (m²)
+#' @return Absolute eGFR (mL/min)
+#' @keywords internal
+convert_rel_to_abs <- function(est, bsa) {
+  est * bsa / 1.73
 }

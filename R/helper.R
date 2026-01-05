@@ -13,7 +13,7 @@
 #' is_female(c(1, 0, -999))
 is_female <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = Female, 0 = Male.")
+    message("Numeric input detected - assuming 1 = Female, 0 = Male.")
     return(dplyr::case_when(
       x == 1    ~ TRUE,
       x == 0    ~ FALSE,
@@ -42,7 +42,7 @@ is_female <- function(x) {
 #' is_white(1)
 is_white <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 1     ~ TRUE,
       x %in% c(2, 3, 4) ~ FALSE,
@@ -76,7 +76,7 @@ is_white <- function(x) {
 #' is_black(2)
 is_black <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 2     ~ TRUE,
       x %in% c(1, 3, 4) ~ FALSE,
@@ -110,7 +110,7 @@ is_black <- function(x) {
 #' is_asian(3)
 is_asian <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 3     ~ TRUE,
       x %in% c(1, 2, 4) ~ FALSE,
@@ -144,7 +144,7 @@ is_asian <- function(x) {
 #' is_other(4)
 is_other <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 4     ~ TRUE,
       x %in% c(1, 2, 3) ~ FALSE,
@@ -180,7 +180,7 @@ is_other <- function(x) {
 #' is_hispanic_or_latino(1)
 is_hispanic_or_latino <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = Hispanic or Latino, 0 = Not Hispanic or Latino, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = Hispanic or Latino, 0 = Not Hispanic or Latino, -999 = Missing.")
     return(dplyr::case_when(
       x == 1     ~ TRUE,
       x == 0     ~ FALSE,
@@ -216,7 +216,7 @@ is_hispanic_or_latino <- function(x) {
 #' is_not_hispanic_or_latino(0)
 is_not_hispanic_or_latino <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected — assuming 1 = Hispanic or Latino, 0 = Not Hispanic or Latino, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = Hispanic or Latino, 0 = Not Hispanic or Latino, -999 = Missing.")
     return(dplyr::case_when(
       x == 0     ~ TRUE,
       x == 1     ~ FALSE,

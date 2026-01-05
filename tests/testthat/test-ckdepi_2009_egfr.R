@@ -3,7 +3,8 @@ test_that("ckdepi_2009_egfr works for numerical input", {
   expect_equal(
     ckdepi_2009_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1) %>%
       round(3),
-    121.552
+    121.552,
+    ignore_attr = TRUE
   )
 })
 
@@ -16,7 +17,8 @@ test_that("ckdepi_2009_egfr works for vector input", {
       c(1, 1, 2, 1)
     ) %>%
       round(3),
-    c(104.877, 78.790, 52.950, 78.790)
+    c(104.877, 78.790, 52.950, 78.790),
+    ignore_attr = TRUE
   )
 })
 
@@ -29,7 +31,8 @@ test_that("ckdepi_2009_egfr works for dataframe columns", {
   )
   expect_equal(
     ckdepi_2009_egfr(df$SEXN, df$RACEN, df$AGE, df$CREAT) %>% round(3),
-    c(104.877, 78.790, 52.950, 78.790)
+    c(104.877, 78.790, 52.950, 78.790),
+    ignore_attr = TRUE
   )
 })
 
@@ -45,7 +48,8 @@ test_that("ckdepi_2009_egfr can be used in a mutate", {
 
   expect_equal(
     df$ckdepi_2009_egfr %>% round(3),
-    c(104.877, 78.790, 52.950, 78.790)
+    c(104.877, 78.790, 52.950, 78.790),
+    ignore_attr = TRUE
   )
 })
 
@@ -65,8 +69,14 @@ test_that("ckdepi_2009_egfr can be used within mutate after a group_by", {
     )
   expect_equal(
     df$ckdepi_2009_egfr %>% round(3),
-    c(78.790, 78.790, 78.790, 78.790, 23.066, 23.066, 23.066, 23.066)
+    c(78.790, 78.790, 78.790, 78.790, 23.066, 23.066, 23.066, 23.066),
+    ignore_attr = TRUE
   )
+})
+
+test_that("ckdepi_2009_egfr sets units attribute", {
+  result <- ckdepi_2009_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1)
+  expect_equal(attr(result, "units"), "mL/min/1.73m^2")
 })
 
 test_that("ckdepi_2009_egfr won't work for character Sex", {

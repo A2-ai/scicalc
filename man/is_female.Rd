@@ -19,4 +19,6 @@ Takes character input and returns TRUE/FALSE if female/male
 is_female("F")
 
 is_female(c("MALE", "FEMALE"))
+
+is_female(c(1, 0, -999))
 }

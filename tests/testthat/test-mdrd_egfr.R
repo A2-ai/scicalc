@@ -2,7 +2,8 @@ METHOD = "MDRD"
 test_that("mdrd_egfr works for numerical input", {
   expect_equal(
     mdrd_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1) %>% round(3),
-    111.265
+    111.265,
+    ignore_attr = TRUE
   )
 })
 
@@ -15,7 +16,8 @@ test_that("mdrd_egfr works for vector input", {
       c(1, 1, 2, 1)
     ) %>%
       round(3),
-    c(91.803, 68.118, 50.434, 68.118)
+    c(91.803, 68.118, 50.434, 68.118),
+    ignore_attr = TRUE
   )
 })
 
@@ -28,7 +30,8 @@ test_that("mdrd_egfr works for dataframe columns", {
   )
   expect_equal(
     mdrd_egfr(df$SEXN, df$RACEN, df$AGE, df$CREAT) %>% round(3),
-    c(91.803, 68.118, 50.434, 68.118)
+    c(91.803, 68.118, 50.434, 68.118),
+    ignore_attr = TRUE
   )
 })
 
@@ -42,7 +45,11 @@ test_that("mdrd_egfr can be used in a mutate", {
   df <- df %>%
     dplyr::mutate(mdrd_egfr = mdrd_egfr(SEXN, RACEN, AGE, CREAT))
 
-  expect_equal(df$mdrd_egfr %>% round(3), c(91.803, 68.118, 50.434, 68.118))
+  expect_equal(
+    df$mdrd_egfr %>% round(3),
+    c(91.803, 68.118, 50.434, 68.118),
+    ignore_attr = TRUE
+  )
 })
 
 test_that("mdrd_egfr can be used within mutate after a group_by", {
@@ -61,8 +68,14 @@ test_that("mdrd_egfr can be used within mutate after a group_by", {
     )
   expect_equal(
     df$mdrd_egfr %>% round(3),
-    c(68.118, 68.118, 68.118, 68.118, 22.869, 22.869, 22.869, 22.869)
+    c(68.118, 68.118, 68.118, 68.118, 22.869, 22.869, 22.869, 22.869),
+    ignore_attr = TRUE
   )
+})
+
+test_that("mdrd_egfr sets units attribute", {
+  result <- mdrd_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1)
+  expect_equal(attr(result, "units"), "mL/min/1.73m^2")
 })
 
 test_that("mdrd_egfr won't work for character Sex", {

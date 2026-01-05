@@ -118,6 +118,7 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
+  attr(egfr, "units") <- "mL/min/1.73m^2"
   egfr
 }
 
@@ -181,6 +182,7 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
     (0.9938^age) *
     sex_mult
 
+  attr(egfr, "units") <- "mL/min/1.73m^2"
   egfr
 }
 
@@ -256,6 +258,7 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
     (0.9961^age) *
     sex_mult
 
+  attr(egfr, "units") <- "mL/min/1.73m^2"
   egfr
 }
 
@@ -319,6 +322,7 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
+  attr(egfr, "units") <- "mL/min/1.73m^2"
   egfr
 }
 
@@ -350,5 +354,6 @@ schwartz_egfr <- function(height, creat) {
 
   egfr <- 0.413 * height / creat
 
+  attr(egfr, "units") <- "mL/min/1.73m^2"
   egfr
 }

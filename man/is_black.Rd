@@ -19,4 +19,6 @@ Takes character input and returns TRUE/FALSE if black/other also checks for "Afr
 is_black("WHITE")
 
 is_black(c("AFRICAN AMERICAN", "BLACK"))
+
+is_black(2)
 }

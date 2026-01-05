@@ -4,12 +4,14 @@
 \alias{read_parquet_with_hash}
 \title{Reads data from parquet file and prints hash of contents.}
 \usage{
-read_parquet_with_hash(parquet_file_path, ...)
+read_parquet_with_hash(parquet_file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{parquet_file_path}{path to parquet file to ingest}
 
 \item{...}{additional arguments to digest or read_parquet}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 a tibble of data within file

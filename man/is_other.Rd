@@ -19,4 +19,6 @@ Takes character input and returns TRUE/FALSE if other/explicit race
 is_other("OTHER")
 
 is_other("BLACK")
+
+is_other(4)
 }

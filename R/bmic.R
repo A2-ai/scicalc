@@ -1,4 +1,4 @@
-#' Obesity Category Function
+#' BMI Category Function
 #'
 #' Categorizes individuals based on their Body Mass Index (BMI) according to
 #' standard WHO obesity classification criteria. Validates age
@@ -46,11 +46,11 @@
 #'   dplyr::mutate(
 #'     patients,
 #'     BMI = bmi(WEIGHT, HEIGHT),
-#'     OBESITY_CAT = obesity_category(BMI, AGE)
+#'     BMIC = bmic(BMI, AGE)
 #'   )
 #'
 #' @export
-obesity_category <- function(bmi, age) {
+bmic <- function(bmi, age) {
   checkmate::assertNumeric(bmi)
   checkmate::assertNumeric(age)
 

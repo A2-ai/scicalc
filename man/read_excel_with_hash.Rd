@@ -4,12 +4,14 @@
 \alias{read_excel_with_hash}
 \title{Reads data from xlsx/xls file and prints hash of contents.}
 \usage{
-read_excel_with_hash(xlsx_file_path, ...)
+read_excel_with_hash(xlsx_file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{xlsx_file_path}{an xlsx/xls file to ingest}
 
 \item{...}{additional arguments to digest or read_excel}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 a dataframe(?) of data within file

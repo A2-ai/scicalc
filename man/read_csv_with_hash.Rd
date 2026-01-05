@@ -4,12 +4,14 @@
 \alias{read_csv_with_hash}
 \title{Reads data from csv file and prints hash of contents.}
 \usage{
-read_csv_with_hash(csv_file_path, ...)
+read_csv_with_hash(csv_file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{csv_file_path}{path to csv file to ingest}
 
 \item{...}{additional arguments for digest or read_csv}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 dataframe of data within file

@@ -4,12 +4,14 @@
 \alias{read_xpt_with_hash}
 \title{Reads data from xpt file and prints hash of contents.}
 \usage{
-read_xpt_with_hash(xpt_file_path, ...)
+read_xpt_with_hash(xpt_file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{xpt_file_path}{an xpt file to ingest}
 
 \item{...}{additional arguments to digest or read_xpt}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 a dataframe(?) of data within file

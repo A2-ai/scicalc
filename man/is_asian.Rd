@@ -19,4 +19,6 @@ Takes character input and returns TRUE/FALSE if asian/other
 is_asian("ASIAN")
 
 is_asian("BLACK")
+
+is_asian(3)
 }

@@ -10,6 +10,9 @@
 #' @param sdig Optional integer specifying the number of significant digits to apply.
 #'
 #' @return A numeric vector rounded to the appropriate precision.
+#'
+#' @export
+#'
 #' @examples
 #' round_like(123.456, sdig = 2)       # -> 120
 #' round_like(123.456, ref = 12.3)     # -> 123

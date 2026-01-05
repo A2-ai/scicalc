@@ -6,22 +6,22 @@
 \usage{
 rfc(
   estimator = NULL,
-  absolute_units = NULL,
   bsa = NULL,
-  category_standard = c("regulatory", "clinical")
+  category_standard = c("regulatory", "clinical"),
+  absolute_units = NULL
 )
 }
 \arguments{
 \item{estimator}{Numeric vector of renal function estimator values (eGFR, CrCL, etc.)}
-
-\item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
-or mL/min/1.73m² (\code{FALSE})}
 
 \item{bsa}{Numeric vector of body surface area in m² for unit conversion. Required when
 converting between absolute and relative units}
 
 \item{category_standard}{Character string specifying categorization standard:
 \code{"regulatory"} (default) or \code{"clinical"}}
+
+\item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
+or mL/min/1.73m² (\code{FALSE})}
 }
 \value{
 Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
@@ -91,12 +91,15 @@ df <- data.frame(
 library(dplyr)
 df \%>\%
   mutate(
-    EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
-    # Clinical categories using eGFR directly
-    BRFC_CLINICAL = rfc(EGFR, FALSE, category_standard = "clinical"),
-    # Regulatory categories converting eGFR to absolute
-    BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
+    EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
+    AEGFR = aegfr(EGFR, BSA),
+    # Clinical categories using relative eGFR directly
+    BRFC_CLINICAL = rfc(EGFR, category_standard = "clinical"),
+    # Regulatory categories - convert relative eGFR to absolute
+    BRFC_REGULATORY_REL = rfc(EGFR, BSA),
+    # Regulatory categories - AEGFR already absolute
+    BRFC_REGULATORY_ABS = rfc(AEGFR)
   )
 df
 }

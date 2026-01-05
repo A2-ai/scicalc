@@ -4,7 +4,7 @@
 \alias{read_hashed_file}
 \title{Reads a file if the supplied hash matches the file's hash}
 \usage{
-read_hashed_file(file_path, hash, ...)
+read_hashed_file(file_path, hash, ..., algo = "blake3")
 }
 \arguments{
 \item{file_path}{path to file with data you want to read}
@@ -12,6 +12,8 @@ read_hashed_file(file_path, hash, ...)
 \item{hash}{hash you expect the file to have}
 
 \item{...}{additional arguments for digest or read_csv, parquet, sas}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 data object of contents of file_path
