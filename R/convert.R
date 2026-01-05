@@ -21,7 +21,7 @@ convert_alb <- function(alb) {
   checkmate::assertNumeric(alb)
 
   if (any(is.na(alb))) {
-    message('alb contains missing values')
+    message("alb contains missing values")
   }
 
   alb_gdl <- alb / 10
@@ -36,7 +36,7 @@ convert_alb <- function(alb) {
 #' @export
 #'
 #' @examples
-#' convert_bili(17.1)  # ≈ 1 mg/dL
+#' convert_bili(17.1) # ≈ 1 mg/dL
 #'
 #' df <- data.frame(
 #'   ID = c(1, 2, 3, 4),
@@ -53,8 +53,11 @@ convert_bili <- function(bili) {
   if (any(is.na(bili))) {
     message("bili contains missing values")
   }
-
-  bili_mgdl <- bili / 17.1 # MediCalc conversion factor
+  mol_weight_bili <- 584.673 # g/mol
+  # convert umol/L to mg/dL
+  # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
+  conversion_factor <- mol_weight_bili / 10^4
+  bili_mgdl <- bili * conversion_factor
   return(bili_mgdl)
 }
 
@@ -66,7 +69,7 @@ convert_bili <- function(bili) {
 #' @export
 #'
 #' @examples
-#' convert_creat(88.42)  # ≈ 1 mg/dL
+#' convert_creat(88.42) # ≈ 1 mg/dL
 #'
 #' df <- data.frame(
 #'   ID = c(1, 2, 3, 4),
@@ -81,7 +84,7 @@ convert_creat <- function(creat) {
   checkmate::assertNumeric(creat)
 
   if (any(is.na(creat))) {
-    message('creat contains missing values')
+    message("creat contains missing values")
   }
 
   creat_mgdl <- creat / 88.42 # MediCalc conversion factor
