@@ -8,7 +8,7 @@
 * Added `agec()` (age category) function.
 * Added `cor_df()` function that takes a dataframe and a vector of column names to compute all pairwise correlations.
 * Added `is_female()` and `is_black()` helper functions for converting character sex/race to logical values.
-* Added unit conversion functions: `convert_weight()`, `convert_height()`, `convert_creat()`, `convert_bili()`.
+* Added unit conversion functions: `convert_creat()`, `convert_bili()`, `convert_alb()`.
 * Added `round_like()` function to round numeric values based on explicit or inferred significant digits from a reference value. (Experimental, API may change.)
 
 ## Improvements
