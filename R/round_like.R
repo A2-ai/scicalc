@@ -41,6 +41,6 @@ round_like <- function(x, ref = NULL, sdig = NULL) {
     return(signif(x, sdig_use))
   }
   if (is.null(sdig) && is.null(ref)) {
-    return(signif(x, 3))
+    return(x)
   }
 }
