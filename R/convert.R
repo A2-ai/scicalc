@@ -86,7 +86,10 @@ convert_creat <- function(creat) {
   if (any(is.na(creat))) {
     message("creat contains missing values")
   }
-
-  creat_mgdl <- creat / 88.42 # MediCalc conversion factor
+  mol_weight_creat <- 113.12 # g/mol
+  # convert umol/L to mg/dL
+  # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
+  conversion_factor <- mol_weight_creat / 10^4
+  creat_mgdl <- creat * conversion_factor
   return(creat_mgdl)
 }
