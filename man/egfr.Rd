@@ -4,7 +4,7 @@
 \alias{egfr}
 \title{Calculates eGFR based on the method specified}
 \usage{
-egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009")
+egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2021")
 }
 \arguments{
 \item{sexf}{a boolean representing if the patient is female.}
@@ -31,11 +31,11 @@ Calculates eGFR based on the method specified
 e <- egfr(TRUE, TRUE, 24, 1, "CKDEPI 2009")
 
 df <- data.frame(
-   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-   "AGE" = c(24, 24, 23, 24),
-   "CREAT" = c(1, 1, 2, 1)
-   )
+  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+  "AGE" = c(24, 24, 23, 24),
+  "CREAT" = c(1, 1, 2, 1)
+)
 df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
 df
 }

@@ -40,3 +40,19 @@ test_that("crcl messages about NA values", {
   expect_message(crcl(TRUE, 30, NA, 70), "creat contains")
   expect_message(crcl(TRUE, 30, 10, NA), "weight contains")
 })
+
+test_that("crcl warns about recycling", {
+  sexf <- c(TRUE, FALSE, TRUE)
+  expect_warning(
+    crcl(sexf, 30, 1.0, 70),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    crcl(TRUE, c(25, 30), 1.0, 70),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    crcl(TRUE, 30, c(1.0, 1.2, 1.5), 70),
+    "Inputs have different lengths! Please check data."
+  )
+})

@@ -111,3 +111,19 @@ test_that("ckdepi_2021_egfr messages about missing values", {
   )
   expect_message(ckdepi_2021_egfr_cystatin(FALSE, 24, 1, NA), "cystc contains ")
 })
+
+test_that("ckdepi_2021_egfr warns about recycling", {
+  sexf <- c(TRUE, FALSE, TRUE)
+  expect_warning(
+    ckdepi_2021_egfr_cystatin(sexf, 24, 1, 0.9),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    ckdepi_2021_egfr_cystatin(TRUE, c(25, 30), 1, 0.9),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    ckdepi_2021_egfr_cystatin(TRUE, 24, c(1.0, 1.2), 0.9),
+    "Inputs have different lengths! Please check data."
+  )
+})

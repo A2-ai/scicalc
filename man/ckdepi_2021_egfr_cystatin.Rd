@@ -25,12 +25,12 @@ Calculates eGFR with CKDEPI 2021 cystatin equation
 e <- ckdepi_2021_egfr_cystatin(TRUE, 24, 1, 2)
 
 df <- data.frame(
-   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-   "AGE" = c(24, 24, 23, 24),
-   "CREAT" = c(1, 1, 2, 1),
-   "CYSTC" = c(0.4, 0.8, 1, 2)
-   )
+  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+  "AGE" = c(24, 24, 23, 24),
+  "CREAT" = c(1, 1, 2, 1),
+  "CYSTC" = c(0.4, 0.8, 1, 2)
+)
 df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
 df
 }

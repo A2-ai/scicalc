@@ -30,6 +30,11 @@ crcl <- function(sexf, age, creat, weight) {
   checkmate::assertNumeric(creat)
   checkmate::assertNumeric(weight)
 
+  input_lengths <- lengths(list(sexf, age, creat, weight))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
     message('sexf contains missing values')
   }

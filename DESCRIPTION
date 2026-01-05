@@ -1,6 +1,6 @@
 Package: scicalc
 Title: Scientific Calculations for Quantitative Clinical Pharmacology and Pharmacometrics Analysis
-Version: 0.2.1
+Version: 0.3.0
 Authors@R: c( 
     person("Matthew", "Smith", , "matthews@a2-ai.com", role = c("aut", "cre")),
     person("Jenna", "Johnson", , "jenna@a2-ai.com", role = "aut"),
@@ -15,7 +15,7 @@ Description: Utility functions helpful for reproducible scientific calculations.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     arrow,
     checkmate,
@@ -29,7 +29,8 @@ Imports:
     readxl,
     rlang,
     stats,
-    stringr
+    stringr,
+    tibble
 Suggests: 
     knitr,
     rmarkdown,

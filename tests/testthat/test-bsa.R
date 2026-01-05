@@ -71,4 +71,22 @@ test_that("bsa messages about missing values", {
   expect_message(bsa(80.56, NA, method = "Mosteller"), "height contains ")
 })
 
+test_that("bsa warns about recycling", {
+  weights <- c(60, 70, 80)
+  expect_warning(
+    bsa(weights, 170),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    bsa(70, c(160, 170)),
+    "Inputs have different lengths! Please check data."
+  )
+
+  # Test with method parameter
+  expect_warning(
+    bsa(weights, 170, method = "Mosteller"),
+    "Inputs have different lengths! Please check data."
+  )
+})
+
 METHOD = 'Mosteller'
