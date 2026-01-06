@@ -34,8 +34,8 @@ bmi <- function(weight, height) {
   }
 
   bmi <- weight / ((height / 100)^2)
-
-  bmi
+  attr(bmi, "units") <- "kg/m^2"
+  return(bmi)
 }
 
 

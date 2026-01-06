@@ -1,19 +1,27 @@
+test_that("rfc sets category_standard attribute", {
+  result_regulatory <- rfc(estimator = 60, absolute_units = TRUE)
+  expect_equal(attr(result_regulatory, "category_standard"), "regulatory")
+
+  result_clinical <- rfc(estimator = 60, absolute_units = TRUE, bsa = 1.73, category_standard = "clinical")
+  expect_equal(attr(result_clinical, "category_standard"), "clinical")
+})
+
 test_that("rfc correctly calculates regulatory categories with absolute estimator", {
-  expect_equal(rfc(estimator = 0, absolute_units = TRUE), 4)
-  expect_equal(rfc(estimator = 30, absolute_units = TRUE), 3)
-  expect_equal(rfc(estimator = 60, absolute_units = TRUE), 2)
-  expect_equal(rfc(estimator = 90, absolute_units = TRUE), 1)
-  expect_equal(rfc(estimator = 100, absolute_units = TRUE), 1)
-  expect_equal(rfc(estimator = NA, absolute_units = TRUE), -999)
+  expect_equal(rfc(estimator = 0, absolute_units = TRUE), 4, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 30, absolute_units = TRUE), 3, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 60, absolute_units = TRUE), 2, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 90, absolute_units = TRUE), 1, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 100, absolute_units = TRUE), 1, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = NA, absolute_units = TRUE), -999, ignore_attr = TRUE)
 })
 
 test_that("rfc correctly calculates regulatory categories with relative estimator and bsa", {
-  expect_equal(rfc(estimator = 0, absolute_units = FALSE, bsa = 1.73), 4)
-  expect_equal(rfc(estimator = 30, absolute_units = FALSE, bsa = 1.73), 3)
-  expect_equal(rfc(estimator = 60, absolute_units = FALSE, bsa = 1.73), 2)
-  expect_equal(rfc(estimator = 90, absolute_units = FALSE, bsa = 1.73), 1)
-  expect_equal(rfc(estimator = 100, absolute_units = FALSE, bsa = 1.73), 1)
-  expect_equal(rfc(estimator = NA, absolute_units = FALSE, bsa = 1.73), -999)
+  expect_equal(rfc(estimator = 0, absolute_units = FALSE, bsa = 1.73), 4, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 30, absolute_units = FALSE, bsa = 1.73), 3, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 60, absolute_units = FALSE, bsa = 1.73), 2, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 90, absolute_units = FALSE, bsa = 1.73), 1, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = 100, absolute_units = FALSE, bsa = 1.73), 1, ignore_attr = TRUE)
+  expect_equal(rfc(estimator = NA, absolute_units = FALSE, bsa = 1.73), -999, ignore_attr = TRUE)
 })
 
 test_that("rfc correctly calculates clinical categories with absolute estimator", {
@@ -24,7 +32,8 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    5
+    5,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -33,7 +42,8 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    5
+    5,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -42,7 +52,8 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    4
+    4,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -51,7 +62,8 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    3
+    3,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -60,7 +72,8 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    2
+    2,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -69,7 +82,8 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    1
+    1,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -78,30 +92,36 @@ test_that("rfc correctly calculates clinical categories with absolute estimator"
       bsa = 1.73,
       category_standard = "clinical"
     ),
-    1
+    1,
+    ignore_attr = TRUE
   )
 })
 
 test_that("rfc correctly calculates clinical categories with relative estimator", {
   expect_equal(
     rfc(estimator = 0, absolute_units = FALSE, category_standard = "clinical"),
-    5
+    5,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(estimator = 15, absolute_units = FALSE, category_standard = "clinical"),
-    4
+    4,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(estimator = 30, absolute_units = FALSE, category_standard = "clinical"),
-    3
+    3,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(estimator = 60, absolute_units = FALSE, category_standard = "clinical"),
-    2
+    2,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(estimator = 90, absolute_units = FALSE, category_standard = "clinical"),
-    1
+    1,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(
@@ -109,11 +129,13 @@ test_that("rfc correctly calculates clinical categories with relative estimator"
       absolute_units = FALSE,
       category_standard = "clinical"
     ),
-    1
+    1,
+    ignore_attr = TRUE
   )
   expect_equal(
     rfc(estimator = NA, absolute_units = FALSE, category_standard = "clinical"),
-    -999
+    -999,
+    ignore_attr = TRUE
   )
 })
 
@@ -140,7 +162,8 @@ test_that("rfc infers absolute_units from input attribute", {
   # Should infer absolute_units = FALSE and use clinical pathway without bsa
   expect_equal(
     rfc(estimator = relative_input, category_standard = "clinical"),
-    2
+    2,
+    ignore_attr = TRUE
   )
 
   # Create input with absolute units attribute (from aegfr())
@@ -149,7 +172,7 @@ test_that("rfc infers absolute_units from input attribute", {
 
   # Should infer absolute_units = TRUE and use regulatory pathway
 
-  expect_equal(rfc(estimator = absolute_input), 2)
+  expect_equal(rfc(estimator = absolute_input), 2, ignore_attr = TRUE)
 })
 
 test_that("rfc warns when absolute_units conflicts with attribute", {
@@ -209,7 +232,8 @@ test_that("rfc handles missing values correctly", {
   # Test mixed NA vectors
   expect_equal(
     rfc(estimator = c(60, NA, 90), absolute_units = TRUE),
-    c(2, -999, 1)
+    c(2, -999, 1),
+    ignore_attr = TRUE
   )
   expect_message(
     rfc(estimator = c(60, NA, 90), absolute_units = TRUE),
@@ -236,6 +260,7 @@ test_that("rfc conversion functions handle BSA validation correctly", {
   # But NA estimator with NA BSA should be fine
   expect_equal(
     rfc(estimator = c(60, NA), absolute_units = FALSE, bsa = c(1.8, NA)),
-    c(2, -999)
+    c(2, -999),
+    ignore_attr = TRUE
   )
 })

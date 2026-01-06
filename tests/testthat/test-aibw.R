@@ -1,3 +1,8 @@
+test_that("aibw sets units attribute", {
+  result <- aibw(70, 170, 0, 25)
+  expect_equal(attr(result, "units"), "kg")
+})
+
 test_that("aibw works for basic calculations", {
   # Test with realistic clinical data similar to function example
   weights <- c(53, 71, 78, 55, 72, 43)
@@ -43,7 +48,7 @@ test_that("aibw handles allow_tbw_lt_ibw parameter correctly", {
   expect_true(all(results_allow < ibw_values))
 
   # With allow_tbw_lt_ibw = FALSE, AIBW should equal IBW for underweight patients
-  expect_equal(results_conservative, ibw_values)
+  expect_equal(results_conservative, ibw_values, ignore_attr = TRUE)
 
   # Results should be different
   expect_false(all(results_allow == results_conservative))
@@ -101,8 +106,8 @@ test_that("aibw can be used in a mutate", {
   expect_true(all(!is.na(df$AIBW)))
 
   # Verify a few manual calculations
-  expect_equal(df$AIBW[1], aibw(53, 160, 1, 18))
-  expect_equal(df$AIBW[7], aibw(95, 168, 0, 45)) # Overweight case
+  expect_equal(df$AIBW[1], aibw(53, 160, 1, 18), ignore_attr = TRUE)
+  expect_equal(df$AIBW[7], aibw(95, 168, 0, 45), ignore_attr = TRUE) # Overweight case
 
   # Test with both parameter variations in mutate
   df_conservative <- df %>%

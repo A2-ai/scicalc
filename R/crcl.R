@@ -50,5 +50,6 @@ crcl <- function(sexf, age, creat, weight) {
 
   sex_mult <- ifelse(sexf, 0.85, 1)
   crcl <- (140 - age) * weight / (72 * creat) * sex_mult
+  attr(crcl, "units") <- "mL/min"
   return(crcl)
 }

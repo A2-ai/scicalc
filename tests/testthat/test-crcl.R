@@ -1,8 +1,14 @@
 test_that("crcl works for single entries", {
   expect_equal(
     crcl(TRUE, 30, 10, 70) %>% round(3),
-    9.090
+    9.090,
+    ignore_attr = TRUE
   )
+})
+
+test_that("crcl sets units attribute", {
+  result <- crcl(TRUE, 30, 10, 70)
+  expect_equal(attr(result, "units"), "mL/min")
 })
 
 test_that("crcl works within mutates", {
@@ -30,7 +36,8 @@ test_that("crcl works within mutates", {
 
   expect_equal(
     df$CRCL %>% round(3),
-    c(95.861, 95.861, 95.861, 95.861, 26.632, 26.632, 26.632, 26.632)
+    c(95.861, 95.861, 95.861, 95.861, 26.632, 26.632, 26.632, 26.632),
+    ignore_attr = TRUE
   )
 })
 

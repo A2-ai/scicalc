@@ -61,5 +61,7 @@ ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
     height <- ifelse(height < 152.4, 152.4, height)
   }
 
-  ideal_weight + 2.3 / 2.54 * (height - 152.4)
+  ibw <- ideal_weight + 2.3 / 2.54 * (height - 152.4)
+  attr(ibw, "units") <- "kg"
+  return(ibw)
 }

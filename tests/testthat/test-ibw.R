@@ -1,20 +1,26 @@
 test_that("ibw works for basic calculations", {
   # Male at 5 feet (152.4 cm) should be 50 kg base weight
-  expect_equal(ibw(152.4, 0, 25), 50)
+  expect_equal(ibw(152.4, 0, 25), 50, ignore_attr = TRUE)
 
   # Female at 5 feet (152.4 cm) should be 45.5 kg base weight
-  expect_equal(ibw(152.4, 1, 30), 45.5)
+  expect_equal(ibw(152.4, 1, 30), 45.5, ignore_attr = TRUE)
 
   # Male at 5'10" (177.8 cm): 50 + 23 kg = 73 kg
-  expect_equal(ibw(177.8, 0, 35), 73, tolerance = 0.1)
+  expect_equal(ibw(177.8, 0, 35), 73, tolerance = 0.1, ignore_attr = TRUE)
 
   # Female at 5'4" (162.56 cm): 45.5 + 9.2 kg = 54.7 kg
-  expect_equal(ibw(162.56, 1, 28), 54.7, tolerance = 0.1)
+  expect_equal(ibw(162.56, 1, 28), 54.7, tolerance = 0.1, ignore_attr = TRUE)
 
   expect_equal(
     ibw(c(152.4, 152.4, 177.8, 162.56), c(0, 1, 0, 1), c(25, 30, 35, 28)),
-    c(50, 45.5, 73, 54.7)
+    c(50, 45.5, 73, 54.7),
+    ignore_attr = TRUE
   )
+})
+
+test_that("ibw sets units attribute", {
+  result <- ibw(170, 0, 25)
+  expect_equal(attr(result, "units"), "kg")
 })
 
 test_that("ibw handles allow_ibw_lt_intercept parameter correctly", {
@@ -26,7 +32,7 @@ test_that("ibw handles allow_ibw_lt_intercept parameter correctly", {
 
   # When allow_ibw_lt_intercept = FALSE, IBW gets clamped to intercept
   short_male_clamp <- ibw(141., 0, 25, allow_ibw_lt_intercept = FALSE)
-  expect_equal(short_male_clamp, 50) # Should equal base weight
+  expect_equal(short_male_clamp, 50, ignore_attr = TRUE) # Should equal base weight
 
   # Results should be different
   expect_false(short_male_allow == short_male_clamp)
@@ -42,7 +48,7 @@ test_that("ibw can be used in a mutate", {
   df <- df %>%
     dplyr::mutate(IBW = ibw(HEIGHT, SEX, AGE))
 
-  expect_equal(df$IBW, c(50, 54.7, 73))
+  expect_equal(df$IBW, c(50, 54.7, 73), ignore_attr = TRUE)
 })
 
 test_that("ibw fails with non-numeric inputs", {
@@ -78,7 +84,7 @@ test_that("ibw warns for pediatric ages", {
 
   # Ensure calculation still works despite warning
   expect_warning(result <- ibw(170, 0, 17))
-  expect_equal(result, ibw(170, 0, 25)) # Should give same result as adult
+  expect_equal(result, ibw(170, 0, 25), ignore_attr = TRUE) # Should give same result as adult
 })
 
 test_that("ibw handles missing age values", {
@@ -96,7 +102,7 @@ test_that("ibw handles missing age values", {
 
   # Ensure calculation still works with NA ages
   expect_message(result <- ibw(170, 0, NA))
-  expect_equal(result, ibw(170, 0, 25)) # Should give same result
+  expect_equal(result, ibw(170, 0, 25), ignore_attr = TRUE) # Should give same result
 })
 
 test_that("ibw warns about recycling", {

@@ -88,21 +88,15 @@ patients <- patients %>%
     BSA = bsa(WEIGHT, HEIGHT),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
     AEGFR = aegfr(EGFR, BSA),
-    RFC_CLINICAL = rfc(EGFR, category_standard = "clinical"),
-    RFC_REGULATORY = rfc(AEGFR)
+    RFC = rfc(AEGFR)
   )
 
 patients
-#>   ID    SEX  RACE AGE WEIGHT HEIGHT CREAT      BSA      EGFR     AEGFR
-#> 1  1 Female White  45     68    165   0.9 1.749277  80.34339  81.23862
-#> 2  2   Male Black  62     85    178   1.4 2.032001  56.82811  66.74842
-#> 3  3 Female Asian  38     55    158   0.7 1.548984 113.45681 101.58541
-#> 4  4   Male White  71     78    172   1.8 1.911017  39.74485  43.90352
-#>   RFC_CLINICAL RFC_REGULATORY
-#> 1            2              2
-#> 2            3              2
-#> 3            1              1
-#> 4            3              3
+#>   ID    SEX  RACE AGE WEIGHT HEIGHT CREAT      BSA      EGFR     AEGFR RFC
+#> 1  1 Female White  45     68    165   0.9 1.749277  80.34339  81.23862   2
+#> 2  2   Male Black  62     85    178   1.4 2.032001  56.82811  66.74842   2
+#> 3  3 Female Asian  38     55    158   0.7 1.548984 113.45681 101.58541   1
+#> 4  4   Male White  71     78    172   1.8 1.911017  39.74485  43.90352   3
 ```
 
 ## Documentation

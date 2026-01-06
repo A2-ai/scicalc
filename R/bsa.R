@@ -58,7 +58,7 @@ dubois_bsa <- function(weight, height) {
   }
 
   bsa <- (weight^0.425) * (height^0.725) * 0.007184
-
+  attr(bsa, "units") <- "m^2"
   return(bsa)
 } # bsa
 
@@ -90,5 +90,6 @@ mosteller_bsa <- function(weight, height) {
   }
 
   bsa <- sqrt(height * weight / 3600)
+  attr(bsa, "units") <- "m^2"
   return(bsa)
 }

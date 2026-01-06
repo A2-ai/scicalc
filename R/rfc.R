@@ -148,6 +148,7 @@ rfc <- function(
 
     rfc <- regulatory_rfc(abs_est)
   }
+  attr(rfc, "category_standard") <- category_standard
   return(rfc)
 }
 

@@ -48,5 +48,7 @@ aibw <- function(
     mult <- ifelse(mult < 0, 0, mult)
   }
 
-  ideal_bw + 0.4 * mult
+  aibw <- ideal_bw + 0.4 * mult
+  attr(aibw, "units") <- "kg"
+  return(aibw)
 }

@@ -89,8 +89,7 @@ patients <- patients %>%
     BSA = bsa(WEIGHT, HEIGHT),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
     AEGFR = aegfr(EGFR, BSA),
-    RFC_CLINICAL = rfc(EGFR, category_standard = "clinical"),
-    RFC_REGULATORY = rfc(AEGFR)
+    RFC = rfc(AEGFR)
   )
 
 patients
