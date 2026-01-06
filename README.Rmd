@@ -13,29 +13,89 @@ knitr::opts_chunk$set(
 )
 ```
 
-# scicalc <a href="https://potential-broccoli-9pe6wkn.pages.github.io/"><img src="man/figures/logo.png" align="right" height="139" alt="scicalc website" /></a>
+# scicalc <a href="https://a2-ai.github.io/scicalc/"><img src="man/figures/logo.png" align="right" height="139" alt="scicalc website" /></a>
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/a2-ai/scicalc/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/a2-ai/scicalc/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of scicalc is to provide a easy way to perform common calculations for PKPD datasets.
+scicalc provides common calculations for PK/PD dataset preparation and analysis, including renal function, body measurements, organ function classification, and reproducible data I/O with hash verification.
 
 ## Installation
 
-You can install the development version of scicalc from [GitHub](https://github.com/a2-ai/scicalc) with:
+You can install the development version of `scicalc` from
+[GitHub](https://github.com) with:
 
 ``` r
-# install.packages("devtools")
-options(repos = c('scicalc' = "https://a2-ai.github.io/gh-pkg-mirror/scicalc", getOption("repos")))
-install.packages("scicalc")
+pak::pkg_install("a2-ai/scicalc")
 ```
 
-## Example
+## Features
 
-This is a basic example which shows you how to solve a common problem:
+### Renal Function
 
-```{r example}
+- **eGFR calculation** with multiple methods: CKD-EPI 2009, CKD-EPI 2021, CKD-EPI 2021 with cystatin C, MDRD, and Schwartz (pediatric)
+- **Absolute eGFR** conversion from relative (mL/min/1.73m²) to absolute (mL/min)
+- **Creatinine clearance** using Cockcroft-Gault equation
+- **Renal function classification** supporting both regulatory (FDA) and clinical (KDIGO) categories
+
+### Body Measurements
+
+- **BMI** calculation and categorization (underweight, normal, overweight, obese classes)
+- **Body surface area** using DuBois or Mosteller methods
+- **Ideal body weight** and adjusted ideal body weight
+
+### Organ Function Classification
+
+- **Hepatic function classification** using NCI-ODWG criteria (bilirubin and AST-based)
+- **Renal function classification** with regulatory and clinical standards
+
+### Age Classification
+
+- Age categories: neonate, infant, child, adolescent, adult, elderly
+
+### Data Helpers
+
+- **Demographic conversions**: `is_female()`, `is_black()`, `is_asian()`, etc. for use in clinical equations
+- **Unit conversions**: creatinine (mg/dL to µmol/L), bilirubin, albumin
+- **Geometric statistics**: geometric mean, SD, and CV
+
+### Reproducible Data I/O
+
+- **Read/write with hash verification**: Automatically compute and display file hashes when reading or writing data
+- **Multiple formats**: CSV, Parquet, SAS (sas7bdat), Excel, XPT, PZFX
+- **Hash validation**: Read files only if they match an expected hash
+
+## Quick Example
+
+```{r example, message=FALSE, warning=FALSE}
 library(scicalc)
-## basic example code
+library(dplyr)
+
+# Sample patient data
+patients <- data.frame(
+  ID = 1:4,
+  SEX = c("Female", "Male", "Female", "Male"),
+  RACE = c("White", "Black", "Asian", "White"),
+  AGE = c(45, 62, 38, 71),
+  WEIGHT = c(68, 85, 55, 78),
+  HEIGHT = c(165, 178, 158, 172),
+  CREAT = c(0.9, 1.4, 0.7, 1.8)
+)
+
+# Calculate derived values
+patients <- patients %>%
+  mutate(
+    BSA = bsa(WEIGHT, HEIGHT),
+    EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
+    AEGFR = aegfr(EGFR, BSA),
+    RFC_CLINICAL = rfc(EGFR, category_standard = "clinical"),
+    RFC_REGULATORY = rfc(AEGFR)
+  )
+
+patients
 ```
+
+## Documentation
+
+See the [package website](https://a2-ai.github.io/scicalc/) for full documentation.
