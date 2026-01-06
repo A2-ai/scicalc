@@ -1,9 +1,9 @@
 test_that("rfc sets category_standard attribute", {
   result_regulatory <- rfc(estimator = 60, absolute_units = TRUE)
-  expect_equal(attr(result_regulatory, "category_standard"), "regulatory")
+  expect_equal(attr(result_regulatory, "category_standard"), "FDA")
 
   result_clinical <- rfc(estimator = 60, absolute_units = TRUE, bsa = 1.73, category_standard = "clinical")
-  expect_equal(attr(result_clinical, "category_standard"), "clinical")
+  expect_equal(attr(result_clinical, "category_standard"), "KDIGO")
 })
 
 test_that("rfc correctly calculates regulatory categories with absolute estimator", {

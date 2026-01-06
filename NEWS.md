@@ -22,7 +22,7 @@
   - `convert_creat()`, `convert_bili()`: "mg/dL"
   - `convert_alb()`: "g/dL"
 * Category functions now include a `category_standard` attribute:
-  - `rfc()`: "regulatory" or "clinical"
+  - `rfc()`: "FDA" or "KDIGO"
   - `hfc()`: "NCI-ODWG"
   - `bmic()`: "WHO"
   - `agec()`: "FDA"

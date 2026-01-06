@@ -25,7 +25,8 @@ or mL/min/1.73m² (\code{FALSE})}
 }
 \value{
 Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-Returns \code{-999} for missing values.
+Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+indicating the source ("FDA" or "KDIGO").
 }
 \description{
 This function categorizes renal function based on estimated glomerular filtration rate (eGFR),
@@ -102,6 +103,13 @@ df \%>\%
     BRFC_REGULATORY_ABS = rfc(AEGFR)
   )
 df
+}
+\references{
+FDA Guidance for Industry: Pharmacokinetics in Patients with Impaired Renal Function.
+\url{https://www.fda.gov/media/78573/download}
+
+KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease.
+\url{https://www.kidney-international.org/action/showPdf?pii=S0085-2538(23)00766-4}
 }
 \seealso{
 \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,
