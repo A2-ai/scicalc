@@ -25,6 +25,7 @@ convert_alb <- function(alb) {
   }
 
   alb_gdl <- alb / 10
+  attr(alb_gdl, "units") <- "g/dL"
   return(alb_gdl)
 }
 
@@ -58,6 +59,7 @@ convert_bili <- function(bili) {
   # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
   conversion_factor <- mol_weight_bili / 10^4
   bili_mgdl <- bili * conversion_factor
+  attr(bili_mgdl, "units") <- "mg/dL"
   return(bili_mgdl)
 }
 
@@ -91,5 +93,6 @@ convert_creat <- function(creat) {
   # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
   conversion_factor <- mol_weight_creat / 10^4
   creat_mgdl <- creat * conversion_factor
+  attr(creat_mgdl, "units") <- "mg/dL"
   return(creat_mgdl)
 }

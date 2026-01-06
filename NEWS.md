@@ -13,7 +13,15 @@
 
 ## Improvements
 
-* eGFR functions now set a `units` attribute on results ("mL/min/1.73m^2" for relative, "mL/min" for absolute).
+* Computed quantities now include a `units` attribute for unit tracking:
+  - eGFR functions: "mL/min/1.73m^2" (relative) or "mL/min" (absolute)
+  - `crcl()`: "mL/min"
+  - `bsa()`, `dubois_bsa()`, `mosteller_bsa()`: "m^2"
+  - `bmi()`: "kg/m^2"
+  - `ibw()`, `aibw()`: "kg"
+  - `convert_creat()`, `convert_bili()`: "mg/dL"
+  - `convert_alb()`: "g/dL"
+* `rfc()` now includes a `category_standard` attribute ("regulatory" or "clinical").
 * `rfc()` can now infer `absolute_units` from the input's `units` attribute, allowing `rfc(AEGFR)` to work directly without specifying units.
 * Updated `egfr()` equation default to use CKDEPI 2021 equation.
 * Default hash algorithm changed from md5 to blake3 for `read_file_with_hash()` and related functions.
