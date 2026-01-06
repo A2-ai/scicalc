@@ -1,3 +1,8 @@
+test_that("agec sets category_standard attribute", {
+  result <- agec(25)
+  expect_equal(attr(result, "category_standard"), "FDA")
+})
+
 test_that("agec correctly classifies all age categories using roxygen example", {
   # Use the exact example from the function documentation
   df <- data.frame(
@@ -18,7 +23,7 @@ test_that("agec correctly classifies all age categories using roxygen example", 
   # 18, 24 -> 5 (Adult)
   # 65, 70 -> 6 (Elder Adult)
   expected_agec <- c(1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6)
-  expect_equal(df$AGEC, expected_agec)
+  expect_equal(df$AGEC, expected_agec, ignore_attr = TRUE)
 })
 
 test_that("agec produces appropriate warnings and messages", {
@@ -47,7 +52,7 @@ test_that("agec works with dplyr operations", {
     agec(ages),
     "Neonate ages detected. Confirm assignment."
   )
-  expect_equal(suppressWarnings(agec(ages)), expected)
+  expect_equal(suppressWarnings(agec(ages)), expected, ignore_attr = TRUE)
 
   # Test with grouped data
   df <- data.frame(
@@ -60,7 +65,7 @@ test_that("agec works with dplyr operations", {
     dplyr::group_by(SEX) %>%
     dplyr::mutate(AGEC = agec(AGE))
 
-  expect_equal(df$AGEC, c(5, 5, 4, 6))
+  expect_equal(df$AGEC, c(5, 5, 4, 6), ignore_attr = TRUE)
 })
 
 test_that("agec handles edge cases and invalid inputs", {
@@ -69,21 +74,21 @@ test_that("agec handles edge cases and invalid inputs", {
     agec(-1),
     "age contains values less than 0 years. Confirm data is correct"
   )
-  expect_equal(suppressWarnings(agec(-1)), -999)
+  expect_equal(suppressWarnings(agec(-1)), -999, ignore_attr = TRUE)
 
   # Test ages > 116 still get categorized correctly if otherwise valid
   expect_warning(
     agec(120),
     "age contains values > 116 years. Confirm data is correct."
   )
-  expect_equal(suppressWarnings(agec(120)), 6)
+  expect_equal(suppressWarnings(agec(120)), 6, ignore_attr = TRUE)
 
   # Test non-numeric input should error due to checkmate
   expect_error(agec("not_numeric"))
   expect_error(agec(factor(c(1, 2, 3))))
 
   # Test boundary precision - the key case that was failing
-  expect_equal(suppressWarnings(agec(28 / 365)), 2) # Exactly 28 days should be infant
-  expect_equal(suppressWarnings(agec(27 / 365)), 1) # 27 days should be neonate
-  expect_equal(agec(29 / 365), 2) # 29 days should be infant
+  expect_equal(suppressWarnings(agec(28 / 365)), 2, ignore_attr = TRUE) # Exactly 28 days should be infant
+  expect_equal(suppressWarnings(agec(27 / 365)), 1, ignore_attr = TRUE) # 27 days should be neonate
+  expect_equal(agec(29 / 365), 2, ignore_attr = TRUE) # 29 days should be infant
 })

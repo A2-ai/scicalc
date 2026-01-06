@@ -80,7 +80,7 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
     message("ULNBILI contains missing values")
   }
 
-  dplyr::case_when(
+  hfc <- dplyr::case_when(
     # CASE 1: AST ≤ ULN AND bilirubin ≤ ULN
     ast <= ulnast & bili <= ulnbili ~ 1,
     # CASE 2.a: AST > ULN OR bilirubin > ULN but < 1.5 × ULN (misses the = in ≤)
@@ -96,6 +96,8 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
     # ELSE
     .default = -999
   )
+  attr(hfc, "category_standard") <- "NCI-ODWG"
+  return(hfc)
 }
 
 

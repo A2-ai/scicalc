@@ -21,7 +21,11 @@
   - `ibw()`, `aibw()`: "kg"
   - `convert_creat()`, `convert_bili()`: "mg/dL"
   - `convert_alb()`: "g/dL"
-* `rfc()` now includes a `category_standard` attribute ("regulatory" or "clinical").
+* Category functions now include a `category_standard` attribute:
+  - `rfc()`: "regulatory" or "clinical"
+  - `hfc()`: "NCI-ODWG"
+  - `bmic()`: "WHO"
+  - `agec()`: "FDA"
 * `rfc()` can now infer `absolute_units` from the input's `units` attribute, allowing `rfc(AEGFR)` to work directly without specifying units.
 * Updated `egfr()` equation default to use CKDEPI 2021 equation.
 * Default hash algorithm changed from md5 to blake3 for `read_file_with_hash()` and related functions.

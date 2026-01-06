@@ -1,15 +1,20 @@
+test_that("hfc sets category_standard attribute", {
+  result <- hfc(15, 33, 0.6, 1.2)
+  expect_equal(attr(result, "category_standard"), "NCI-ODWG")
+})
+
 test_that("hfc computes all levels of hfc", {
-  expect_equal(hfc(15, 33, 0.6, 1.2), 1)
-  expect_equal(hfc(33, 33, 0.6, 1.2), 1)
-  expect_equal(hfc(30, 33, 1.2, 1.2), 1)
-  expect_equal(hfc(33, 33, 1.2, 1.2), 1)
-  expect_equal(hfc(15, 33, 1.5, 1.2), 2)
-  expect_equal(hfc(35, 33, 0.6, 1.2), 2)
-  expect_equal(hfc(10, 33, 1.8, 1.2), 2)
-  expect_equal(hfc(100, 33, 1.8, 1.2), 2)
-  expect_equal(hfc(4, 33, 3.6, 1.2), 3)
-  expect_equal(hfc(4, 33, 3.8, 1.2), 4)
-  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999)
+  expect_equal(hfc(15, 33, 0.6, 1.2), 1, ignore_attr = TRUE)
+  expect_equal(hfc(33, 33, 0.6, 1.2), 1, ignore_attr = TRUE)
+  expect_equal(hfc(30, 33, 1.2, 1.2), 1, ignore_attr = TRUE)
+  expect_equal(hfc(33, 33, 1.2, 1.2), 1, ignore_attr = TRUE)
+  expect_equal(hfc(15, 33, 1.5, 1.2), 2, ignore_attr = TRUE)
+  expect_equal(hfc(35, 33, 0.6, 1.2), 2, ignore_attr = TRUE)
+  expect_equal(hfc(10, 33, 1.8, 1.2), 2, ignore_attr = TRUE)
+  expect_equal(hfc(100, 33, 1.8, 1.2), 2, ignore_attr = TRUE)
+  expect_equal(hfc(4, 33, 3.6, 1.2), 3, ignore_attr = TRUE)
+  expect_equal(hfc(4, 33, 3.8, 1.2), 4, ignore_attr = TRUE)
+  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999, ignore_attr = TRUE)
 })
 
 test_that("hfc messages about NA values", {
@@ -20,12 +25,12 @@ test_that("hfc messages about NA values", {
 })
 
 test_that("hfc returns -999 for NA values", {
-  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999)
-  expect_equal(suppressMessages(hfc(10, NA, 0.6, 1.2)), -999)
-  expect_equal(suppressMessages(hfc(10, 33, NA, 1.2)), -999)
-  expect_equal(suppressMessages(hfc(10, 33, 0.6, NA)), -999)
-  expect_equal(suppressMessages(hfc(NA, NA, 0.6, 1.2)), -999)
-  expect_equal(suppressMessages(hfc(10, 33, NA, NA)), -999)
+  expect_equal(suppressMessages(hfc(NA, 33, 0.6, 1.2)), -999, ignore_attr = TRUE)
+  expect_equal(suppressMessages(hfc(10, NA, 0.6, 1.2)), -999, ignore_attr = TRUE)
+  expect_equal(suppressMessages(hfc(10, 33, NA, 1.2)), -999, ignore_attr = TRUE)
+  expect_equal(suppressMessages(hfc(10, 33, 0.6, NA)), -999, ignore_attr = TRUE)
+  expect_equal(suppressMessages(hfc(NA, NA, 0.6, 1.2)), -999, ignore_attr = TRUE)
+  expect_equal(suppressMessages(hfc(10, 33, NA, NA)), -999, ignore_attr = TRUE)
 })
 
 test_that("hfc works within dpylr pipes", {
@@ -54,7 +59,7 @@ test_that("hfc works within dpylr pipes", {
   df <- df %>%
     dplyr::group_by(ID) %>%
     dplyr::mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
-  expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1))
+  expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1), ignore_attr = TRUE)
 })
 
 test_that("hfc handles edge cases", {
@@ -70,5 +75,5 @@ test_that("hfc handles edge cases", {
   )
 
   bhfc <- hfc(df$AST, df$ULNAST, df$BILI, df$ULNBILI)
-  expect_equal(bhfc, c(2, 1, 3, 4))
+  expect_equal(bhfc, c(2, 1, 3, 4), ignore_attr = TRUE)
 })

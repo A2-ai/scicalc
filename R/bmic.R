@@ -73,11 +73,13 @@ bmic <- function(bmi, age) {
   }
 
   # Categorize BMI
-  dplyr::case_when(
+  bmic <- dplyr::case_when(
     0 < bmi & bmi < 18.5 ~ 1, # Underweight
     bmi >= 18.5 & bmi < 25 ~ 2, # Normal weight
     bmi >= 25 & bmi < 30 ~ 3, # Overweight
     bmi >= 30 ~ 4, # Obese
     .default = -999
   )
+  attr(bmic, "category_standard") <- "WHO"
+  return(bmic)
 }

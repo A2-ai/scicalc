@@ -49,7 +49,7 @@ agec <- function(age) {
   }
 
   # TODO: fix up division check. Maybe age * 365 < 28
-  dplyr::case_when(
+  agec <- dplyr::case_when(
     0 <= age & age < 28 / 365 ~ 1, # Neonate
     28 / 365 <= age & age < 2 ~ 2, # Infant
     2 <= age & age < 12 ~ 3, # Child
@@ -58,4 +58,6 @@ agec <- function(age) {
     65 <= age ~ 6, # Elder Adult,
     .default = -999
   )
+  attr(agec, "category_standard") <- "FDA"
+  return(agec)
 }
