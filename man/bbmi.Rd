@@ -2,9 +2,7 @@
 % Please edit documentation in R/bmi.R
 \name{bbmi}
 \alias{bbmi}
-\title{Calculate BMI (Deprecated)
-
-\code{bbmi()} was renamed to \code{bmi()} to improve function naming consistency.}
+\title{Calculate BMI (Deprecated)}
 \usage{
 bbmi(...)
 }
@@ -12,8 +10,6 @@ bbmi(...)
 \item{...}{Arguments passed to \code{\link[=bmi]{bmi()}}}
 }
 \description{
-Calculate BMI (Deprecated)
-
 \code{bbmi()} was renamed to \code{bmi()} to improve function naming consistency.
 }
 \keyword{internal}

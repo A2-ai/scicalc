@@ -13,78 +13,19 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
-```{r, include=FALSE}
-library(dplyr)
-data_source <- file.path(here::here(), "inst", "extdata", "data", "source")
-
-for (file in c("dm.sas7bdat", "vs.parquet", "lb.csv", "pc.parquet")) {
-  unlist(file.path(data_source, file))
-}
-
-df <- data.frame(
-  "ID" = factor(c(1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3)),
-  "SEX" = c("F", "F", "F", "F", "M", "M", "M", "M", "F", "F", "F", "F"),
-  "RACE" = c("WHITE", "WHITE", "WHITE", "WHITE", "BLACK", "BLACK", "BLACK", "BLACK", "ASIAN", "ASIAN", "ASIAN", "ASIAN"),
-  "AGE" = c(24, 24, 24, 24, 22, 22, 22, 22, 35, 35, 35, 35),
-  "CREAT" = c(1, 1, 1, 1, 4, 4, 4, 4, 3, 3, 3, 3),
-  "CREATU" = c("mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL"),
-  "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9, 0.7, 0.7, 0.7, 0.7),
-  "CYSTCU" = c("mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L", "mg/L"),
-  "AST" = c(15, 15, 15, 15, 29, 29, 29, 29, 38, 38, 38, 38),
-  "ULNAST" = c(33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33, 33),
-  "ASTU" = c("U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L", "U/L"),
-  "BILI" = c(0.8, 0.8, 0.8, 0.8, 1.9, 1.9, 1.9, 1.9, 1.1, 1.1, 1.1, 1.1),
-  "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2),
-  "BILIU" = c("mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL", "mg/dL"),
-  "HEIGHT" = c(174, 174, 174, 174, 201, 201, 201, 201, 190, 190, 190, 190),
-  "WEIGHT" = c(70, 70, 70, 70, 80, 80, 80, 80, 75, 75, 75, 75),
-  "DV" = c(10, 150, 70, 9, 7, 140, 60, 7, 11, 156, 70, 7),
-  "NTLD" = c(0, 0.25, 1, 8, 0, 0.25, 1, 8, 0, 0.25, 1, 8)
-)
-
-library(ggplot2)
-ggplot2::ggplot(df, aes(x = NTLD, y = DV, color = ID)) +
-  geom_point() +
-  geom_line()
-
-df %>%
-  dplyr::select(c("ID", "SEX", "RACE", "AGE")) %>%
-  haven::write_sas(path = file.path(data_source, "dm.sas7bdat"))
-
-df %>%
-  dplyr::select(c("ID", "HEIGHT", "WEIGHT")) %>%
-  arrow::write_parquet(sink = file.path(data_source, "vs.parquet"))
-
-df %>%
-  dplyr::select(c("ID", "CREAT", "CREATU", "CYSTC", "CYSTCU", "AST", "ULNAST", "BILI", "ULNBILI", "ASTU", "BILIU")) %>%
-  readr::write_csv(file = file.path(data_source, "lb.csv"))
-
-df %>%
-  dplyr::select(c("ID", "DV", "NTLD")) %>%
-  arrow::write_parquet(sink = file.path(data_source, "pc.parquet"))
-```
-
-To install the scicalc package you can run the following two commands:
-```r
-options(repos = c('scicalc' = "https://a2-ai.github.io/gh-pkg-mirror/scicalc",
-                  getOption("repos")))
-install.packages("scicalc")
-```
 # Scicalc
+
 Scicalc is a package of functions commonly used at A2-Ai. We hope this package will ease data assembly and allow for a more reproducible code across analysts and projects. It is in no way complete or all encompassing, but we hope this is a good start. Please let us know if there are additional functions we should include!
+
 ```{r setup}
 library(scicalc)
+library(dplyr)
 ```
 ## Reading in data
 
-I'll first try and read in data from `~/inst/extdata/data/source` - in R packages extra files go in the `inst` directory, but we can pretend this is just like a Project starter `data/source` directory.
+We'll read in data from the package's installed `extdata` directory using `system.file()`. In R packages, extra files go in the `inst` directory, which becomes accessible via `system.file()` after installation.
 ```{r}
-data_source <- file.path(here::here(), "inst", "extdata", "data", "source")
-if (!dir.exists(data_source)) {
-  fs::dir_create(data_source)
-}
-
+data_source <- system.file("extdata", "data", "source", package = "scicalc")
 list.files(data_source)
 ```
 This is a contrived example, but there are several different file types in source data representing different SDTM domains. As well as a `test.txt` file. We can use the `read_file_with_hash` function to read in all the files in this source directory. No more creating `read_file_type_with_hash` functions in each script!
@@ -219,7 +160,7 @@ df
 ## Writting data
 We can use the `write_file_with_hash` to write `parquet` files (We highly recommend you write all data to parquet unless there is a specific need for other file type). We just need to supply a path to the file if the directory the file should be written to does not exist, this function will create it and all directories needed on the path. This function won't let us overwrite the file unless we supply `overwrite = TRUE`. Like `read_file_with_hash` we can choose which algorithm to use for the digest.
 ```{r}
-data_derived <- file.path(here::here(), "inst", "extdata", "data", "derived")
+data_derived <- file.path(tempdir(), "scicalc_demo", "derived")
 if (!file.exists(file.path(data_derived, "pk_data_v01.parquet"))) {
   scicalc::write_file_with_hash(
     df, file.path(data_derived, "pk_data_v01.parquet"),
@@ -259,17 +200,15 @@ data
 
 2. giving the `md5` hash works
 ```{r}
-md5_hash <- digest::digest(file = file.path(data_derived, "pk_data_v01.parquet"))
+md5_hash <- digest::digest(file = file.path(data_derived, "pk_data_v01.parquet"), algo = "md5")
 print(md5_hash)
 ```
 ```{r}
 data <- scicalc::read_hashed_file(
   file.path(data_derived, "pk_data_v01.parquet"),
-  md5_hash
+  md5_hash,
+  algo = "md5"
 )
 data
-```
-```{r, include=FALSE}
-
 ```
 

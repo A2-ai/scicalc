@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{is_not_hispanic_or_latino}
 \alias{is_not_hispanic_or_latino}
-\title{Takes character input and returns TRUE/FALSE if "Not Hispanic or Latino" or other}
+\title{Check if Ethnicity is Not Hispanic or Latino}
 \usage{
 is_not_hispanic_or_latino(x)
 }
@@ -13,7 +13,7 @@ is_not_hispanic_or_latino(x)
 boolean representing Ethnic == "Not Hispanic or Latino"
 }
 \description{
-Takes character input and returns TRUE/FALSE if "Not Hispanic or Latino" or other
+Check if Ethnicity is Not Hispanic or Latino
 }
 \examples{
 is_not_hispanic_or_latino("HISPANIC OR LATINO")
@@ -21,4 +21,19 @@ is_not_hispanic_or_latino("HISPANIC OR LATINO")
 is_not_hispanic_or_latino("NOT HISPANIC OR LATINO")
 
 is_not_hispanic_or_latino("UNKNOWN")
+
+is_not_hispanic_or_latino(0)
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_black}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{is_white}()},
+\code{\link{racen}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}

@@ -1,4 +1,4 @@
-#' Takes character input and returns standard yspec numeric value for Sex.
+#' Convert Sex to Numeric Code
 #'
 #' @description
 #' Also returns numeric for single character Sex characters "F" and "M"
@@ -6,6 +6,8 @@
 #' @param sex Sex character
 #'
 #' @return the standard yspec numeric value for the inputted Sex character
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -20,11 +22,13 @@ sexf <- function(sex) {
   return(ifelse(is_female(sex), 1, 0))
 }
 
-#' Takes character input and returns standard yspec numeric value for Race
+#' Convert Race to Numeric Code
 #'
 #' @param racec Race character
 #'
 #' @return the standard yspec numeric value for the inputted Race character
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -53,11 +57,13 @@ racen <- function(racec) {
   return(racen)
 }
 
-#' Takes character input and returns standard yspec numeric value for Ethnic
+#' Convert Ethnicity to Numeric Code
 #'
 #' @param ethnicc Ethnic character
 #'
 #' @return the standard yspec numeric value for the inputted Ethnic character
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples

@@ -1,4 +1,4 @@
-#' Calculates eGFR based on the method specified
+#' Calculate Estimated Glomerular Filtration Rate
 #'
 #' @param sexf a boolean representing if the patient is female.
 #' @param raceb a boolean representing if the patient is black.
@@ -9,17 +9,19 @@
 #' @param method a string specifying the method to use. Available options are "CKDEPI 2009", "MDRD", "CKDEPI 2021", "Schwartz".
 #'
 #' @return the eGFR calculated based on method.
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
 #' e <- egfr(TRUE, TRUE, 24, 1, "CKDEPI 2009")
 #'
 #' df <- data.frame(
-#'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-#'    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-#'    "AGE" = c(24, 24, 23, 24),
-#'    "CREAT" = c(1, 1, 2, 1)
-#'    )
+#'   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+#'   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+#'   "AGE" = c(24, 24, 23, 24),
+#'   "CREAT" = c(1, 1, 2, 1)
+#' )
 #' df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
 #' df
 egfr <- function(
@@ -29,14 +31,14 @@ egfr <- function(
   creat,
   cystc,
   height,
-  method = "CKDEPI 2009"
+  method = "CKDEPI 2021"
 ) {
   checkmate::assert_choice(
     tolower(method),
     c("ckdepi 2009", "mdrd", "ckdepi 2021 cystatin", "ckdepi 2021", "schwartz")
   )
 
-  method_low = tolower(method)
+  method_low <- tolower(method)
 
   if (method_low == "ckdepi 2009") {
     egfr <- ckdepi_2009_egfr(sexf, raceb, age, creat)
@@ -51,25 +53,41 @@ egfr <- function(
   }
   return(egfr)
 }
-#' Calculates Estimated Glomerular Filtration Rate based on Sex, Race, Age, and Creatinine levels
-#' based on the CKDEPI 2009 equation
+#' Calculate eGFR Using CKD-EPI 2009 Equation
+#'
 #' @param sexf boolean value of sex Female: TRUE, Male: FALSE
 #' @param raceb boolean value of Race == Black: Black: TRUE, Other: FALSE
 #' @param age age of subject (years)
 #' @param creat creatinine levels of subject (mg/dL)
 #'
+#' @details
+#' The CKD-EPI 2009 equation:
+#' \deqn{eGFR = 141 \cdot \min(S_{cr}/\kappa, 1)^\alpha \cdot \max(S_{cr}/\kappa, 1)^{-1.209} \cdot 0.993^A \cdot 1.018^F \cdot 1.159^B}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
+#'   \item \eqn{\kappa} = 0.7 (female) or 0.9 (male)
+#'   \item \eqn{\alpha} = -0.329 (female) or -0.411 (male)
+#'   \item \eqn{A} = age (years)
+#'   \item \eqn{F} = 1 (female) or 0 (male)
+#'   \item \eqn{B} = 1 (Black) or 0 (other)
+#' }
+#'
 #' @return the eGFR value (mL/min/1.73m2)
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
 #' e <- ckdepi_2009_egfr(TRUE, TRUE, 24, 1)
 #'
 #' df <- data.frame(
-#'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-#'    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-#'    "AGE" = c(24, 24, 23, 24),
-#'    "CREAT" = c(1, 1, 2, 1)
-#'    )
+#'   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+#'   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+#'   "AGE" = c(24, 24, 23, 24),
+#'   "CREAT" = c(1, 1, 2, 1)
+#' )
 #' df <- dplyr::mutate(df, egfr = ckdepi_2009_egfr(SEXF, RACEB, AGE, CREAT))
 #' df
 ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
@@ -78,17 +96,22 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
 
+  input_lengths <- lengths(list(sexf, raceb, age, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
-    message('sexf contains missing values')
+    message("sexf contains missing values")
   }
   if (any(is.na(raceb))) {
-    message('raceb contains missing values')
+    message("raceb contains missing values")
   }
   if (any(is.na(age))) {
-    message('age contains missing values')
+    message("age contains missing values")
   }
   if (any(is.na(creat))) {
-    message('creat contains missing values')
+    message("creat contains missing values")
   }
 
   if (any(stats::na.omit(age) < 18)) {
@@ -97,12 +120,12 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
     )
   }
 
-  K <- dplyr::if_else(sexf, 0.7, 0.9)
+  k <- dplyr::if_else(sexf, 0.7, 0.9)
   alpha <- dplyr::if_else(sexf, -0.329, -0.411)
   sex_mult <- dplyr::if_else(sexf, 1.018, 1)
   race_mult <- dplyr::if_else(raceb, 1.159, 1)
 
-  ratio <- creat / K
+  ratio <- creat / k
   scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
   scr_k_max <- dplyr::if_else(ratio > 1, ratio^-1.209, 1)
 
@@ -113,27 +136,43 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
-  return(egfr)
+  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr
 }
 
-#' Calculates eGFR using the CKDEPI 2021 creatinine equation
+#' Calculate eGFR Using CKD-EPI 2021 Creatinine Equation
 #'
 #' @param sexf boolean value of sex Female: TRUE, Male: FALSE
 #' @param age age of subject (years)
 #' @param creat creatinine levels of subject (mg/dL)
 #'
+#' @details
+#' The CKD-EPI 2021 creatinine equation (race-free):
+#' \deqn{eGFR = 142 \cdot \min(S_{cr}/\kappa, 1)^\alpha \cdot \max(S_{cr}/\kappa, 1)^{-1.2} \cdot 0.9938^A \cdot 1.012^F}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
+#'   \item \eqn{\kappa} = 0.7 (female) or 0.9 (male)
+#'   \item \eqn{\alpha} = -0.241 (female) or -0.302 (male)
+#'   \item \eqn{A} = age (years)
+#'   \item \eqn{F} = 1 (female) or 0 (male)
+#' }
+#'
 #' @return the eGFR value (mL/min/1.73m2)
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
 #' e <- ckdepi_2021_egfr(TRUE, 24, 1)
 #'
 #' df <- data.frame(
-#'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-#'    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-#'    "AGE" = c(24, 24, 23, 24),
-#'    "CREAT" = c(1, 1, 2, 1)
-#'    )
+#'   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+#'   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+#'   "AGE" = c(24, 24, 23, 24),
+#'   "CREAT" = c(1, 1, 2, 1)
+#' )
 #' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
 #' df
 ckdepi_2021_egfr <- function(sexf, age, creat) {
@@ -141,14 +180,19 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
 
+  input_lengths <- lengths(list(sexf, age, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
-    message('sexf contains missing values')
+    message("sexf contains missing values")
   }
   if (any(is.na(age))) {
-    message('age contains missing values')
+    message("age contains missing values")
   }
   if (any(is.na(creat))) {
-    message('creat contains missing values')
+    message("creat contains missing values")
   }
 
   if (any(stats::na.omit(age) < 18)) {
@@ -157,11 +201,11 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
     )
   }
 
-  K <- dplyr::if_else(sexf, 0.7, 0.9)
+  k <- dplyr::if_else(sexf, 0.7, 0.9)
   alpha <- dplyr::if_else(sexf, -0.241, -0.302)
   sex_mult <- dplyr::if_else(sexf, 1.012, 1)
 
-  ratio <- creat / K
+  ratio <- creat / k
   scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
   scr_k_max <- dplyr::if_else(ratio > 1, ratio^-1.200, 1)
 
@@ -171,29 +215,47 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
     (0.9938^age) *
     sex_mult
 
-  return(egfr)
+  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr
 }
 
-#' Calculates eGFR with CKDEPI 2021 cystatin equation
+#' Calculate eGFR Using CKD-EPI 2021 Cystatin Equation
 #'
 #' @param sexf a boolean representing if the patient is female.
 #' @param age age of patient in years
 #' @param creat serum creatinine levels in mg/dL.
 #' @param cystc serum cystatin C levels in mg/L.
 #'
+#' @details
+#' The CKD-EPI 2021 creatinine-cystatin equation:
+#' \deqn{eGFR = 135 \cdot \min(S_{cr}/\kappa, 1)^\alpha \cdot \max(S_{cr}/\kappa, 1)^{-0.544} \cdot \min(S_{cys}/0.8, 1)^{-0.323} \\
+#' \cdot \max(S_{cys}/0.8, 1)^{-0.778} \cdot 0.9961^A \cdot 0.963^F}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
+#'   \item \eqn{S_{cys}} = serum cystatin C (mg/L)
+#'   \item \eqn{\kappa} = 0.7 (female) or 0.9 (male)
+#'   \item \eqn{\alpha} = -0.219 (female) or -0.144 (male)
+#'   \item \eqn{A} = age (years)
+#'   \item \eqn{F} = 1 (female) or 0 (male)
+#' }
+#'
 #' @return eGFR in mL/min/1.73 m^2
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
 #' e <- ckdepi_2021_egfr_cystatin(TRUE, 24, 1, 2)
 #'
 #' df <- data.frame(
-#'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-#'    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-#'    "AGE" = c(24, 24, 23, 24),
-#'    "CREAT" = c(1, 1, 2, 1),
-#'    "CYSTC" = c(0.4, 0.8, 1, 2)
-#'    )
+#'   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+#'   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+#'   "AGE" = c(24, 24, 23, 24),
+#'   "CREAT" = c(1, 1, 2, 1),
+#'   "CYSTC" = c(0.4, 0.8, 1, 2)
+#' )
 #' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
 #' df
 ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
@@ -202,17 +264,22 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
   checkmate::assertNumeric(creat)
   checkmate::assertNumeric(cystc)
 
+  input_lengths <- lengths(list(sexf, age, creat, cystc))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
-    message('sexf contains missing values')
+    message("sexf contains missing values")
   }
   if (any(is.na(age))) {
-    message('age contains missing values')
+    message("age contains missing values")
   }
   if (any(is.na(creat))) {
-    message('creat contains missing values')
+    message("creat contains missing values")
   }
   if (any(is.na(cystc))) {
-    message('cystc contains missing values')
+    message("cystc contains missing values")
   }
 
   if (any(stats::na.omit(age) < 18)) {
@@ -221,11 +288,11 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
     )
   }
 
-  K <- dplyr::if_else(sexf, 0.7, 0.9)
+  k <- dplyr::if_else(sexf, 0.7, 0.9)
   alpha <- dplyr::if_else(sexf, -0.219, -0.144)
   sex_mult <- dplyr::if_else(sexf, 0.963, 1)
 
-  ratio <- creat / K
+  ratio <- creat / k
   cys_ratio <- cystc / 0.8
 
   scr_k_min <- dplyr::if_else(ratio < 1, ratio^alpha, 1)
@@ -241,28 +308,43 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
     (0.9961^age) *
     sex_mult
 
-  return(egfr)
+  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr
 }
 
-#' Modification of Diet in Renal Disease eGFR calculation
+#' Calculate eGFR Using MDRD Equation
 #'
 #' @param sexf a boolean representing if the patient is female.
 #' @param raceb a boolean representing if the patient is black.
 #' @param age the age of the patient in years
 #' @param creat the serum creatinine levels in mg/dL
 #'
+#' @details
+#' The MDRD equation:
+#' \deqn{eGFR = 175 \cdot S_{cr}^{-1.154} \cdot A^{-0.203} \cdot 0.742^F \cdot 1.212^B}{eGFR = 175 * Scr^-1.154 * A^-0.203 * 0.742^F * 1.212^B}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
+#'   \item \eqn{A} = age (years)
+#'   \item \eqn{F} = 1 (female) or 0 (male)
+#'   \item \eqn{B} = 1 (Black) or 0 (other)
+#' }
+#'
 #' @return the eGFR in mL/min/1.73 m^2
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
 #' e <- mdrd_egfr(TRUE, TRUE, 24, 1)
 #'
 #' df <- data.frame(
-#'    "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-#'    "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-#'    "AGE" = c(24, 24, 23, 24),
-#'    "CREAT" = c(1, 1, 2, 1)
-#'    )
+#'   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+#'   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+#'   "AGE" = c(24, 24, 23, 24),
+#'   "CREAT" = c(1, 1, 2, 1)
+#' )
 #' df <- dplyr::mutate(df, egfr = mdrd_egfr(SEXF, RACEB, AGE, CREAT))
 #' df
 mdrd_egfr <- function(sexf, raceb, age, creat) {
@@ -271,17 +353,22 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
 
+  input_lengths <- lengths(list(sexf, raceb, age, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
-    message('sexf contains missing values')
+    message("sexf contains missing values")
   }
   if (any(is.na(raceb))) {
-    message('raceb contains missing values')
+    message("raceb contains missing values")
   }
   if (any(is.na(age))) {
-    message('age contains missing values')
+    message("age contains missing values")
   }
   if (any(is.na(creat))) {
-    message('creat contains missing values')
+    message("creat contains missing values")
   }
 
   if (any(stats::na.omit(age) < 18)) {
@@ -299,15 +386,28 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
-  return(egfr)
+  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr
 }
 
-#' Calculates eGFR based on Schwartz' equation
+#' Calculate eGFR Using Schwartz Equation
 #'
 #' @param height height of patients in cm.
 #' @param creat Serum creatinine levels in mg/dL
 #'
+#' @details
+#' The Schwartz equation for pediatric eGFR:
+#' \deqn{eGFR = 0.413 \cdot \frac{H}{S_{cr}}}{eGFR = 0.413 * H / Scr}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{H} = height (cm)
+#'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
+#' }
+#'
 #' @return eGFR in mL/min/1.73m^2
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
@@ -315,6 +415,11 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
 schwartz_egfr <- function(height, creat) {
   checkmate::assertNumeric(height)
   checkmate::assertNumeric(creat)
+
+  input_lengths <- lengths(list(height, creat))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
 
   if (any(is.na(height))) {
     message("height contains missing values")
@@ -324,5 +429,7 @@ schwartz_egfr <- function(height, creat) {
   }
 
   egfr <- 0.413 * height / creat
-  return(egfr)
+
+  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr
 }

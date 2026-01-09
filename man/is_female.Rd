@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{is_female}
 \alias{is_female}
-\title{Takes character input and returns TRUE/FALSE if female/male}
+\title{Check if Sex is Female}
 \usage{
 is_female(x)
 }
@@ -13,10 +13,25 @@ is_female(x)
 boolean representing female
 }
 \description{
-Takes character input and returns TRUE/FALSE if female/male
+Check if Sex is Female
 }
 \examples{
 is_female("F")
 
 is_female(c("MALE", "FEMALE"))
+
+is_female(c(1, 0, -999))
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_black}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{is_white}()},
+\code{\link{racen}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}

@@ -2,23 +2,39 @@
 % Please edit documentation in R/read_file_with_hash.R
 \name{read_excel_with_hash}
 \alias{read_excel_with_hash}
-\title{Reads data from xlsx/xls file and prints hash of contents.}
+\title{Read Excel File with Hash Verification}
 \usage{
-read_excel_with_hash(xlsx_file_path, ...)
+read_excel_with_hash(xlsx_file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{xlsx_file_path}{an xlsx/xls file to ingest}
 
 \item{...}{additional arguments to digest or read_excel}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 a dataframe(?) of data within file
 }
 \description{
-Reads data from xlsx/xls file and prints hash of contents.
+Read Excel File with Hash Verification
 }
 \examples{
 \dontrun{
 read_excel_with_hash("data/source/example.xpt")
 }
 }
+\seealso{
+Other file_io: 
+\code{\link{read_csv_with_hash}()},
+\code{\link{read_file_with_hash}()},
+\code{\link{read_hashed_file}()},
+\code{\link{read_parquet_with_hash}()},
+\code{\link{read_pzfx_with_hash}()},
+\code{\link{read_sas_with_hash}()},
+\code{\link{read_xpt_with_hash}()},
+\code{\link{write_csv_with_hash}()},
+\code{\link{write_file_with_hash}()},
+\code{\link{write_parquet_with_hash}()}
+}
+\concept{file_io}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/stats.R
 \name{geom_cv}
 \alias{geom_cv}
-\title{Computes the geometric CV of a vector x}
+\title{Calculate Geometric Coefficient of Variation}
 \usage{
 geom_cv(x, na.rm = FALSE)
 }
@@ -15,8 +15,20 @@ geom_cv(x, na.rm = FALSE)
 the geometric CV of the input vector x
 }
 \description{
-Computes the geometric CV of a vector x
+Calculate Geometric Coefficient of Variation
+}
+\details{
+The geometric coefficient of variation is calculated as:
+\deqn{GCV = \sqrt{\exp(Var[\log(x)]) - 1}}{GCV = sqrt(exp(sd(log(x))^2) - 1)}
 }
 \examples{
 geom_cv(c(1, 2, 3, 2, 1))
 }
+\seealso{
+Other statistics: 
+\code{\link{cor_df}()},
+\code{\link{cv}()},
+\code{\link{geom_mean}()},
+\code{\link{geom_sd}()}
+}
+\concept{statistics}

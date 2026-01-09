@@ -1,6 +1,14 @@
 test_that("bsa works for numerical input", {
-  expect_equal(bsa(67.2, 173) %>% round(3), 1.801)
-  expect_equal(bsa(67.2, 173, method = "Mosteller") %>% round(3), 1.797)
+  expect_equal(bsa(67.2, 173) %>% round(3), 1.801, ignore_attr = TRUE)
+  expect_equal(bsa(67.2, 173, method = "Mosteller") %>% round(3), 1.797, ignore_attr = TRUE)
+})
+
+test_that("bsa sets units attribute", {
+  result <- bsa(67.2, 173)
+  expect_equal(attr(result, "units"), "m^2")
+
+  result_mosteller <- bsa(67.2, 173, method = "Mosteller")
+  expect_equal(attr(result_mosteller, "units"), "m^2")
 })
 
 test_that("bsa works for dataframe columns", {
@@ -10,11 +18,13 @@ test_that("bsa works for dataframe columns", {
   )
   expect_equal(
     bsa(weight = df$WT, height = df$HT) %>% round(3),
-    c(1.896, 1.756, 1.868, 1.765)
+    c(1.896, 1.756, 1.868, 1.765),
+    ignore_attr = TRUE
   )
   expect_equal(
     bsa(weight = df$WT, height = df$HT, method = "mosteller") %>% round(3),
-    c(1.933, 1.789, 1.916, 1.788)
+    c(1.933, 1.789, 1.916, 1.788),
+    ignore_attr = TRUE
   )
 })
 
@@ -32,11 +42,13 @@ test_that("bsa can be used in a mutate", {
 
   expect_equal(
     df$dubois_bsa %>% round(3),
-    c(1.896, 1.756, 1.868, 1.765)
+    c(1.896, 1.756, 1.868, 1.765),
+    ignore_attr = TRUE
   )
   expect_equal(
     df$mosteller_bsa %>% round(3),
-    c(1.933, 1.789, 1.916, 1.788)
+    c(1.933, 1.789, 1.916, 1.788),
+    ignore_attr = TRUE
   )
 })
 
@@ -56,11 +68,13 @@ test_that("bsa can be used in a mutate after a group_by", {
 
   expect_equal(
     df$dubois_bsa %>% round(3),
-    c(1.896, 1.896, 1.896, 1.896, 1.756, 1.756, 1.756, 1.756)
+    c(1.896, 1.896, 1.896, 1.896, 1.756, 1.756, 1.756, 1.756),
+    ignore_attr = TRUE
   )
   expect_equal(
     df$mosteller_bsa %>% round(3),
-    c(1.933, 1.933, 1.933, 1.933, 1.789, 1.789, 1.789, 1.789)
+    c(1.933, 1.933, 1.933, 1.933, 1.789, 1.789, 1.789, 1.789),
+    ignore_attr = TRUE
   )
 })
 
@@ -71,4 +85,20 @@ test_that("bsa messages about missing values", {
   expect_message(bsa(80.56, NA, method = "Mosteller"), "height contains ")
 })
 
-METHOD = 'Mosteller'
+test_that("bsa warns about recycling", {
+  weights <- c(60, 70, 80)
+  expect_warning(
+    bsa(weights, 170),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    bsa(70, c(160, 170)),
+    "Inputs have different lengths! Please check data."
+  )
+
+  # Test with method parameter
+  expect_warning(
+    bsa(weights, 170, method = "Mosteller"),
+    "Inputs have different lengths! Please check data."
+  )
+})

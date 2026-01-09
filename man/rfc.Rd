@@ -2,30 +2,31 @@
 % Please edit documentation in R/rfc.R
 \name{rfc}
 \alias{rfc}
-\title{Calculates renal impairment categories based on Renal Function Estimator}
+\title{Categorize Renal Function}
 \usage{
 rfc(
   estimator = NULL,
-  absolute_units = NULL,
   bsa = NULL,
-  category_standard = c("regulatory", "clinical")
+  category_standard = c("regulatory", "clinical"),
+  absolute_units = NULL
 )
 }
 \arguments{
 \item{estimator}{Numeric vector of renal function estimator values (eGFR, CrCL, etc.)}
-
-\item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
-or mL/min/1.73m² (\code{FALSE})}
 
 \item{bsa}{Numeric vector of body surface area in m² for unit conversion. Required when
 converting between absolute and relative units}
 
 \item{category_standard}{Character string specifying categorization standard:
 \code{"regulatory"} (default) or \code{"clinical"}}
+
+\item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
+or mL/min/1.73m² (\code{FALSE})}
 }
 \value{
 Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-Returns \code{-999} for missing values.
+Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+indicating the source ("FDA" or "KDIGO").
 }
 \description{
 This function categorizes renal function based on estimated glomerular filtration rate (eGFR),
@@ -91,16 +92,37 @@ df <- data.frame(
 library(dplyr)
 df \%>\%
   mutate(
-    EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
-    # Clinical categories using eGFR directly
-    BRFC_CLINICAL = rfc(EGFR, FALSE, category_standard = "clinical"),
-    # Regulatory categories converting eGFR to absolute
-    BRFC_REGULATORY = rfc(EGFR, FALSE, BSA)
+    EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
+    AEGFR = aegfr(EGFR, BSA),
+    # Clinical categories using relative eGFR directly
+    BRFC_CLINICAL = rfc(EGFR, category_standard = "clinical"),
+    # Regulatory categories - convert relative eGFR to absolute
+    BRFC_REGULATORY_REL = rfc(EGFR, BSA),
+    # Regulatory categories - AEGFR already absolute
+    BRFC_REGULATORY_ABS = rfc(AEGFR)
   )
 df
+}
+\references{
+FDA Guidance for Industry: Pharmacokinetics in Patients with Impaired Renal Function.
+\url{https://www.fda.gov/media/78573/download}
+
+KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease.
+\url{https://www.kidney-international.org/action/showPdf?pii=S0085-2538(23)00766-4}
 }
 \seealso{
 \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,
 \code{\link{bsa}} for body surface area calculation
+
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{schwartz_egfr}()}
 }
+\concept{renal_function}

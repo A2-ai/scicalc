@@ -2,7 +2,7 @@
 % Please edit documentation in R/bmi.R
 \name{bmi}
 \alias{bmi}
-\title{Calculates Baseline Body Mass Index based on Weight and Height}
+\title{Calculate Body Mass Index}
 \usage{
 bmi(weight, height)
 }
@@ -12,10 +12,20 @@ bmi(weight, height)
 \item{height}{height of subject (cm)}
 }
 \value{
-the BMI value (kg m^(-2))
+the BMI value (kg/m^2)
 }
 \description{
-Calculates Baseline Body Mass Index based on Weight and Height
+Calculate Body Mass Index
+}
+\details{
+BMI is calculated using the formula:
+\deqn{BMI = \frac{W}{(H/100)^2}}{BMI = W / (H/100)^2}
+
+where:
+\itemize{
+\item \eqn{W} = weight (kg)
+\item \eqn{H} = height (cm)
+}
 }
 \examples{
 b <- bmi(80.56, 167)
@@ -27,3 +37,13 @@ df <- data.frame(
 df <- dplyr::mutate(df, bmi = bmi(WT, HT))
 df
 }
+\seealso{
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmic}()},
+\code{\link{bsa}()},
+\code{\link{dubois_bsa}()},
+\code{\link{ibw}()},
+\code{\link{mosteller_bsa}()}
+}
+\concept{body_composition}

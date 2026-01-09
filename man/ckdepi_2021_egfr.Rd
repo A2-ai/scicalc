@@ -2,7 +2,7 @@
 % Please edit documentation in R/egfr.R
 \name{ckdepi_2021_egfr}
 \alias{ckdepi_2021_egfr}
-\title{Calculates eGFR using the CKDEPI 2021 creatinine equation}
+\title{Calculate eGFR Using CKD-EPI 2021 Creatinine Equation}
 \usage{
 ckdepi_2021_egfr(sexf, age, creat)
 }
@@ -17,17 +17,42 @@ ckdepi_2021_egfr(sexf, age, creat)
 the eGFR value (mL/min/1.73m2)
 }
 \description{
-Calculates eGFR using the CKDEPI 2021 creatinine equation
+Calculate eGFR Using CKD-EPI 2021 Creatinine Equation
+}
+\details{
+The CKD-EPI 2021 creatinine equation (race-free):
+\deqn{eGFR = 142 \cdot \min(S_{cr}/\kappa, 1)^\alpha \cdot \max(S_{cr}/\kappa, 1)^{-1.2} \cdot 0.9938^A \cdot 1.012^F}
+
+where:
+\itemize{
+\item \eqn{S_{cr}} = serum creatinine (mg/dL)
+\item \eqn{\kappa} = 0.7 (female) or 0.9 (male)
+\item \eqn{\alpha} = -0.241 (female) or -0.302 (male)
+\item \eqn{A} = age (years)
+\item \eqn{F} = 1 (female) or 0 (male)
+}
 }
 \examples{
 e <- ckdepi_2021_egfr(TRUE, 24, 1)
 
 df <- data.frame(
-   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-   "AGE" = c(24, 24, 23, 24),
-   "CREAT" = c(1, 1, 2, 1)
-   )
+  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+  "AGE" = c(24, 24, 23, 24),
+  "CREAT" = c(1, 1, 2, 1)
+)
 df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

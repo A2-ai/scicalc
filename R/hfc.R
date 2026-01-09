@@ -1,4 +1,4 @@
-#' Calculates hepatic function categories based on NCI-ODWG criteria
+#' Categorize Hepatic Function
 #'
 #' This function categorizes hepatic function impairment using the National Cancer Institute
 #' Organ Dysfunction Working Group (NCI-ODWG) criteria. It evaluates aspartate aminotransferase
@@ -29,6 +29,8 @@
 #'
 #' @return Integer vector of hepatic function categories (1-4). Returns \code{-999}
 #'   for missing values.
+#'
+#' @family hepatic_function
 #'
 #' @references
 #' National Cancer Institute Organ Dysfunction Working Group criteria for hepatic impairment
@@ -80,7 +82,7 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
     message("ULNBILI contains missing values")
   }
 
-  dplyr::case_when(
+  hfc <- dplyr::case_when(
     # CASE 1: AST ≤ ULN AND bilirubin ≤ ULN
     ast <= ulnast & bili <= ulnbili ~ 1,
     # CASE 2.a: AST > ULN OR bilirubin > ULN but < 1.5 × ULN (misses the = in ≤)
@@ -96,6 +98,8 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
     # ELSE
     .default = -999
   )
+  attr(hfc, "category_standard") <- "NCI-ODWG"
+  return(hfc)
 }
 
 

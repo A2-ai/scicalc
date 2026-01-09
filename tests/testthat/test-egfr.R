@@ -14,7 +14,8 @@ test_that("egfr with ckdepi 2009 method works and can be used in a mutate", {
 
   expect_equal(
     df$ckdepi_2009_egfr %>% round(3),
-    c(104.877, 78.790, 52.950, 78.790)
+    c(104.877, 78.790, 52.950, 78.790),
+    ignore_attr = TRUE
   )
 })
 
@@ -36,7 +37,11 @@ test_that("egfr with MDRD method works and can be used in a mutate", {
       )
     )
 
-  expect_equal(df$mdrd_egfr %>% round(3), c(91.803, 68.118, 50.434, 68.118))
+  expect_equal(
+    df$mdrd_egfr %>% round(3),
+    c(91.803, 68.118, 50.434, 68.118),
+    ignore_attr = TRUE
+  )
 })
 
 test_that("egfr with ckdepi_2021_egfr_cystatin can be used in a mutate", {
@@ -60,7 +65,8 @@ test_that("egfr with ckdepi_2021_egfr_cystatin can be used in a mutate", {
 
   expect_equal(
     df$ckdepi_2021_egfr %>% round(3),
-    c(145.193, 97.491, 67.182, 47.793)
+    c(145.193, 97.491, 67.182, 47.793),
+    ignore_attr = TRUE
   )
 })
 
@@ -86,7 +92,11 @@ test_that("egfr with schwartz_egfr can be used in a mutate", {
       )
     )
 
-  expect_equal(df$schwartz_egfr %>% round(3), c(71.862, 76.818, 41.506, 79.709))
+  expect_equal(
+    df$schwartz_egfr %>% round(3),
+    c(71.862, 76.818, 41.506, 79.709),
+    ignore_attr = TRUE
+  )
 })
 
 
@@ -135,4 +145,26 @@ test_that("egfr messages about <18 being used in non schwartz methods", {
     ),
     "Ages less than 18 years"
   )
+})
+
+test_that("egfr functions set units attribute to mL/min/1.73m^2", {
+  # Test each method
+  result_2009 <- ckdepi_2009_egfr(TRUE, FALSE, 30, 1.0)
+  expect_equal(attr(result_2009, "units"), "mL/min/1.73m^2")
+
+  result_2021 <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  expect_equal(attr(result_2021, "units"), "mL/min/1.73m^2")
+
+  result_cystatin <- ckdepi_2021_egfr_cystatin(TRUE, 30, 1.0, 0.8)
+  expect_equal(attr(result_cystatin, "units"), "mL/min/1.73m^2")
+
+  result_mdrd <- mdrd_egfr(TRUE, FALSE, 30, 1.0)
+  expect_equal(attr(result_mdrd, "units"), "mL/min/1.73m^2")
+
+  result_schwartz <- schwartz_egfr(150, 1.0)
+  expect_equal(attr(result_schwartz, "units"), "mL/min/1.73m^2")
+
+  # Test via main egfr() dispatcher
+  result_main <- egfr(TRUE, FALSE, 30, 1.0, method = "CKDEPI 2021")
+  expect_equal(attr(result_main, "units"), "mL/min/1.73m^2")
 })

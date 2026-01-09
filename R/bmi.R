@@ -1,9 +1,21 @@
-#' Calculates Baseline Body Mass Index based on Weight and Height
+#' Calculate Body Mass Index
 #'
 #' @param weight weight of subject (kg)
 #' @param height height of subject (cm)
 #'
-#' @return the BMI value (kg m^(-2))
+#' @details
+#' BMI is calculated using the formula:
+#' \deqn{BMI = \frac{W}{(H/100)^2}}{BMI = W / (H/100)^2}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{H} = height (cm)
+#' }
+#'
+#' @return the BMI value (kg/m^2)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @examples
@@ -20,6 +32,11 @@ bmi <- function(weight, height) {
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
 
+  input_lengths <- lengths(list(weight, height))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   # give message if any NAs
   if (any(is.na(weight))) {
     message("weight contains missing values")
@@ -29,12 +46,12 @@ bmi <- function(weight, height) {
   }
 
   bmi <- weight / ((height / 100)^2)
-
-  bmi
+  attr(bmi, "units") <- "kg/m^2"
+  return(bmi)
 }
 
 
-#' @title Calculate BMI (Deprecated)
+#' Calculate BMI (Deprecated)
 #'
 #' `bbmi()` was renamed to `bmi()` to improve function naming consistency.
 #'

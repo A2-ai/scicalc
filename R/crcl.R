@@ -1,11 +1,25 @@
-#' Calculates Creatinine clearance with Cockcroft-Gault equation
+#' Calculate Creatinine Clearance Using Cockcroft-Gault Equation
 #'
 #' @param age age of subject (years)
 #' @param weight weight of subject (kg)
 #' @param creat serum creatinine levels (mg/dL)
 #' @param sexf bool of sex of subject. Female: True, Male: False
 #'
+#' @details
+#' The Cockcroft-Gault equation:
+#' \deqn{CrCl = F \cdot \frac{(140 - A) \cdot W}{72 \cdot S_{cr}}}{CrCl = F * (140 - A) * W / (72 * Scr)}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{A} = age (years)
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
+#'   \item \eqn{F} = 0.85 (female) or 1 (male)
+#' }
+#'
 #' @return CrCl (mL/min)
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples
@@ -30,6 +44,11 @@ crcl <- function(sexf, age, creat, weight) {
   checkmate::assertNumeric(creat)
   checkmate::assertNumeric(weight)
 
+  input_lengths <- lengths(list(sexf, age, creat, weight))
+  if (length(unique(input_lengths)) != 1) {
+    warning("Inputs have different lengths! Please check data.")
+  }
+
   if (any(is.na(sexf))) {
     message('sexf contains missing values')
   }
@@ -45,5 +64,6 @@ crcl <- function(sexf, age, creat, weight) {
 
   sex_mult <- ifelse(sexf, 0.85, 1)
   crcl <- (140 - age) * weight / (72 * creat) * sex_mult
+  attr(crcl, "units") <- "mL/min"
   return(crcl)
 }

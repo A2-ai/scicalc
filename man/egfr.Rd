@@ -2,9 +2,9 @@
 % Please edit documentation in R/egfr.R
 \name{egfr}
 \alias{egfr}
-\title{Calculates eGFR based on the method specified}
+\title{Calculate Estimated Glomerular Filtration Rate}
 \usage{
-egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009")
+egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2021")
 }
 \arguments{
 \item{sexf}{a boolean representing if the patient is female.}
@@ -25,17 +25,29 @@ egfr(sexf, raceb, age, creat, cystc, height, method = "CKDEPI 2009")
 the eGFR calculated based on method.
 }
 \description{
-Calculates eGFR based on the method specified
+Calculate Estimated Glomerular Filtration Rate
 }
 \examples{
 e <- egfr(TRUE, TRUE, 24, 1, "CKDEPI 2009")
 
 df <- data.frame(
-   "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-   "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-   "AGE" = c(24, 24, 23, 24),
-   "CREAT" = c(1, 1, 2, 1)
-   )
+  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
+  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
+  "AGE" = c(24, 24, 23, 24),
+  "CREAT" = c(1, 1, 2, 1)
+)
 df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, "CKDEPI 2009"))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

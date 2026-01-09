@@ -2,7 +2,7 @@
 % Please edit documentation in R/stats.R
 \name{cv}
 \alias{cv}
-\title{Computes the coefficient of variation of input vector.}
+\title{Calculate Coefficient of Variation}
 \usage{
 cv(x, na.rm = FALSE)
 }
@@ -15,8 +15,26 @@ cv(x, na.rm = FALSE)
 CV of x. Standard deviation divided by mean. If you want \% you'll need to multiply by 100
 }
 \description{
-Computes the coefficient of variation of input vector.
+Calculate Coefficient of Variation
+}
+\details{
+The coefficient of variation is calculated as:
+\deqn{CV = \frac{\sigma}{\mu}}{CV = sd / mean}
+
+where:
+\itemize{
+\item \eqn{\sigma} = standard deviation
+\item \eqn{\mu} = mean
+}
 }
 \examples{
 cv(c(1, 2, 1, 1, 2, 1, 2, 3))
 }
+\seealso{
+Other statistics: 
+\code{\link{cor_df}()},
+\code{\link{geom_cv}()},
+\code{\link{geom_mean}()},
+\code{\link{geom_sd}()}
+}
+\concept{statistics}

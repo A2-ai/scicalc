@@ -2,23 +2,39 @@
 % Please edit documentation in R/read_file_with_hash.R
 \name{read_pzfx_with_hash}
 \alias{read_pzfx_with_hash}
-\title{Reads in table from a prism pzfx file.}
+\title{Read Prism PZFX File with Hash Verification}
 \usage{
-read_pzfx_with_hash(pzfx_file_path, ...)
+read_pzfx_with_hash(pzfx_file_path, ..., algo = "blake3")
 }
 \arguments{
 \item{pzfx_file_path}{path to pzfx file}
 
 \item{...}{additional arguments to digest or read_pzfx}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 }
 \value{
 data within the table of the pzfx file
 }
 \description{
-Reads in table from a prism pzfx file.
+Read Prism PZFX File with Hash Verification
 }
 \examples{
 \dontrun{
 read_pzfx_with_hash("mydata.pzfx", table = "experiment1")
 }
 }
+\seealso{
+Other file_io: 
+\code{\link{read_csv_with_hash}()},
+\code{\link{read_excel_with_hash}()},
+\code{\link{read_file_with_hash}()},
+\code{\link{read_hashed_file}()},
+\code{\link{read_parquet_with_hash}()},
+\code{\link{read_sas_with_hash}()},
+\code{\link{read_xpt_with_hash}()},
+\code{\link{write_csv_with_hash}()},
+\code{\link{write_file_with_hash}()},
+\code{\link{write_parquet_with_hash}()}
+}
+\concept{file_io}

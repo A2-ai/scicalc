@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{check_for_unique_units}
 \alias{check_for_unique_units}
-\title{Gives a TRUE/FALSE for if the Parameters have only 1 associated unit}
+\title{Check for Unique Units per Parameter}
 \usage{
 check_for_unique_units(params, units)
 }
@@ -15,7 +15,7 @@ check_for_unique_units(params, units)
 a boolean
 }
 \description{
-Gives a TRUE/FALSE for if the Parameters have only 1 associated unit
+Check for Unique Units per Parameter
 }
 \examples{
 df <- data.frame(
@@ -26,5 +26,10 @@ df <- data.frame(
     "g/L","U/L","U/L","umol/L","umol/L",
     "U/L","μmol/L","μmol/L","IU/L","IU/L")
 )
-check_for_unique_units <- get_unique_units_df(df$PARAM, df$UNIT)
+check_for_unique_units(df$PARAM, df$UNIT)
 }
+\seealso{
+Other unit_checking: 
+\code{\link{get_unique_units_df}()}
+}
+\concept{unit_checking}

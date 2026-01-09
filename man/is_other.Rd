@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{is_other}
 \alias{is_other}
-\title{Takes character input and returns TRUE/FALSE if other/explicit race}
+\title{Check if Race is Other}
 \usage{
 is_other(x)
 }
@@ -13,10 +13,25 @@ is_other(x)
 boolean representing Race == Other
 }
 \description{
-Takes character input and returns TRUE/FALSE if other/explicit race
+Check if Race is Other
 }
 \examples{
 is_other("OTHER")
 
 is_other("BLACK")
+
+is_other(4)
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_black}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_white}()},
+\code{\link{racen}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}

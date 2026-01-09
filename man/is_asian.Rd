@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{is_asian}
 \alias{is_asian}
-\title{Takes character input and returns TRUE/FALSE if asian/other}
+\title{Check if Race is Asian}
 \usage{
 is_asian(x)
 }
@@ -13,10 +13,25 @@ is_asian(x)
 boolean representing Race == Asian
 }
 \description{
-Takes character input and returns TRUE/FALSE if asian/other
+Check if Race is Asian
 }
 \examples{
 is_asian("ASIAN")
 
 is_asian("BLACK")
+
+is_asian(3)
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_black}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{is_white}()},
+\code{\link{racen}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}

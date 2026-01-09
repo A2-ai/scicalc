@@ -4,7 +4,8 @@ test_that("ckdepi_2021_egfr works for numerical input", {
   expect_equal(
     ckdepi_2021_egfr_cystatin(sexf = FALSE, age = 24, creat = 1, cystc = 1) %>%
       round(3),
-    97.570
+    97.570,
+    ignore_attr = TRUE
   )
 })
 
@@ -17,7 +18,8 @@ test_that("ckdepi_2021_egfr works for vector input", {
       c(0.4, 0.8, 1, 2)
     ) %>%
       round(3),
-    c(145.193, 97.491, 67.182, 47.793)
+    c(145.193, 97.491, 67.182, 47.793),
+    ignore_attr = TRUE
   )
 })
 
@@ -31,7 +33,8 @@ test_that("ckdepi_2021_egfr works for dataframe columns", {
   )
   expect_equal(
     ckdepi_2021_egfr_cystatin(df$SEXN, df$AGE, df$CREAT, df$CYSTC) %>% round(3),
-    c(145.193, 97.491, 67.182, 47.793)
+    c(145.193, 97.491, 67.182, 47.793),
+    ignore_attr = TRUE
   )
 })
 
@@ -50,7 +53,8 @@ test_that("ckdepi_2021_egfr can be used in a mutate", {
 
   expect_equal(
     df$ckdepi_2021_egfr %>% round(3),
-    c(145.193, 97.491, 67.182, 47.793)
+    c(145.193, 97.491, 67.182, 47.793),
+    ignore_attr = TRUE
   )
 })
 
@@ -71,8 +75,14 @@ test_that("ckdepi_2021_egfr can be used within mutate after a group_by", {
     )
   expect_equal(
     df$ckdepi_2021_egfr %>% round(3),
-    c(121.954, 121.954, 121.954, 121.954, 50.210, 50.210, 50.210, 50.210)
+    c(121.954, 121.954, 121.954, 121.954, 50.210, 50.210, 50.210, 50.210),
+    ignore_attr = TRUE
   )
+})
+
+test_that("ckdepi_2021_egfr_cystatin sets units attribute", {
+  result <- ckdepi_2021_egfr_cystatin(sexf = FALSE, age = 24, creat = 1, cystc = 1)
+  expect_equal(attr(result, "units"), "mL/min/1.73m^2")
 })
 
 test_that("ckdepi_2021_egfr won't work for character Sex", {
@@ -110,4 +120,20 @@ test_that("ckdepi_2021_egfr messages about missing values", {
     "creat contains "
   )
   expect_message(ckdepi_2021_egfr_cystatin(FALSE, 24, 1, NA), "cystc contains ")
+})
+
+test_that("ckdepi_2021_egfr warns about recycling", {
+  sexf <- c(TRUE, FALSE, TRUE)
+  expect_warning(
+    ckdepi_2021_egfr_cystatin(sexf, 24, 1, 0.9),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    ckdepi_2021_egfr_cystatin(TRUE, c(25, 30), 1, 0.9),
+    "Inputs have different lengths! Please check data."
+  )
+  expect_warning(
+    ckdepi_2021_egfr_cystatin(TRUE, 24, c(1.0, 1.2), 0.9),
+    "Inputs have different lengths! Please check data."
+  )
 })

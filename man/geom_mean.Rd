@@ -2,7 +2,7 @@
 % Please edit documentation in R/stats.R
 \name{geom_mean}
 \alias{geom_mean}
-\title{Computes the geometric mean of a vector.}
+\title{Calculate Geometric Mean}
 \usage{
 geom_mean(x, na.rm = FALSE)
 }
@@ -15,8 +15,20 @@ geom_mean(x, na.rm = FALSE)
 geometric mean of input vector x
 }
 \description{
-Computes the geometric mean of a vector.
+Calculate Geometric Mean
+}
+\details{
+The geometric mean is calculated as:
+\deqn{GM = \exp\left(\mathbb{E}[\log(x)]\right)}{GM = exp(mean(log(x)))}
 }
 \examples{
 geom_mean(c(1, 2, 3, 2, 1))
 }
+\seealso{
+Other statistics: 
+\code{\link{cor_df}()},
+\code{\link{cv}()},
+\code{\link{geom_cv}()},
+\code{\link{geom_sd}()}
+}
+\concept{statistics}

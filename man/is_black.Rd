@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{is_black}
 \alias{is_black}
-\title{Takes character input and returns TRUE/FALSE if black/other also checks for "African American" and "Black or African American"}
+\title{Check if Race is Black}
 \usage{
 is_black(x)
 }
@@ -13,10 +13,25 @@ is_black(x)
 boolean representing Race == Black
 }
 \description{
-Takes character input and returns TRUE/FALSE if black/other also checks for "African American" and "Black or African American"
+Check if Race is Black
 }
 \examples{
 is_black("WHITE")
 
 is_black(c("AFRICAN AMERICAN", "BLACK"))
+
+is_black(2)
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{is_white}()},
+\code{\link{racen}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}
