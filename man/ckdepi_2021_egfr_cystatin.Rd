@@ -2,7 +2,7 @@
 % Please edit documentation in R/egfr.R
 \name{ckdepi_2021_egfr_cystatin}
 \alias{ckdepi_2021_egfr_cystatin}
-\title{Calculates eGFR with CKDEPI 2021 cystatin equation}
+\title{Calculate eGFR Using CKD-EPI 2021 Cystatin Equation}
 \usage{
 ckdepi_2021_egfr_cystatin(sexf, age, creat, cystc)
 }
@@ -19,7 +19,22 @@ ckdepi_2021_egfr_cystatin(sexf, age, creat, cystc)
 eGFR in mL/min/1.73 m^2
 }
 \description{
-Calculates eGFR with CKDEPI 2021 cystatin equation
+Calculate eGFR Using CKD-EPI 2021 Cystatin Equation
+}
+\details{
+The CKD-EPI 2021 creatinine-cystatin equation:
+\deqn{eGFR = 135 \cdot \min(S_{cr}/\kappa, 1)^\alpha \cdot \max(S_{cr}/\kappa, 1)^{-0.544} \cdot \min(S_{cys}/0.8, 1)^{-0.323} \\
+\cdot \max(S_{cys}/0.8, 1)^{-0.778} \cdot 0.9961^A \cdot 0.963^F}
+
+where:
+\itemize{
+\item \eqn{S_{cr}} = serum creatinine (mg/dL)
+\item \eqn{S_{cys}} = serum cystatin C (mg/L)
+\item \eqn{\kappa} = 0.7 (female) or 0.9 (male)
+\item \eqn{\alpha} = -0.219 (female) or -0.144 (male)
+\item \eqn{A} = age (years)
+\item \eqn{F} = 1 (female) or 0 (male)
+}
 }
 \examples{
 e <- ckdepi_2021_egfr_cystatin(TRUE, 24, 1, 2)
@@ -34,3 +49,15 @@ df <- data.frame(
 df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

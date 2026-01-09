@@ -2,7 +2,7 @@
 % Please edit documentation in R/ibw.R
 \name{ibw}
 \alias{ibw}
-\title{Ideal Body Weight function}
+\title{Calculate Ideal Body Weight}
 \usage{
 ibw(height, sexf, age, allow_ibw_lt_intercept = TRUE)
 }
@@ -18,12 +18,21 @@ for heights < 152.4 cm (5 feet). When TRUE (default), ideal weight is
 set to intercept weight (50 kg for males, 45.5 kg for females)}
 }
 \value{
-ideal body weight in kilograms
+ideal body weight (kg)
 }
 \description{
-Calculates ideal body weight using the Devine equation. For men: 50 kg + 2.3 kg
-for each inch above 5 feet. For women: 45.5 kg + 2.3 kg for each inch above 5 feet.
-By default, applies intercepts for individuals shorter than 5 feet (152.4 cm).
+Calculates ideal body weight using the Devine equation. By default, applies
+intercepts for individuals shorter than 5 feet (152.4 cm).
+}
+\details{
+The Devine equation for ideal body weight:
+\deqn{IBW = I + 2.3 \cdot (H_{in} - 60)}{IBW = I + 2.3 * (H_in - 60)}
+
+where:
+\itemize{
+\item \eqn{I} = 50 kg (male) or 45.5 kg (female)
+\item \eqn{H_{in}} = height in inches (60 inches = 5 feet = 152.4 cm)
+}
 }
 \examples{
 df <- data.frame(
@@ -39,3 +48,13 @@ df
 The Origin of the "Ideal" Body Weight Equations, by Pai and Paloucek.
 The annals of Pharmacotherapy 2000 september, volumn 34
 }
+\seealso{
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmi}()},
+\code{\link{bmic}()},
+\code{\link{bsa}()},
+\code{\link{dubois_bsa}()},
+\code{\link{mosteller_bsa}()}
+}
+\concept{body_composition}

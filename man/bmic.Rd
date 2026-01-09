@@ -2,7 +2,7 @@
 % Please edit documentation in R/bmic.R
 \name{bmic}
 \alias{bmic}
-\title{BMI Category Function}
+\title{Categorize Body Mass Index}
 \usage{
 bmic(bmi, age)
 }
@@ -59,4 +59,13 @@ https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
 \seealso{
 \code{\link{bmi}} for calculating BMI from weight and height,
 \code{\link{agec}} for age categorization
+
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmi}()},
+\code{\link{bsa}()},
+\code{\link{dubois_bsa}()},
+\code{\link{ibw}()},
+\code{\link{mosteller_bsa}()}
 }
+\concept{body_composition}

@@ -2,8 +2,7 @@
 % Please edit documentation in R/egfr.R
 \name{ckdepi_2009_egfr}
 \alias{ckdepi_2009_egfr}
-\title{Calculates Estimated Glomerular Filtration Rate based on Sex, Race, Age, and Creatinine levels
-based on the CKDEPI 2009 equation}
+\title{Calculate eGFR Using CKD-EPI 2009 Equation}
 \usage{
 ckdepi_2009_egfr(sexf, raceb, age, creat)
 }
@@ -20,8 +19,21 @@ ckdepi_2009_egfr(sexf, raceb, age, creat)
 the eGFR value (mL/min/1.73m2)
 }
 \description{
-Calculates Estimated Glomerular Filtration Rate based on Sex, Race, Age, and Creatinine levels
-based on the CKDEPI 2009 equation
+Calculate eGFR Using CKD-EPI 2009 Equation
+}
+\details{
+The CKD-EPI 2009 equation:
+\deqn{eGFR = 141 \cdot \min(S_{cr}/\kappa, 1)^\alpha \cdot \max(S_{cr}/\kappa, 1)^{-1.209} \cdot 0.993^A \cdot 1.018^F \cdot 1.159^B}
+
+where:
+\itemize{
+\item \eqn{S_{cr}} = serum creatinine (mg/dL)
+\item \eqn{\kappa} = 0.7 (female) or 0.9 (male)
+\item \eqn{\alpha} = -0.329 (female) or -0.411 (male)
+\item \eqn{A} = age (years)
+\item \eqn{F} = 1 (female) or 0 (male)
+\item \eqn{B} = 1 (Black) or 0 (other)
+}
 }
 \examples{
 e <- ckdepi_2009_egfr(TRUE, TRUE, 24, 1)
@@ -35,3 +47,15 @@ df <- data.frame(
 df <- dplyr::mutate(df, egfr = ckdepi_2009_egfr(SEXF, RACEB, AGE, CREAT))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

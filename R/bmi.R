@@ -1,9 +1,21 @@
-#' Calculates Baseline Body Mass Index based on Weight and Height
+#' Calculate Body Mass Index
 #'
 #' @param weight weight of subject (kg)
 #' @param height height of subject (cm)
 #'
-#' @return the BMI value (kg m^(-2))
+#' @details
+#' BMI is calculated using the formula:
+#' \deqn{BMI = \frac{W}{(H/100)^2}}{BMI = W / (H/100)^2}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{H} = height (cm)
+#' }
+#'
+#' @return the BMI value (kg/m^2)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @examples

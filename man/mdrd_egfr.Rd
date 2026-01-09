@@ -2,7 +2,7 @@
 % Please edit documentation in R/egfr.R
 \name{mdrd_egfr}
 \alias{mdrd_egfr}
-\title{Modification of Diet in Renal Disease eGFR calculation}
+\title{Calculate eGFR Using MDRD Equation}
 \usage{
 mdrd_egfr(sexf, raceb, age, creat)
 }
@@ -19,7 +19,19 @@ mdrd_egfr(sexf, raceb, age, creat)
 the eGFR in mL/min/1.73 m^2
 }
 \description{
-Modification of Diet in Renal Disease eGFR calculation
+Calculate eGFR Using MDRD Equation
+}
+\details{
+The MDRD equation:
+\deqn{eGFR = 175 \cdot S_{cr}^{-1.154} \cdot A^{-0.203} \cdot 0.742^F \cdot 1.212^B}{eGFR = 175 * Scr^-1.154 * A^-0.203 * 0.742^F * 1.212^B}
+
+where:
+\itemize{
+\item \eqn{S_{cr}} = serum creatinine (mg/dL)
+\item \eqn{A} = age (years)
+\item \eqn{F} = 1 (female) or 0 (male)
+\item \eqn{B} = 1 (Black) or 0 (other)
+}
 }
 \examples{
 e <- mdrd_egfr(TRUE, TRUE, 24, 1)
@@ -33,3 +45,15 @@ df <- data.frame(
 df <- dplyr::mutate(df, egfr = mdrd_egfr(SEXF, RACEB, AGE, CREAT))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

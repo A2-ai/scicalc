@@ -2,7 +2,7 @@
 % Please edit documentation in R/categorize.R
 \name{categorize}
 \alias{categorize}
-\title{Converts continuous variable into factor categories.}
+\title{Categorize Continuous Variable into Quantile Bins}
 \usage{
 categorize(continuous_var, nbins = 4, units = "", type = 7, digits = 1)
 }
@@ -21,7 +21,7 @@ categorize(continuous_var, nbins = 4, units = "", type = 7, digits = 1)
 a vector of categorized data as factor
 }
 \description{
-Converts continuous variable into factor categories.
+Categorize Continuous Variable into Quantile Bins
 }
 \examples{
 x <- rnorm(1000, mean = 10, sd = 5)

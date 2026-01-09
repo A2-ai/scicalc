@@ -1,9 +1,11 @@
-#' Creates a dataframe with distinct parameters and units combinations
+#' Get Unique Parameter-Unit Combinations
 #'
 #' @param params a column from a dataset with lab parameters
 #' @param units a column from a dataset with units associated with those parameters
 #'
 #' @return a dataframe with distinct units and parameters with IU replaced to U and mu replaced with u
+#'
+#' @family unit_checking
 #' @export
 #'
 #' @examples
@@ -35,12 +37,14 @@ get_unique_units_df <- function(params, units) {
   df
 }
 
-#' Gives a TRUE/FALSE for if the Parameters have only 1 associated unit
+#' Check for Unique Units per Parameter
 #'
 #' @param params a column from a dataset with lab parameters
 #' @param units a column from a dataset with units associated with those parameters
 #'
 #' @return a boolean
+#'
+#' @family unit_checking
 #' @export
 #'
 #' @examples

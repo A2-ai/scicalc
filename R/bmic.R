@@ -1,4 +1,4 @@
-#' BMI Category Function
+#' Categorize Body Mass Index
 #'
 #' Categorizes individuals based on their Body Mass Index (BMI) according to
 #' standard WHO obesity classification criteria. Validates age
@@ -29,6 +29,8 @@
 #' @references
 #' World Health Organization.
 #' https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
+#'
+#' @family body_composition
 #'
 #' @seealso
 #' \code{\link{bmi}} for calculating BMI from weight and height,

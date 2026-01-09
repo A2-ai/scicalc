@@ -1,9 +1,11 @@
-#' Calculates Body Surface Area based on Weight and Height using the method specified. Default is Dubois.
+#' Calculate Body Surface Area
 #' @param weight weight of a subject (kg)
 #' @param height height of a subject (cm)
 #' @param method String to dictate which equation to use. Dubois or Mosteller.
 #'
 #' @return bsa (m^2)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @examples
@@ -22,16 +24,28 @@ bsa <- function(weight, height, method = "Dubois") {
 }
 
 
-#' Calculates Body Surface Area based on Weight and Height using Dubois Dubois equation
+#' Calculate Body Surface Area Using Du Bois Equation
 #'
 #' @param weight weight of subject (kg)
 #' @param height height of subject (cm)
 #'
+#' @details
+#' The Du Bois equation for BSA:
+#' \deqn{BSA = 0.007184 \cdot W^{0.425} \cdot H^{0.725}}{BSA = 0.007184 * W^0.425 * H^0.725}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{H} = height (cm)
+#' }
+#'
 #' @return the body surface area (m^2)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @examples
-#' #' b <- dubois_bsa(80.56, 167)
+#' b <- dubois_bsa(80.56, 167)
 #'
 #' df <- data.frame(
 #' "WT" = c(80.56, 71.53, 81.04, 70.17),
@@ -63,12 +77,24 @@ dubois_bsa <- function(weight, height) {
 } # bsa
 
 
-#' Calculates Body Surface Area based on Weight and Height using Mosteller equation
+#' Calculate Body Surface Area Using Mosteller Equation
 #'
 #' @param weight weight of subject (kg)
 #' @param height height of subject (cm)
 #'
+#' @details
+#' The Mosteller equation for BSA:
+#' \deqn{BSA = \sqrt{\frac{W \cdot H}{3600}}}{BSA = sqrt(W * H / 3600)}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{H} = height (cm)
+#' }
+#'
 #' @return the body surface area (m^2)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @examples

@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert.R
 \name{convert_bili}
 \alias{convert_bili}
-\title{Convert Bilirubin concentration from µmol/L to mg/dL}
+\title{Convert Bilirubin Concentration Units}
 \usage{
 convert_bili(bili)
 }
@@ -13,7 +13,7 @@ convert_bili(bili)
 Bilirubin concentration (mg/dL)
 }
 \description{
-Convert Bilirubin concentration from µmol/L to mg/dL
+Convert Bilirubin Concentration Units
 }
 \examples{
 convert_bili(17.1) # ≈ 1 mg/dL
@@ -28,3 +28,9 @@ df <- df \%>\%
   dplyr::mutate(BILIBL = convert_bili(BILI))
 df
 }
+\seealso{
+Other unit_conversion: 
+\code{\link{convert_alb}()},
+\code{\link{convert_creat}()}
+}
+\concept{unit_conversion}

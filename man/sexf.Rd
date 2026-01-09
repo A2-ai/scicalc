@@ -2,7 +2,7 @@
 % Please edit documentation in R/yspec_def.R
 \name{sexf}
 \alias{sexf}
-\title{Takes character input and returns standard yspec numeric value for Sex.}
+\title{Convert Sex to Numeric Code}
 \usage{
 sexf(sex)
 }
@@ -24,3 +24,16 @@ sexf("MALE") # 0
 
 sexf("NOT SPECIFIED") # 0
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_black}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{is_white}()},
+\code{\link{racen}()}
+}
+\concept{demographics}

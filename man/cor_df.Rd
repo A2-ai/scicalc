@@ -2,7 +2,7 @@
 % Please edit documentation in R/stats.R
 \name{cor_df}
 \alias{cor_df}
-\title{Convert dataframe to correlation matrix in tidy format}
+\title{Convert Data Frame to Correlation Matrix}
 \usage{
 cor_df(data, columns = NULL, use = "complete.obs", method = "pearson")
 }
@@ -48,3 +48,11 @@ cor_df(df)
 cor_df(df, columns = c("A", "B", "C"))
 
 }
+\seealso{
+Other statistics: 
+\code{\link{cv}()},
+\code{\link{geom_cv}()},
+\code{\link{geom_mean}()},
+\code{\link{geom_sd}()}
+}
+\concept{statistics}

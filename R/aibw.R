@@ -1,4 +1,7 @@
-#' Adjusted Ideal Body Weight function
+#' Calculate Adjusted Ideal Body Weight
+#'
+#' Calculates adjusted ideal body weight, which accounts for excess body weight
+#' in obese patients.
 #'
 #' @param weight baseline weight of subject in kilograms
 #' @param height baseline height of subject in centimeters
@@ -7,9 +10,21 @@
 #' @param allow_ibw_lt_intercept logical indicating whether to allow ideal
 #'   body weight to be lower than intercepts (default TRUE).
 #' @param allow_tbw_lt_ibw logical indicating whether to allow adjusted ideal
-#' 		body weight to be less than IBW (default TRUE).
+#'   body weight to be less than IBW (default TRUE).
 #'
-#' @return adjusted ideal body weight in kilograms
+#' @details
+#' Adjusted ideal body weight is calculated as:
+#' \deqn{AIBW = IBW + 0.4 \cdot (TBW - IBW)}{AIBW = IBW + 0.4 * (TBW - IBW)}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{IBW} = ideal body weight (kg)
+#'   \item \eqn{TBW} = total (actual) body weight (kg)
+#' }
+#'
+#' @return adjusted ideal body weight (kg)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @examples

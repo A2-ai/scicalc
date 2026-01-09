@@ -1,4 +1,4 @@
-#' Converts continuous variable into factor categories.
+#' Categorize Continuous Variable into Quantile Bins
 #'
 #' @param continuous_var continuous variable data
 #' @param nbins number of bins to break data into, default is 4
@@ -7,6 +7,7 @@
 #' @param digits number of digits to round quantile breaks to for labels, default is 1
 #'
 #' @return a vector of categorized data as factor
+#'
 #' @export
 #'
 #' @examples

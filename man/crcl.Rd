@@ -2,7 +2,7 @@
 % Please edit documentation in R/crcl.R
 \name{crcl}
 \alias{crcl}
-\title{Calculates Creatinine clearance with Cockcroft-Gault equation}
+\title{Calculate Creatinine Clearance Using Cockcroft-Gault Equation}
 \usage{
 crcl(sexf, age, creat, weight)
 }
@@ -19,7 +19,19 @@ crcl(sexf, age, creat, weight)
 CrCl (mL/min)
 }
 \description{
-Calculates Creatinine clearance with Cockcroft-Gault equation
+Calculate Creatinine Clearance Using Cockcroft-Gault Equation
+}
+\details{
+The Cockcroft-Gault equation:
+\deqn{CrCl = F \cdot \frac{(140 - A) \cdot W}{72 \cdot S_{cr}}}{CrCl = F * (140 - A) * W / (72 * Scr)}
+
+where:
+\itemize{
+\item \eqn{A} = age (years)
+\item \eqn{W} = weight (kg)
+\item \eqn{S_{cr}} = serum creatinine (mg/dL)
+\item \eqn{F} = 0.85 (female) or 1 (male)
+}
 }
 \examples{
 crcl(FALSE, 20, 10, 70)
@@ -38,3 +50,15 @@ df <- df \%>\%
   dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

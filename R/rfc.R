@@ -1,4 +1,4 @@
-#' Calculates renal impairment categories based on Renal Function Estimator
+#' Categorize Renal Function
 #'
 #' This function categorizes renal function based on estimated glomerular filtration rate (eGFR),
 #' creatinine clearance, or other renal function estimators. It supports both clinical and
@@ -49,6 +49,8 @@
 #'
 #' KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease.
 #' \url{https://www.kidney-international.org/action/showPdf?pii=S0085-2538(23)00766-4}
+#'
+#' @family renal_function
 #'
 #' @seealso
 #' \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,

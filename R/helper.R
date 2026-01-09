@@ -1,8 +1,10 @@
-#' Takes character input and returns TRUE/FALSE if female/male
+#' Check if Sex is Female
 #'
 #' @param x input character representing female or male
 #'
 #' @return boolean representing female
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -27,11 +29,13 @@ is_female <- function(x) {
   return(ifelse(first_letter == "f", TRUE, FALSE))
 }
 
-#' Takes character input and returns TRUE/FALSE if white/other
+#' Check if Race is White
 #'
 #' @param x input character representing race
 #'
 #' @return boolean representing Race == White
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -61,11 +65,13 @@ is_white <- function(x) {
   ))
 }
 
-#' Takes character input and returns TRUE/FALSE if black/other also checks for "African American" and "Black or African American"
+#' Check if Race is Black
 #'
 #' @param x input character representing race
 #'
 #' @return boolean representing Race == Black
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -95,11 +101,13 @@ is_black <- function(x) {
   ))
 }
 
-#' Takes character input and returns TRUE/FALSE if asian/other
+#' Check if Race is Asian
 #'
 #' @param x input character representing race
 #'
 #' @return boolean representing Race == Asian
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -129,11 +137,13 @@ is_asian <- function(x) {
   ))
 }
 
-#' Takes character input and returns TRUE/FALSE if other/explicit race
+#' Check if Race is Other
 #'
 #' @param x input character representing race
 #'
 #' @return boolean representing Race == Other
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -163,11 +173,13 @@ is_other <- function(x) {
   ))
 }
 
-#' Takes character input and returns TRUE/FALSE if "Hispanic or Latino" or other
+#' Check if Ethnicity is Hispanic or Latino
 #'
 #' @param x input character representing ethnicity
 #'
 #' @return boolean representing Ethnic == "Hispanic or Latino"
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples
@@ -199,11 +211,13 @@ is_hispanic_or_latino <- function(x) {
   ))
 }
 
-#' Takes character input and returns TRUE/FALSE if "Not Hispanic or Latino" or other
+#' Check if Ethnicity is Not Hispanic or Latino
 #'
 #' @param x input character representing ethnicity
 #'
 #' @return boolean representing Ethnic == "Not Hispanic or Latino"
+#'
+#' @family demographics
 #' @export
 #'
 #' @examples

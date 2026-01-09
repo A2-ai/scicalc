@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_file_with_hash.R
 \name{read_hashed_file}
 \alias{read_hashed_file}
-\title{Reads a file if the supplied hash matches the file's hash}
+\title{Read File with Required Hash Match}
 \usage{
 read_hashed_file(file_path, hash, ..., algo = "blake3")
 }
@@ -19,7 +19,7 @@ read_hashed_file(file_path, hash, ..., algo = "blake3")
 data object of contents of file_path
 }
 \description{
-Reads a file if the supplied hash matches the file's hash
+Read File with Required Hash Match
 }
 \examples{
 \dontrun{
@@ -29,3 +29,17 @@ hash <- 0cfd6da55e6c1e198effe1e584c26d79
 read_hashed_file(file_path, hash)
 }
 }
+\seealso{
+Other file_io: 
+\code{\link{read_csv_with_hash}()},
+\code{\link{read_excel_with_hash}()},
+\code{\link{read_file_with_hash}()},
+\code{\link{read_parquet_with_hash}()},
+\code{\link{read_pzfx_with_hash}()},
+\code{\link{read_sas_with_hash}()},
+\code{\link{read_xpt_with_hash}()},
+\code{\link{write_csv_with_hash}()},
+\code{\link{write_file_with_hash}()},
+\code{\link{write_parquet_with_hash}()}
+}
+\concept{file_io}
