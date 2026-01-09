@@ -2,7 +2,7 @@
 % Please edit documentation in R/bmic.R
 \name{bmic}
 \alias{bmic}
-\title{BMI Category Function}
+\title{Categorize Body Mass Index}
 \usage{
 bmic(bmi, age)
 }
@@ -44,13 +44,11 @@ patients <- data.frame(
   HEIGHT = c(165, 175, 170, 180, 160, 175)
 )
 
-patients <-
-  dplyr::mutate(
-    patients,
-    BMI = bmi(WEIGHT, HEIGHT),
-    BMIC = bmic(BMI, AGE)
-  )
-
+dplyr::mutate(
+ patients,
+  BMI = bmi(WEIGHT, HEIGHT),
+  BMIC = bmic(BMI, AGE)
+)
 }
 \references{
 World Health Organization.
@@ -59,4 +57,13 @@ https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
 \seealso{
 \code{\link{bmi}} for calculating BMI from weight and height,
 \code{\link{agec}} for age categorization
+
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmi}()},
+\code{\link{bsa}()},
+\code{\link{dubois_bsa}()},
+\code{\link{ibw}()},
+\code{\link{mosteller_bsa}()}
 }
+\concept{body_composition}

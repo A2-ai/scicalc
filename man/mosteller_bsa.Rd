@@ -2,7 +2,7 @@
 % Please edit documentation in R/bsa.R
 \name{mosteller_bsa}
 \alias{mosteller_bsa}
-\title{Calculates Body Surface Area based on Weight and Height using Mosteller equation}
+\title{Calculate Body Surface Area Using Mosteller Equation}
 \usage{
 mosteller_bsa(weight, height)
 }
@@ -15,8 +15,28 @@ mosteller_bsa(weight, height)
 the body surface area (m^2)
 }
 \description{
-Calculates Body Surface Area based on Weight and Height using Mosteller equation
+Calculate Body Surface Area Using Mosteller Equation
+}
+\details{
+The Mosteller equation for BSA:
+\deqn{BSA = \sqrt{\frac{W \cdot H}{3600}}}{BSA = sqrt(W * H / 3600)}
+
+where:
+\itemize{
+\item \eqn{W} = weight (kg)
+\item \eqn{H} = height (cm)
+}
 }
 \examples{
 mosteller_bsa(70, 170)
 }
+\seealso{
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmi}()},
+\code{\link{bmic}()},
+\code{\link{bsa}()},
+\code{\link{dubois_bsa}()},
+\code{\link{ibw}()}
+}
+\concept{body_composition}

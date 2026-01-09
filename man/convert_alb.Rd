@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert.R
 \name{convert_alb}
 \alias{convert_alb}
-\title{Convert Albumin concentration from g/L to g/dL}
+\title{Convert Albumin Concentration Units}
 \usage{
 convert_alb(alb)
 }
@@ -13,7 +13,7 @@ convert_alb(alb)
 Albumin concentration (g/dL)
 }
 \description{
-Convert Albumin concentration from g/L to g/dL
+Convert Albumin Concentration Units
 }
 \examples{
 convert_alb(40)
@@ -28,3 +28,9 @@ df <- df \%>\%
   dplyr::mutate(ALBBL = convert_alb(ALB))
 df
 }
+\seealso{
+Other unit_conversion: 
+\code{\link{convert_bili}()},
+\code{\link{convert_creat}()}
+}
+\concept{unit_conversion}

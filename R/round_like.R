@@ -1,4 +1,4 @@
-#' Round numeric values based on explicit or inferred significant digits
+#' Round to Significant Digits
 #'
 #' Priority:
 #' 1. If `sdig` is provided, round `x` to that many significant digits.

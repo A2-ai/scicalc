@@ -2,7 +2,7 @@
 % Please edit documentation in R/rfc.R
 \name{rfc}
 \alias{rfc}
-\title{Calculates renal impairment categories based on Renal Function Estimator}
+\title{Categorize Renal Function}
 \usage{
 rfc(
   estimator = NULL,
@@ -114,4 +114,15 @@ KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chro
 \seealso{
 \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,
 \code{\link{bsa}} for body surface area calculation
+
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{schwartz_egfr}()}
 }
+\concept{renal_function}

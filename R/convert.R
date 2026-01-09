@@ -1,8 +1,10 @@
-#' Convert Albumin concentration from g/L to g/dL
+#' Convert Albumin Concentration Units
 #'
 #' @param alb albumin concentration (g/L)
 #'
 #' @return Albumin concentration (g/dL)
+#'
+#' @family unit_conversion
 #' @export
 #'
 #' @examples
@@ -29,11 +31,13 @@ convert_alb <- function(alb) {
   return(alb_gdl)
 }
 
-#' Convert Bilirubin concentration from µmol/L to mg/dL
+#' Convert Bilirubin Concentration Units
 #'
 #' @param bili bilirubin concentration (µmol/L)
 #'
 #' @return Bilirubin concentration (mg/dL)
+#'
+#' @family unit_conversion
 #' @export
 #'
 #' @examples
@@ -63,11 +67,13 @@ convert_bili <- function(bili) {
   return(bili_mgdl)
 }
 
-#' Convert Serum Creatinine concentration from µmol/L to mg/dL
+#' Convert Serum Creatinine Concentration Units
 #'
 #' @param creat serum creatinine concentration (µmol/L)
 #'
 #' @return Serum Creatinine concentration (mg/dL)
+#'
+#' @family unit_conversion
 #' @export
 #'
 #' @examples

@@ -1,9 +1,21 @@
-#' Computes the coefficient of variation of input vector.
+#' Calculate Coefficient of Variation
 #'
 #' @param x Input vector to compute CV for.
 #' @param na.rm boolean to remove NA. default is FALSE
 #'
+#' @details
+#' The coefficient of variation is calculated as:
+#' \deqn{CV = \frac{\sigma}{\mu}}{CV = sd / mean}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{\sigma} = standard deviation
+#'   \item \eqn{\mu} = mean
+#' }
+#'
 #' @return CV of x. Standard deviation divided by mean. If you want % you'll need to multiply by 100
+#'
+#' @family statistics
 #' @export
 #'
 #' @examples
@@ -25,12 +37,18 @@ cv <- function(x, na.rm = FALSE) {
 }
 
 
-#' Computes the geometric mean of a vector.
+#' Calculate Geometric Mean
 #'
 #' @param x vector to compute geometric mean of
 #' @param na.rm boolean to remove NA from vector in calcualtion. Default is False
 #'
+#' @details
+#' The geometric mean is calculated as:
+#' \deqn{GM = \exp\left(\mathbb{E}[\log(x)]\right)}{GM = exp(mean(log(x)))}
+#'
 #' @return geometric mean of input vector x
+#'
+#' @family statistics
 #' @export
 #'
 #' @examples
@@ -51,12 +69,18 @@ geom_mean <- function(x, na.rm = FALSE) {
   return(exp(mean(log(x), na.rm = na.rm)))
 }
 
-#' Computes the geometric standard deviation of a vector x.
+#' Calculate Geometric Standard Deviation
 #'
 #' @param x The vector of data you want the geometric sd of.
 #' @param na.rm a boolean to remove NA values. Default is False
 #'
+#' @details
+#' The geometric standard deviation is calculated as:
+#' \deqn{GSD = \exp\left(\sqrt{Var[\log(x)]}\right)}{GSD = exp(sd(log(x)))}
+#'
 #' @return the geometric standard deviation of x
+#'
+#' @family statistics
 #' @export
 #'
 #' @examples
@@ -77,12 +101,18 @@ geom_sd <- function(x, na.rm = FALSE) {
   return(exp(stats::sd(log(x), na.rm = na.rm)))
 }
 
-#' Computes the geometric CV of a vector x
+#' Calculate Geometric Coefficient of Variation
 #'
 #' @param x vector of data you want the geometric CV of.
 #' @param na.rm boolean to remove NA from vector. Default is FALSE
 #'
+#' @details
+#' The geometric coefficient of variation is calculated as:
+#' \deqn{GCV = \sqrt{\exp(Var[\log(x)]) - 1}}{GCV = sqrt(exp(sd(log(x))^2) - 1)}
+#'
 #' @return the geometric CV of the input vector x
+#'
+#' @family statistics
 #' @export
 #'
 #' @examples
@@ -104,7 +134,7 @@ geom_cv <- function(x, na.rm = FALSE) {
 }
 
 
-#' Convert dataframe to correlation matrix in tidy format
+#' Convert Data Frame to Correlation Matrix
 #'
 #' Computes pairwise correlations between numeric columns and returns
 #' results in a tidy long format, sorted by absolute correlation.
@@ -124,6 +154,7 @@ geom_cv <- function(x, na.rm = FALSE) {
 #'   }
 #'   Results are sorted by ABSCORR in descending order.
 #'
+#' @family statistics
 #' @export
 #'
 #' @importFrom rlang .data

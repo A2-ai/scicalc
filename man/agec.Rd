@@ -2,18 +2,31 @@
 % Please edit documentation in R/agec.R
 \name{agec}
 \alias{agec}
-\title{Age category function}
+\title{Categorize Age}
 \usage{
 agec(age)
 }
 \arguments{
-\item{age}{baseline age of subject in years}
+\item{age}{Numeric vector of baseline age in years}
 }
 \value{
-age category
+Integer vector of age categories (1-6). Returns \code{-999} for
+missing values. Includes a \code{category_standard} attribute set to "FDA".
 }
 \description{
-Age category function
+Categorizes subjects into FDA-defined age groups for pediatric and geriatric
+drug development studies.
+}
+\details{
+\strong{FDA age categories}:
+\itemize{
+\item 1: Neonate: 0 to <28 days
+\item 2: Infant: 28 days to <2 years
+\item 3: Child: 2 to <12 years
+\item 4: Adolescent: 12 to <18 years
+\item 5: Adult: 18 to <65 years
+\item 6: Elderly Adult: ≥65 years
+}
 }
 \examples{
 age_cat <- agec(24)
@@ -22,8 +35,7 @@ df <- data.frame(
   ID = 1:12,
   AGE = c(0.07, 28 / 365, 0.25, 1, 2, 4, 12, 16, 18, 24, 65, 70)
 )
-df <- dplyr::mutate(df, AGEC = agec(AGE))
-df
+dplyr::mutate(df, AGEC = agec(AGE))
 }
 \references{
 Pediatric Drug Development: Regulatory Considerations —
@@ -34,3 +46,4 @@ Pharmaceuticals for Children Act Guidance for Industry
 Guideline for Industry Studies in Support of
 Special Populations: Geriatrics
 }
+\concept{categorization}

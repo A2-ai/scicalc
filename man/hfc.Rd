@@ -2,7 +2,7 @@
 % Please edit documentation in R/hfc.R
 \name{hfc}
 \alias{hfc}
-\title{Calculates hepatic function categories based on NCI-ODWG criteria}
+\title{Categorize Hepatic Function}
 \usage{
 hfc(ast, ulnast, bili, ulnbili)
 }
@@ -73,3 +73,4 @@ patients \%>\%
 \references{
 National Cancer Institute Organ Dysfunction Working Group criteria for hepatic impairment
 }
+\concept{hepatic_function}

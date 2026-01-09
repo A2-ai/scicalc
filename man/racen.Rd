@@ -2,7 +2,7 @@
 % Please edit documentation in R/yspec_def.R
 \name{racen}
 \alias{racen}
-\title{Takes character input and returns standard yspec numeric value for Race}
+\title{Convert Race to Numeric Code}
 \usage{
 racen(racec)
 }
@@ -13,7 +13,7 @@ racen(racec)
 the standard yspec numeric value for the inputted Race character
 }
 \description{
-Takes character input and returns standard yspec numeric value for Race
+Convert Race to Numeric Code
 }
 \examples{
 racen("WHITE") # 1
@@ -26,3 +26,16 @@ racen("OTHER") # 4
 
 racen("UNKNOWN") # -999
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_black}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{is_white}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}

@@ -1,4 +1,4 @@
-#' BMI Category Function
+#' Categorize Body Mass Index
 #'
 #' Categorizes individuals based on their Body Mass Index (BMI) according to
 #' standard WHO obesity classification criteria. Validates age
@@ -30,9 +30,13 @@
 #' World Health Organization.
 #' https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
 #'
+#' @family body_composition
+#'
 #' @seealso
 #' \code{\link{bmi}} for calculating BMI from weight and height,
 #' \code{\link{agec}} for age categorization
+#'
+#' @export
 #'
 #' @examples
 #' patients <- data.frame(
@@ -42,14 +46,11 @@
 #'   HEIGHT = c(165, 175, 170, 180, 160, 175)
 #' )
 #'
-#' patients <-
-#'   dplyr::mutate(
-#'     patients,
-#'     BMI = bmi(WEIGHT, HEIGHT),
-#'     BMIC = bmic(BMI, AGE)
-#'   )
-#'
-#' @export
+#' dplyr::mutate(
+#'	 patients,
+#'   BMI = bmi(WEIGHT, HEIGHT),
+#'   BMIC = bmic(BMI, AGE)
+#' )
 bmic <- function(bmi, age) {
   checkmate::assertNumeric(bmi)
   checkmate::assertNumeric(age)

@@ -1,0 +1,126 @@
+# starlightr configuration file
+# This file defines how your R package documentation will be built into a Starlight site
+
+# Site metadata
+site:
+  title: "scicalc"
+  description: "Scientific calculations for pharmacometrics"
+  logo: man/figures/logo.png
+  favicon: man/figures/logo.png
+
+# Home page configuration
+home:
+  hero:
+    tagline: "Utility functions helpful for reproducible scientific calculations."
+    actions:
+      - text: "Get Started"
+        link: "/articles/scicalc/"
+        icon: "right-arrow"
+        variant: "primary"
+      - text: "View on GitHub"
+        link: "https://github.com/user/repo"  # Update this!
+        icon: "external"
+        variant: "minimal"
+
+# Sidebar configuration
+sidebar:
+  articles:
+    - label: "Getting Started"
+      contents:
+        - "scicalc"
+  references:
+    - label: "File Manipulations"
+      collapsed: true
+      contents:
+        - "read_file_with_hash"
+        - "read_hashed_file"
+        - "write_file_with_hash"
+
+    - label: "Demographics"
+      collapsed: true
+      contents:
+        - "is_asian"
+        - "is_black"
+        - "is_white"
+        - "is_other"
+        - "racen"
+        - "is_hispanic_or_latino"
+        - "is_not_hispanic_or_latino"
+        - "ethnicn"
+        - "is_female"
+        - "sexf"
+
+    - label: "Vitals"
+      collapsed: true
+      contents:
+        - "agec"
+        - "bmi"
+        - "bmic"
+        - "ibw"
+        - "aibw"
+        - "bsa"
+        - "dubois_bsa"
+        - "mosteller_bsa"
+        - "crcl"
+        - "rfc"
+        - "hfc"
+        - "egfr"
+        - "aegfr"
+        - "ckdepi_2021_egfr"
+        - "ckdepi_2009_egfr"
+        - "ckdepi_2021_egfr_cystatin"
+        - "mdrd_egfr"
+        - "schwartz_egfr"
+
+    - label: "Units"
+      collapsed: true
+      contents:
+        - "check_for_unique_units"
+        - "get_unique_units_df"
+        - "convert_alb"
+        - "convert_bili"
+        - "convert_creat"
+
+    - label: "Statistical"
+      collapsed: true
+      contents:
+        - "geom_mean"
+        - "geom_sd"
+        - "cv"
+        - "geom_cv"
+        - "categorize"
+        - "cor_df"
+        - "round_like"
+  news:
+    label: "Changelog"
+    source: "NEWS.md"
+
+# Navigation
+navbar:
+  right:
+    - icon: "github"
+      href: "https://github.com/a2-ai/scicalc"
+
+# Output
+# Theme and appearance
+theme:
+  color_mode: "auto"  # light, dark, or auto
+
+# Content processing options
+content:
+  # Custom sections to format as code
+  code_sections:
+    - "usage"
+    - "examples"
+
+  # Sections to skip entirely
+  skip_sections:
+    - "name"
+
+# Output directory for generated site
+output:
+  dir: "../Docs/scicalc-docs-starlightr"  # External directory (recommended)
+  # dir: "docs"       # Internal directory (not recommended due to bloat)
+  include_build_files: true
+
+

@@ -2,20 +2,31 @@
 % Please edit documentation in R/aegfr.R
 \name{aegfr}
 \alias{aegfr}
-\title{Calculates Absolute estimated Glomerular Filtration Rate (eGFR)}
+\title{Calculate Absolute eGFR}
 \usage{
 aegfr(egfr, bsa)
 }
 \arguments{
-\item{egfr}{estimated glomerular filtration rate (mL/min/1.73 m2)}
+\item{egfr}{estimated glomerular filtration rate (mL/min/1.73 m²)}
 
-\item{bsa}{body surface area (m2)}
+\item{bsa}{body surface area (m²)}
 }
 \value{
 Absolute eGFR (mL/min)
 }
 \description{
-Calculates Absolute estimated Glomerular Filtration Rate (eGFR)
+Converts relative eGFR (normalized to 1.73 m²) to absolute eGFR using
+the patient's actual body surface area.
+}
+\details{
+Absolute eGFR is calculated as:
+\deqn{aGFR = \frac{eGFR \cdot BSA}{1.73}}{aGFR = eGFR * BSA / 1.73}
+
+where:
+\itemize{
+\item \eqn{eGFR} = relative eGFR (mL/min/1.73m²)
+\item \eqn{BSA} = body surface area (m²)
+}
 }
 \examples{
 aegfr(90, 1.9)
@@ -31,3 +42,15 @@ df <- df \%>\%
   dplyr::mutate(AEGFR = aegfr(EGFR, BSA))
 df
 }
+\seealso{
+Other renal_function: 
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()},
+\code{\link{schwartz_egfr}()}
+}
+\concept{renal_function}

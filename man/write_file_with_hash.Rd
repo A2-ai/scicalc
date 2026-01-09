@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_data.R
 \name{write_file_with_hash}
 \alias{write_file_with_hash}
-\title{Writes data to path, if directory doesn't exist it is created before file is written}
+\title{Write Data File with Hash Output}
 \usage{
 write_file_with_hash(data, path, overwrite = FALSE, ...)
 }
@@ -19,7 +19,7 @@ write_file_with_hash(data, path, overwrite = FALSE, ...)
 Nothing, File is created and hash of created file is printed
 }
 \description{
-Writes data to path, if directory doesn't exist it is created before file is written
+Write Data File with Hash Output
 }
 \examples{
 \dontrun{
@@ -30,3 +30,17 @@ df <- data.frame(
 write_data_with_hash(df, "data.csv")
 }
 }
+\seealso{
+Other file_io: 
+\code{\link{read_csv_with_hash}()},
+\code{\link{read_excel_with_hash}()},
+\code{\link{read_file_with_hash}()},
+\code{\link{read_hashed_file}()},
+\code{\link{read_parquet_with_hash}()},
+\code{\link{read_pzfx_with_hash}()},
+\code{\link{read_sas_with_hash}()},
+\code{\link{read_xpt_with_hash}()},
+\code{\link{write_csv_with_hash}()},
+\code{\link{write_parquet_with_hash}()}
+}
+\concept{file_io}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/units.R
 \name{get_unique_units_df}
 \alias{get_unique_units_df}
-\title{Creates a dataframe with distinct parameters and units combinations}
+\title{Get Unique Parameter-Unit Combinations}
 \usage{
 get_unique_units_df(params, units)
 }
@@ -15,7 +15,7 @@ get_unique_units_df(params, units)
 a dataframe with distinct units and parameters with IU replaced to U and mu replaced with u
 }
 \description{
-Creates a dataframe with distinct parameters and units combinations
+Get Unique Parameter-Unit Combinations
 }
 \examples{
 df <- data.frame(
@@ -26,5 +26,10 @@ df <- data.frame(
     "g/L","U/L","U/L","umol/L","umol/L",
     "U/L","μmol/L","μmol/L","IU/L","IU/L")
 )
-unique_df <- get_unique_units_df(df$PARAM, df$UNIT)
+get_unique_units_df(df$PARAM, df$UNIT)
 }
+\seealso{
+Other unit_checking: 
+\code{\link{check_for_unique_units}()}
+}
+\concept{unit_checking}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/bsa.R
 \name{dubois_bsa}
 \alias{dubois_bsa}
-\title{Calculates Body Surface Area based on Weight and Height using Dubois Dubois equation}
+\title{Calculate Body Surface Area Using Du Bois Equation}
 \usage{
 dubois_bsa(weight, height)
 }
@@ -15,10 +15,20 @@ dubois_bsa(weight, height)
 the body surface area (m^2)
 }
 \description{
-Calculates Body Surface Area based on Weight and Height using Dubois Dubois equation
+Calculate Body Surface Area Using Du Bois Equation
+}
+\details{
+The Du Bois equation for BSA:
+\deqn{BSA = 0.007184 \cdot W^{0.425} \cdot H^{0.725}}{BSA = 0.007184 * W^0.425 * H^0.725}
+
+where:
+\itemize{
+\item \eqn{W} = weight (kg)
+\item \eqn{H} = height (cm)
+}
 }
 \examples{
-#' b <- dubois_bsa(80.56, 167)
+b <- dubois_bsa(80.56, 167)
 
 df <- data.frame(
 "WT" = c(80.56, 71.53, 81.04, 70.17),
@@ -27,3 +37,13 @@ df <- data.frame(
 df <- dplyr::mutate(df, bsa = dubois_bsa(WT, HT))
 df
 }
+\seealso{
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmi}()},
+\code{\link{bmic}()},
+\code{\link{bsa}()},
+\code{\link{ibw}()},
+\code{\link{mosteller_bsa}()}
+}
+\concept{body_composition}

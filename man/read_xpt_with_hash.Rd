@@ -2,7 +2,7 @@
 % Please edit documentation in R/read_file_with_hash.R
 \name{read_xpt_with_hash}
 \alias{read_xpt_with_hash}
-\title{Reads data from xpt file and prints hash of contents.}
+\title{Read XPT File with Hash Verification}
 \usage{
 read_xpt_with_hash(xpt_file_path, ..., algo = "blake3")
 }
@@ -17,10 +17,24 @@ read_xpt_with_hash(xpt_file_path, ..., algo = "blake3")
 a dataframe(?) of data within file
 }
 \description{
-Reads data from xpt file and prints hash of contents.
+Read XPT File with Hash Verification
 }
 \examples{
 \dontrun{
 read_xpt_with_hash("data/source/example.xpt")
 }
 }
+\seealso{
+Other file_io: 
+\code{\link{read_csv_with_hash}()},
+\code{\link{read_excel_with_hash}()},
+\code{\link{read_file_with_hash}()},
+\code{\link{read_hashed_file}()},
+\code{\link{read_parquet_with_hash}()},
+\code{\link{read_pzfx_with_hash}()},
+\code{\link{read_sas_with_hash}()},
+\code{\link{write_csv_with_hash}()},
+\code{\link{write_file_with_hash}()},
+\code{\link{write_parquet_with_hash}()}
+}
+\concept{file_io}

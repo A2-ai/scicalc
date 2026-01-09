@@ -1,4 +1,4 @@
-#' Calculates hepatic function categories based on NCI-ODWG criteria
+#' Categorize Hepatic Function
 #'
 #' This function categorizes hepatic function impairment using the National Cancer Institute
 #' Organ Dysfunction Working Group (NCI-ODWG) criteria. It evaluates aspartate aminotransferase
@@ -29,6 +29,8 @@
 #'
 #' @return Integer vector of hepatic function categories (1-4). Returns \code{-999}
 #'   for missing values.
+#'
+#' @family hepatic_function
 #'
 #' @references
 #' National Cancer Institute Organ Dysfunction Working Group criteria for hepatic impairment

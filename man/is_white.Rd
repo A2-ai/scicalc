@@ -2,7 +2,7 @@
 % Please edit documentation in R/helper.R
 \name{is_white}
 \alias{is_white}
-\title{Takes character input and returns TRUE/FALSE if white/other}
+\title{Check if Race is White}
 \usage{
 is_white(x)
 }
@@ -13,7 +13,7 @@ is_white(x)
 boolean representing Race == White
 }
 \description{
-Takes character input and returns TRUE/FALSE if white/other
+Check if Race is White
 }
 \examples{
 is_white("WHITE")
@@ -22,3 +22,16 @@ is_white("BLACK")
 
 is_white(1)
 }
+\seealso{
+Other demographics: 
+\code{\link{ethnicn}()},
+\code{\link{is_asian}()},
+\code{\link{is_black}()},
+\code{\link{is_female}()},
+\code{\link{is_hispanic_or_latino}()},
+\code{\link{is_not_hispanic_or_latino}()},
+\code{\link{is_other}()},
+\code{\link{racen}()},
+\code{\link{sexf}()}
+}
+\concept{demographics}

@@ -2,7 +2,7 @@
 % Please edit documentation in R/aibw.R
 \name{aibw}
 \alias{aibw}
-\title{Adjusted Ideal Body Weight function}
+\title{Calculate Adjusted Ideal Body Weight}
 \usage{
 aibw(
   weight,
@@ -29,10 +29,21 @@ body weight to be lower than intercepts (default TRUE).}
 body weight to be less than IBW (default TRUE).}
 }
 \value{
-adjusted ideal body weight in kilograms
+adjusted ideal body weight (kg)
 }
 \description{
-Adjusted Ideal Body Weight function
+Calculates adjusted ideal body weight, which accounts for excess body weight
+in obese patients.
+}
+\details{
+Adjusted ideal body weight is calculated as:
+\deqn{AIBW = IBW + 0.4 \cdot (TBW - IBW)}{AIBW = IBW + 0.4 * (TBW - IBW)}
+
+where:
+\itemize{
+\item \eqn{IBW} = ideal body weight (kg)
+\item \eqn{TBW} = total (actual) body weight (kg)
+}
 }
 \examples{
 df <- data.frame(
@@ -45,3 +56,13 @@ df <- data.frame(
 df <- dplyr::mutate(df, AIBW = aibw(WEIGHT, HEIGHT, SEX, AGE))
 df
 }
+\seealso{
+Other body_composition: 
+\code{\link{bmi}()},
+\code{\link{bmic}()},
+\code{\link{bsa}()},
+\code{\link{dubois_bsa}()},
+\code{\link{ibw}()},
+\code{\link{mosteller_bsa}()}
+}
+\concept{body_composition}

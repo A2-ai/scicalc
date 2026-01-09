@@ -2,7 +2,7 @@
 % Please edit documentation in R/stats.R
 \name{geom_sd}
 \alias{geom_sd}
-\title{Computes the geometric standard deviation of a vector x.}
+\title{Calculate Geometric Standard Deviation}
 \usage{
 geom_sd(x, na.rm = FALSE)
 }
@@ -15,8 +15,20 @@ geom_sd(x, na.rm = FALSE)
 the geometric standard deviation of x
 }
 \description{
-Computes the geometric standard deviation of a vector x.
+Calculate Geometric Standard Deviation
+}
+\details{
+The geometric standard deviation is calculated as:
+\deqn{GSD = \exp\left(\sqrt{Var[\log(x)]}\right)}{GSD = exp(sd(log(x)))}
 }
 \examples{
 geom_sd(c(1, 2, 3, 2, 1))
 }
+\seealso{
+Other statistics: 
+\code{\link{cor_df}()},
+\code{\link{cv}()},
+\code{\link{geom_cv}()},
+\code{\link{geom_mean}()}
+}
+\concept{statistics}

@@ -1,9 +1,24 @@
-#' Calculates Absolute estimated Glomerular Filtration Rate (eGFR)
+#' Calculate Absolute eGFR
 #'
-#' @param egfr estimated glomerular filtration rate (mL/min/1.73 m2)
-#' @param bsa body surface area (m2)
+#' Converts relative eGFR (normalized to 1.73 m²) to absolute eGFR using
+#' the patient's actual body surface area.
+#'
+#' @param egfr estimated glomerular filtration rate (mL/min/1.73 m²)
+#' @param bsa body surface area (m²)
+#'
+#' @details
+#' Absolute eGFR is calculated as:
+#' \deqn{aGFR = \frac{eGFR \cdot BSA}{1.73}}{aGFR = eGFR * BSA / 1.73}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{eGFR} = relative eGFR (mL/min/1.73m²)
+#'   \item \eqn{BSA} = body surface area (m²)
+#' }
 #'
 #' @return Absolute eGFR (mL/min)
+#'
+#' @family renal_function
 #' @export
 #'
 #' @examples

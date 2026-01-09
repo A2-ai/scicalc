@@ -1,17 +1,28 @@
-#' Ideal Body Weight function
+#' Calculate Ideal Body Weight
 #'
-#' Calculates ideal body weight using the Devine equation. For men: 50 kg + 2.3 kg
-#' for each inch above 5 feet. For women: 45.5 kg + 2.3 kg for each inch above 5 feet.
-#' By default, applies intercepts for individuals shorter than 5 feet (152.4 cm).
+#' Calculates ideal body weight using the Devine equation. By default, applies
+#' intercepts for individuals shorter than 5 feet (152.4 cm).
 #'
 #' @param height baseline height of subject in centimeters
 #' @param sexf 0 = male, 1 = female, from sexf()
 #' @param age Numeric vector of baseline age in years.
 #' @param allow_ibw_lt_intercept logical indicating whether to apply intercepts
 #'   for heights < 152.4 cm (5 feet). When TRUE (default), ideal weight is
-#' 	 set to intercept weight (50 kg for males, 45.5 kg for females)
+#'   set to intercept weight (50 kg for males, 45.5 kg for females)
 #'
-#' @return ideal body weight in kilograms
+#' @details
+#' The Devine equation for ideal body weight:
+#' \deqn{IBW = I + 2.3 \cdot (H_{in} - 60)}{IBW = I + 2.3 * (H_in - 60)}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{I} = 50 kg (male) or 45.5 kg (female)
+#'   \item \eqn{H_{in}} = height in inches (60 inches = 5 feet = 152.4 cm)
+#' }
+#'
+#' @return ideal body weight (kg)
+#'
+#' @family body_composition
 #' @export
 #'
 #' @references

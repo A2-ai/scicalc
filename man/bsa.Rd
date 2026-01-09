@@ -2,7 +2,7 @@
 % Please edit documentation in R/bsa.R
 \name{bsa}
 \alias{bsa}
-\title{Calculates Body Surface Area based on Weight and Height using the method specified. Default is Dubois.}
+\title{Calculate Body Surface Area}
 \usage{
 bsa(weight, height, method = "Dubois")
 }
@@ -17,10 +17,20 @@ bsa(weight, height, method = "Dubois")
 bsa (m^2)
 }
 \description{
-Calculates Body Surface Area based on Weight and Height using the method specified. Default is Dubois.
+Calculate Body Surface Area
 }
 \examples{
 bsa(70, 170)
 bsa(70, 170, method = "Mosteller")
 bsa(70, 170, method = "Dubois")
 }
+\seealso{
+Other body_composition: 
+\code{\link{aibw}()},
+\code{\link{bmi}()},
+\code{\link{bmic}()},
+\code{\link{dubois_bsa}()},
+\code{\link{ibw}()},
+\code{\link{mosteller_bsa}()}
+}
+\concept{body_composition}

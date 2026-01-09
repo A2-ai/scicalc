@@ -12,6 +12,5 @@ dependencies = [
   "devtools",
 	"covr",
   {name = "scicalc", path = ".", dependencies_only = true, install_suggestions = true},
-    "DT",
-    "htmltools",
+    "gt",
 ]

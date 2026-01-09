@@ -2,7 +2,7 @@
 % Please edit documentation in R/convert.R
 \name{convert_creat}
 \alias{convert_creat}
-\title{Convert Serum Creatinine concentration from µmol/L to mg/dL}
+\title{Convert Serum Creatinine Concentration Units}
 \usage{
 convert_creat(creat)
 }
@@ -13,7 +13,7 @@ convert_creat(creat)
 Serum Creatinine concentration (mg/dL)
 }
 \description{
-Convert Serum Creatinine concentration from µmol/L to mg/dL
+Convert Serum Creatinine Concentration Units
 }
 \examples{
 convert_creat(88.42) # ≈ 1 mg/dL
@@ -28,3 +28,9 @@ df <- df \%>\%
   dplyr::mutate(CREATBL = convert_creat(CREAT))
 df
 }
+\seealso{
+Other unit_conversion: 
+\code{\link{convert_alb}()},
+\code{\link{convert_bili}()}
+}
+\concept{unit_conversion}

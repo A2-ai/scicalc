@@ -2,7 +2,7 @@
 % Please edit documentation in R/round_like.R
 \name{round_like}
 \alias{round_like}
-\title{Round numeric values based on explicit or inferred significant digits}
+\title{Round to Significant Digits}
 \usage{
 round_like(x, ref = NULL, sdig = NULL)
 }

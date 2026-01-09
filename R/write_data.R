@@ -1,4 +1,4 @@
-#' Writes data to path, if directory doesn't exist it is created before file is written
+#' Write Data File with Hash Output
 #'
 #' @param data the data object to write to file
 #' @param path the destination of the file (csv or parquet)
@@ -6,6 +6,8 @@
 #' @param ... additional arguments for digest or write_file.
 #'
 #' @return Nothing, File is created and hash of created file is printed
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -38,13 +40,15 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ...) {
   }
 }
 
-#' Writes data to csv_path with na_value replacing NA values.
+#' Write CSV File with Hash Output
 #'
 #' @param data a data object to write to file
 #' @param csv_path the file path to save the csv
 #' @param ... additional arguments to digest or write_csv
 #'
 #' @return Nothing, creates csv_path file and prints hash of the file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -72,13 +76,15 @@ write_csv_with_hash <- function(data, csv_path, ...) {
   cat("\n")
 }
 
-#' Writes data to parquet_path and prints hash
+#' Write Parquet File with Hash Output
 #'
 #' @param data the data object to save to parquet_path
 #' @param parquet_path the path to the desired parquet destination
 #' @param ... additional arguments to digest and write_parquet
 #'
 #' @return Nothing. creates parquet_path file and prints hash
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/write_data.R
 \name{write_parquet_with_hash}
 \alias{write_parquet_with_hash}
-\title{Writes data to parquet_path and prints hash}
+\title{Write Parquet File with Hash Output}
 \usage{
 write_parquet_with_hash(data, parquet_path, ...)
 }
@@ -17,7 +17,7 @@ write_parquet_with_hash(data, parquet_path, ...)
 Nothing. creates parquet_path file and prints hash
 }
 \description{
-Writes data to parquet_path and prints hash
+Write Parquet File with Hash Output
 }
 \examples{
 \dontrun{
@@ -28,3 +28,17 @@ df <- data.frame(
 write_parquet_with_hash(df, "test/test.parquet")
 }
 }
+\seealso{
+Other file_io: 
+\code{\link{read_csv_with_hash}()},
+\code{\link{read_excel_with_hash}()},
+\code{\link{read_file_with_hash}()},
+\code{\link{read_hashed_file}()},
+\code{\link{read_parquet_with_hash}()},
+\code{\link{read_pzfx_with_hash}()},
+\code{\link{read_sas_with_hash}()},
+\code{\link{read_xpt_with_hash}()},
+\code{\link{write_csv_with_hash}()},
+\code{\link{write_file_with_hash}()}
+}
+\concept{file_io}

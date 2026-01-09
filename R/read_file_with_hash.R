@@ -1,10 +1,12 @@
-#' Reads the data from a file (csv or parquet) and prints the hash
+#' Read Data File with Hash Verification
 #'
 #' @param file_path path to data file
 #' @param ... additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx, read_xpt
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return data within the supplied file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -42,13 +44,15 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3") {
   }
 }
 
-#' Reads data from csv file and prints hash of contents.
+#' Read CSV File with Hash Verification
 #'
 #' @param csv_file_path path to csv file to ingest
 #' @param ... additional arguments for digest or read_csv
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return dataframe of data within file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -82,13 +86,15 @@ read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
   do.call(readr::read_csv, read_csv_args)
 }
 
-#' Reads data from parquet file and prints hash of contents.
+#' Read Parquet File with Hash Verification
 #'
 #' @param parquet_file_path path to parquet file to ingest
 #' @param ... additional arguments to digest or read_parquet
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return a tibble of data within file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -123,13 +129,15 @@ read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
   do.call(arrow::read_parquet, read_parquet_args)
 }
 
-#' Reads data from sas file and prints hash of contents.
+#' Read SAS File with Hash Verification
 #'
 #' @param sas_file_path path to sas file to ingest
 #' @param ... additional arguments to digest or read_sas
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return a dataframe(?) of data within file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -162,13 +170,15 @@ read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
   do.call(haven::read_sas, read_sas_args)
 }
 
-#' Reads data from xpt file and prints hash of contents.
+#' Read XPT File with Hash Verification
 #'
 #' @param xpt_file_path an xpt file to ingest
 #' @param ... additional arguments to digest or read_xpt
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return a dataframe(?) of data within file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -202,13 +212,15 @@ read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
 }
 
 
-#' Reads data from xlsx/xls file and prints hash of contents.
+#' Read Excel File with Hash Verification
 #'
 #' @param xlsx_file_path an xlsx/xls file to ingest
 #' @param ... additional arguments to digest or read_excel
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return a dataframe(?) of data within file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -244,13 +256,15 @@ read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
   do.call(readxl::read_excel, read_excel_args)
 }
 
-#' Reads in table from a prism pzfx file.
+#' Read Prism PZFX File with Hash Verification
 #'
 #' @param pzfx_file_path path to pzfx file
 #' @param ... additional arguments to digest or read_pzfx
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return data within the table of the pzfx file
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -291,7 +305,7 @@ read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
 
 #####     read in hashed file     #####
 
-#' Reads a file if the supplied hash matches the file's hash
+#' Read File with Required Hash Match
 #'
 #' @param file_path path to file with data you want to read
 #' @param hash hash you expect the file to have
@@ -299,6 +313,8 @@ read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
 #' @param algo hashing algorithm to use, default is "blake3"
 #'
 #' @return data object of contents of file_path
+#'
+#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{

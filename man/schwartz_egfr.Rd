@@ -2,7 +2,7 @@
 % Please edit documentation in R/egfr.R
 \name{schwartz_egfr}
 \alias{schwartz_egfr}
-\title{Calculates eGFR based on Schwartz' equation}
+\title{Calculate eGFR Using Schwartz Equation}
 \usage{
 schwartz_egfr(height, creat)
 }
@@ -15,8 +15,30 @@ schwartz_egfr(height, creat)
 eGFR in mL/min/1.73m^2
 }
 \description{
-Calculates eGFR based on Schwartz' equation
+Calculate eGFR Using Schwartz Equation
+}
+\details{
+The Schwartz equation for pediatric eGFR:
+\deqn{eGFR = 0.413 \cdot \frac{H}{S_{cr}}}{eGFR = 0.413 * H / Scr}
+
+where:
+\itemize{
+\item \eqn{H} = height (cm)
+\item \eqn{S_{cr}} = serum creatinine (mg/dL)
+}
 }
 \examples{
 schwartz_egfr(100, 1)
 }
+\seealso{
+Other renal_function: 
+\code{\link{aegfr}()},
+\code{\link{ckdepi_2009_egfr}()},
+\code{\link{ckdepi_2021_egfr}()},
+\code{\link{ckdepi_2021_egfr_cystatin}()},
+\code{\link{crcl}()},
+\code{\link{egfr}()},
+\code{\link{mdrd_egfr}()},
+\code{\link{rfc}()}
+}
+\concept{renal_function}
