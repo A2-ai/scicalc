@@ -26,7 +26,7 @@ df <- data.frame(
     "g/L","U/L","U/L","umol/L","umol/L",
     "U/L","μmol/L","μmol/L","IU/L","IU/L")
 )
-check_for_unique_units <- get_unique_units_df(df$PARAM, df$UNIT)
+check_for_unique_units(df$PARAM, df$UNIT)
 }
 \seealso{
 Other unit_checking: 

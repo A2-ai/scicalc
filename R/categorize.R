@@ -12,7 +12,7 @@
 #'
 #' @examples
 #' x <- rnorm(1000, mean = 10, sd = 5)
-#' xc <- categorize(x, nbins = 5)
+#' categorize(x, nbins = 5)
 categorize <- function(
   continuous_var,
   nbins = 4,

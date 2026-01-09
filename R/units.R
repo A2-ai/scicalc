@@ -17,7 +17,7 @@
 #'     "g/L","U/L","U/L","umol/L","umol/L",
 #'     "U/L","μmol/L","μmol/L","IU/L","IU/L")
 #' )
-#' unique_df <- get_unique_units_df(df$PARAM, df$UNIT)
+#' get_unique_units_df(df$PARAM, df$UNIT)
 get_unique_units_df <- function(params, units) {
   checkmate::assertCharacter(params)
   checkmate::assertCharacter(units)
@@ -56,7 +56,7 @@ get_unique_units_df <- function(params, units) {
 #'     "g/L","U/L","U/L","umol/L","umol/L",
 #'     "U/L","μmol/L","μmol/L","IU/L","IU/L")
 #' )
-#' check_for_unique_units <- get_unique_units_df(df$PARAM, df$UNIT)
+#' check_for_unique_units(df$PARAM, df$UNIT)
 check_for_unique_units <- function(params, units) {
   checkmate::assertCharacter(params)
   checkmate::assertCharacter(units)

@@ -36,6 +36,8 @@
 #' \code{\link{bmi}} for calculating BMI from weight and height,
 #' \code{\link{agec}} for age categorization
 #'
+#' @export
+#'
 #' @examples
 #' patients <- data.frame(
 #'   ID = 1:6,
@@ -44,14 +46,11 @@
 #'   HEIGHT = c(165, 175, 170, 180, 160, 175)
 #' )
 #'
-#' patients <-
-#'   dplyr::mutate(
-#'     patients,
-#'     BMI = bmi(WEIGHT, HEIGHT),
-#'     BMIC = bmic(BMI, AGE)
-#'   )
-#'
-#' @export
+#' dplyr::mutate(
+#'	 patients,
+#'   BMI = bmi(WEIGHT, HEIGHT),
+#'   BMIC = bmic(BMI, AGE)
+#' )
 bmic <- function(bmi, age) {
   checkmate::assertNumeric(bmi)
   checkmate::assertNumeric(age)

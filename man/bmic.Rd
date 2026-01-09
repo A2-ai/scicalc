@@ -44,13 +44,11 @@ patients <- data.frame(
   HEIGHT = c(165, 175, 170, 180, 160, 175)
 )
 
-patients <-
-  dplyr::mutate(
-    patients,
-    BMI = bmi(WEIGHT, HEIGHT),
-    BMIC = bmic(BMI, AGE)
-  )
-
+dplyr::mutate(
+ patients,
+  BMI = bmi(WEIGHT, HEIGHT),
+  BMIC = bmic(BMI, AGE)
+)
 }
 \references{
 World Health Organization.
