@@ -17,10 +17,10 @@ home:
         link: "/articles/scicalc/"
         icon: "right-arrow"
         variant: "primary"
-      - text: "View on GitHub"
-        link: "https://github.com/user/repo"  # Update this!
-        icon: "external"
-        variant: "minimal"
+      - text: Explore the Scicalc repository
+        link: https://github.com/a2-ai/scicalc
+        icon: external
+        variant: minimal
 
 # Sidebar configuration
 sidebar:
@@ -119,7 +119,7 @@ content:
 
 # Output directory for generated site
 output:
-  dir: "../Docs/scicalc-docs-starlightr"  # External directory (recommended)
+  dir: "../Docs/scicalc-docs"  # External directory (recommended)
   # dir: "docs"       # Internal directory (not recommended due to bloat)
   include_build_files: true
 
