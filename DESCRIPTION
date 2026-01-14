@@ -3,7 +3,7 @@ Title: Scientific Calculations for Quantitative Clinical Pharmacology and Pharma
 Version: 0.3.0
 Authors@R: c( 
     person("Matthew", "Smith", , "matthews@a2-ai.com", role = c("aut", "cre")),
-		person("Jacob", "Dumbleton", ,"jacob@a2-ai.com", role = "aut"),
+    person("Jacob", "Dumbleton", ,"jacob@a2-ai.com", role = "aut"),
     person("Jenna", "Johnson", , "jenna@a2-ai.com", role = "aut"),
     person("Devin", "Pastoor", , "devin@a2-ai.com", role = "aut"),
     person("Wesley", "Cummings", , "wes@a2-ai.com", role = "ctb"),
