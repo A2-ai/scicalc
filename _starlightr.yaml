@@ -14,7 +14,7 @@ home:
     tagline: "Utility functions helpful for reproducible scientific calculations."
     actions:
       - text: "Get Started"
-        link: "/articles/scicalc/"
+        link: "./articles/scicalc/"
         icon: "right-arrow"
         variant: "primary"
       - text: Explore the Scicalc repository
@@ -95,6 +95,18 @@ sidebar:
     label: "Changelog"
     source: "NEWS.md"
 
+versions:
+  enabled: true
+  list:
+    - tag: "0.3.0"
+      label: "v0.3.0"
+      default: true
+    - tag: "0.2.1"
+      label: "v0.2.1"
+  workflow:
+    generate: true
+    node_version: "20"
+    
 # Navigation
 navbar:
   right:

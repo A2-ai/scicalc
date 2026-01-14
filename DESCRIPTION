@@ -44,4 +44,4 @@ Suggests:
     tidyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-URL: https://a2-ai.github.io/scicalc 
+URL: https://a2-ai.github.io/scicalc-docs
