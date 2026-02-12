@@ -40,7 +40,8 @@
 #' }
 #'
 #' @return Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-#'   Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+#'   Returns the value of \code{getOption("scicalc.missing_value")} (default \code{-999})
+#'   for missing values. Includes a \code{category_standard} attribute
 #'   indicating the source ("FDA" or "KDIGO").
 #'
 #' @references
@@ -109,6 +110,8 @@ rfc <- function(
   checkmate::assert_numeric(estimator, null.ok = FALSE)
   category_standard <- match.arg(category_standard)
 
+  mv_est <- check_mv_computation(estimator, "estimator")
+  mv_bsa <- if (!is.null(bsa)) check_mv_computation(bsa, "bsa") else NULL
 
   # Infer units from attribute if present
   input_units <- attr(estimator, "units")
@@ -117,10 +120,11 @@ rfc <- function(
     if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
       warning(
         "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
-        input_units, "). Using attribute."
+        input_units, "). Using provided absolute_units."
       )
+    } else {
+      absolute_units <- inferred_absolute
     }
-    absolute_units <- inferred_absolute
   } else if (is.null(absolute_units)) {
     stop("Must supply absolute_units when input has no units attribute.")
   }
@@ -158,6 +162,7 @@ rfc <- function(
 
     rfc <- regulatory_rfc(abs_est)
   }
+  rfc <- apply_mv_mask(rfc, mv_est, mv_bsa)
   attr(rfc, "category_standard") <- if (category_standard == "clinical") "KDIGO" else "FDA"
   return(rfc)
 }
@@ -170,7 +175,7 @@ clinical_rfc <- function(relative_est) {
     relative_est >= 30 ~ 3,
     relative_est >= 15 ~ 4,
     relative_est < 15 ~ 5,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
   rfc
 }
@@ -182,7 +187,7 @@ regulatory_rfc <- function(absolute_est) {
     absolute_est >= 60 ~ 2,
     absolute_est >= 30 ~ 3,
     absolute_est < 30 ~ 4,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
   rfc
 }

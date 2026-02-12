@@ -180,7 +180,7 @@ test_that("rfc warns when absolute_units conflicts with attribute", {
   relative_input <- 60
   attr(relative_input, "units") <- "mL/min/1.73m^2"
 
-  # Providing absolute_units = TRUE should warn and use attribute
+  # Providing absolute_units = TRUE should warn and use provided absolute_units
   expect_warning(
     rfc(estimator = relative_input, absolute_units = TRUE, bsa = 1.73),
     "conflicts with input units attribute"
@@ -190,7 +190,7 @@ test_that("rfc warns when absolute_units conflicts with attribute", {
   absolute_input <- 60
   attr(absolute_input, "units") <- "mL/min"
 
-  # Providing absolute_units = FALSE should warn and use attribute
+  # Providing absolute_units = FALSE should warn and use provided absolute_units
   expect_warning(
     rfc(estimator = absolute_input, absolute_units = FALSE, bsa = 1.73),
     "conflicts with input units attribute"
@@ -239,6 +239,20 @@ test_that("rfc handles missing values correctly", {
     rfc(estimator = c(60, NA, 90), absolute_units = TRUE),
     "Estimator input has missing values"
   )
+})
+
+test_that("rfc respects explicit absolute_units over carried units attribute", {
+  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  bsa_result <- dubois_bsa(70, 165)
+  aegfr_result <- egfr_result * (bsa_result / 1.73)
+  
+	# Explicit absolute_units = TRUE should work
+	# but give a warning about mismatch units attr
+  expect_warning(
+    rfc_res <- rfc(aegfr_result, absolute_units = TRUE),
+    "conflicts with input units attribute"
+  )
+  expect_equal(rfc_res, 2, ignore_attr = TRUE)
 })
 
 test_that("rfc conversion functions handle BSA validation correctly", {

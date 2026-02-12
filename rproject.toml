@@ -13,4 +13,5 @@ dependencies = [
 	"covr",
   {name = "scicalc", path = ".", dependencies_only = true, install_suggestions = true},
     "gt",
+    "units",
 ]

@@ -16,7 +16,8 @@
 #'   \item 6: Elderly Adult: ≥65 years
 #' }
 #'
-#' @return Integer vector of age categories (1-6). Returns \code{-999} for
+#' @return Integer vector of age categories (1-6). Returns the value of
+#'   \code{getOption("scicalc.missing_value")} (default \code{-999}) for
 #'   missing values. Includes a \code{category_standard} attribute set to "FDA".
 #'
 #' @family categorization
@@ -40,6 +41,8 @@
 #' dplyr::mutate(df, AGEC = agec(AGE))
 agec <- function(age) {
   checkmate::assertNumeric(age)
+
+  mv_age <- check_mv_computation(age, "age")
 
   # give message if any NAs
   if (any(is.na(age))) {
@@ -71,8 +74,9 @@ agec <- function(age) {
     12 <= age & age < 18 ~ 4, # Adolescent
     18 <= age & age < 65 ~ 5, # Adult
     65 <= age ~ 6, # Elder Adult,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
+  agec <- apply_mv_mask(agec, mv_age)
   attr(agec, "category_standard") <- "FDA"
   return(agec)
 }

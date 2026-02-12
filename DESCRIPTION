@@ -17,9 +17,10 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
-Imports: 
+Imports:
     arrow,
     checkmate,
+    cli,
     digest,
     dplyr,
     fs,
@@ -44,4 +45,4 @@ Suggests:
     tidyr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-URL: https://a2-ai.github.io/scicalc-docs
+URL: https://a2-ai.github.io/scicalc-docs, https://github.com/a2-ai/scicalc

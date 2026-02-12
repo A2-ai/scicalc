@@ -28,7 +28,9 @@ to ensure appropriate application of adult BMI categories.
 \item 1: Underweight: BMI < 18.5 kg/m²
 \item 2: Normal weight: BMI 18.5 to < 25 kg/m²
 \item 3: Overweight: BMI 25 to < 30 kg/m²
-\item 4: Obese: BMI ≥ 30 kg/m²
+\item 4: Obese class 1: BMI 30 to < 35 kg/m²
+\item 5: Obese class 2: BMI 35 to < 40 kg/m²
+\item 6: Obese class 3: BMI >= 40 kg/m²
 }
 
 \strong{Age Considerations:}

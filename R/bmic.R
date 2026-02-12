@@ -15,7 +15,9 @@
 #'   \item 1: Underweight: BMI < 18.5 kg/m²
 #'   \item 2: Normal weight: BMI 18.5 to < 25 kg/m²
 #'   \item 3: Overweight: BMI 25 to < 30 kg/m²
-#'   \item 4: Obese: BMI ≥ 30 kg/m²
+#'   \item 4: Obese class 1: BMI 30 to < 35 kg/m²
+#'   \item 5: Obese class 2: BMI 35 to < 40 kg/m²
+#'   \item 6: Obese class 3: BMI >= 40 kg/m²
 #' }
 #'
 #' \strong{Age Considerations:}
@@ -23,8 +25,9 @@
 #' 18 years old, as standard adult BMI categories may not be appropriate for
 #' children and adolescents.
 #'
-#' @return Integer vector of obesity categories (1-4). Returns \code{-999}
-#'   for missing BMI values.
+#' @return Integer vector of obesity categories (1-6). Returns the value of
+#'   \code{getOption("scicalc.missing_value")} (default \code{-999}) for
+#'   missing BMI values.
 #'
 #' @references
 #' World Health Organization.
@@ -55,6 +58,9 @@ bmic <- function(bmi, age) {
   checkmate::assertNumeric(bmi)
   checkmate::assertNumeric(age)
 
+  mv_bmi <- check_mv_computation(bmi, "bmi")
+  check_mv_reference(age, "age")
+
   # give message if any NAs in BMI
   if (any(is.na(bmi))) {
     message("BMI contains missing values")
@@ -78,9 +84,12 @@ bmic <- function(bmi, age) {
     0 < bmi & bmi < 18.5 ~ 1, # Underweight
     bmi >= 18.5 & bmi < 25 ~ 2, # Normal weight
     bmi >= 25 & bmi < 30 ~ 3, # Overweight
-    bmi >= 30 ~ 4, # Obese
-    .default = -999
+    bmi >= 30 & bmi < 35 ~ 4, # Obese class 1
+		bmi >= 35 & bmi < 40 ~ 5, # Obese class 2
+		bmi >= 40 ~ 6,						# Obese class 3
+		.default = getOption("scicalc.missing_value", -999)
   )
+  bmic <- apply_mv_mask(bmic, mv_bmi)
   attr(bmic, "category_standard") <- "WHO"
   return(bmic)
 }

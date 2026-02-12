@@ -40,7 +40,7 @@ sexf <- function(sex) {
 #'
 #' racen("OTHER") # 4
 #'
-#' racen("UNKNOWN") # -999
+#' racen("UNKNOWN") # default missing value
 racen <- function(racec) {
   # check that racec is character
   checkmate::assert_character(racec)
@@ -51,7 +51,7 @@ racen <- function(racec) {
     is_black(racec) ~ 2,
     is_asian(racec) ~ 3,
     is_other(racec) ~ 4,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
 
   return(racen)
@@ -71,7 +71,7 @@ racen <- function(racec) {
 #'
 #' ethnicn("NOT HISPANIC OR LATINO") # 0
 #'
-#' ethnicn("UNKNOWN") # -999
+#' ethnicn("UNKNOWN") # default missing value
 ethnicn <- function(ethnicc) {
   # check that ethnicc is character
   checkmate::assert_character(ethnicc)
@@ -80,7 +80,7 @@ ethnicn <- function(ethnicc) {
   ethnicn <- dplyr::case_when(
     is_hispanic_or_latino(ethnicc) ~ 1,
     is_not_hispanic_or_latino(ethnicc) ~ 0,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
 
   return(ethnicn)
