@@ -218,6 +218,34 @@ test_that("rfc works with aegfr() output directly", {
   expect_true(rfc_result %in% 1:4)
 })
 
+test_that("rfc warns and masks when estimator contains missing value sentinel", {
+  expect_warning(
+    result <- rfc(estimator = c(90, -999), absolute_units = TRUE),
+    "estimator contains missing value indicator"
+  )
+  expect_equal(result, c(1, -999), ignore_attr = TRUE)
+})
+
+test_that("rfc warns and masks when bsa contains missing value sentinel and bsa is used", {
+  # regulatory + relative units → bsa IS used for conversion
+  expect_warning(
+    result <- rfc(estimator = c(90, 60), absolute_units = FALSE, bsa = c(1.73, -999)),
+    "bsa contains missing value indicator"
+  )
+  expect_equal(result[2], -999, ignore_attr = TRUE)
+})
+
+test_that("rfc ignores bsa sentinel when bsa is not used for conversion", {
+  # regulatory + absolute units → bsa is not used, sentinel should not mask
+  result <- rfc(estimator = c(90, 60), absolute_units = TRUE, bsa = c(1.73, -999))
+  expect_equal(result, c(1, 2), ignore_attr = TRUE)
+
+  # clinical + relative units → bsa is not used, sentinel should not mask
+  result <- rfc(estimator = c(90, 60), absolute_units = FALSE,
+                bsa = c(1.73, -999), category_standard = "clinical")
+  expect_equal(result, c(1, 2), ignore_attr = TRUE)
+})
+
 test_that("rfc handles missing values correctly", {
   # Test NA handling with messages
   expect_message(

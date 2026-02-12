@@ -74,18 +74,22 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
   mv_ulnast <- check_mv_computation(ulnast, "ulnast")
   mv_bili <- check_mv_computation(bili, "bili")
   mv_ulnbili <- check_mv_computation(ulnbili, "ulnbili")
+  ast[mv_ast] <- NA
+  ulnast[mv_ulnast] <- NA
+  bili[mv_bili] <- NA
+  ulnbili[mv_ulnbili] <- NA
 
   if (any(is.na(ast))) {
-    message("AST contains missing values")
+    rlang::inform("AST contains missing values")
   }
   if (any(is.na(ulnast))) {
-    message("ULNAST contains missing values")
+    rlang::inform("ULNAST contains missing values")
   }
   if (any(is.na(bili))) {
-    message("BILI contains missing values")
+    rlang::inform("BILI contains missing values")
   }
   if (any(is.na(ulnbili))) {
-    message("ULNBILI contains missing values")
+    rlang::inform("ULNBILI contains missing values")
   }
 
   hfc <- dplyr::case_when(

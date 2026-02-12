@@ -68,6 +68,14 @@ test_that("agec works with dplyr operations", {
   expect_equal(df$AGEC, c(5, 5, 4, 6), ignore_attr = TRUE)
 })
 
+test_that("agec warns and masks when age contains missing value sentinel", {
+  expect_warning(
+    result <- agec(c(25, -999)),
+    "age contains missing value indicator"
+  )
+  expect_equal(result, c(5, -999), ignore_attr = TRUE)
+})
+
 test_that("agec handles edge cases and invalid inputs", {
   # Test negative ages return -999
   expect_warning(

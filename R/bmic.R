@@ -59,22 +59,23 @@ bmic <- function(bmi, age) {
   checkmate::assertNumeric(age)
 
   mv_bmi <- check_mv_computation(bmi, "bmi")
-  check_mv_reference(age, "age")
+  bmi[mv_bmi] <- NA
+  age <- check_mv_reference(age, "age")
 
   # give message if any NAs in BMI
   if (any(is.na(bmi))) {
-    message("BMI contains missing values")
+    rlang::inform("BMI contains missing values")
   }
   if (any(bmi < 0, na.rm = TRUE)) {
-    message("BMI contains negative values")
+    rlang::inform("BMI contains negative values")
   }
 
   if (any(is.na(age))) {
-    message("age contains missing values")
+    rlang::inform("age contains missing values")
   }
 
   if (any(age < 18, na.rm = TRUE)) {
-    warning(
+    rlang::warn(
       "Age contains values less than 18 years. Adult BMI categories may not be appropriate for pediatric populations."
     )
   }

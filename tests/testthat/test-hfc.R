@@ -62,6 +62,22 @@ test_that("hfc works within dpylr pipes", {
   expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1), ignore_attr = TRUE)
 })
 
+test_that("hfc warns and masks when inputs contain missing value sentinel", {
+  # sentinel in ast
+  expect_warning(
+    result <- hfc(c(25, -999), c(33, 33), c(0.8, 0.8), c(1.2, 1.2)),
+    "ast contains missing value indicator"
+  )
+  expect_equal(result, c(1, -999), ignore_attr = TRUE)
+
+  # sentinel in bili
+  expect_warning(
+    result <- hfc(c(25, 25), c(33, 33), c(0.8, -999), c(1.2, 1.2)),
+    "bili contains missing value indicator"
+  )
+  expect_equal(result, c(1, -999), ignore_attr = TRUE)
+})
+
 test_that("hfc handles edge cases", {
   # entry 1: bili == 1.5 * ulnbili, this "triggers" edge case -> expect 2
   # entry 2: ast <= unlast and bili <= ulnbili -> expect 1

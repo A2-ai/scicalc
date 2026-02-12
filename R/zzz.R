@@ -26,20 +26,21 @@ check_mv_computation <- function(x, name) {
   mask <- x == mv
   mask[is.na(mask)] <- FALSE
   if (any(mask)) {
-    warning(name, " contains missing value indicator (", mv, ")")
+    rlang::warn(paste0(name, " contains missing value indicator (", mv, ")"))
   }
   mask
 }
 
 check_mv_reference <- function(x, name) {
   mv <- getOption("scicalc.missing_value", -999)
-  if (is.na(mv)) return(invisible(NULL))
+  if (is.na(mv)) return(x)
   hits <- x == mv
   hits[is.na(hits)] <- FALSE
   if (any(hits)) {
-    warning(name, " contains missing value indicator (", mv, "). Related checks may be unreliable.")
+    rlang::warn(paste0(name, " contains missing value indicator (", mv, "). Related checks may be unreliable."))
+    x[hits] <- NA
   }
-  invisible(NULL)
+  x
 }
 
 apply_mv_mask <- function(result, ...) {

@@ -43,27 +43,28 @@ agec <- function(age) {
   checkmate::assertNumeric(age)
 
   mv_age <- check_mv_computation(age, "age")
+  age[mv_age] <- NA
 
   # give message if any NAs
   if (any(is.na(age))) {
-    message("age contains missing values")
+    rlang::inform("age contains missing values")
   }
 
   if (any(age < 0, na.rm = TRUE)) {
-    warning("age contains values less than 0 years. Confirm data is correct.")
+    rlang::warn("age contains values less than 0 years. Confirm data is correct.")
   }
 
   # Oldest person alive currently is 116
   if (any(age > 116, na.rm = TRUE)) {
-    warning("age contains values > 116 years. Confirm data is correct.")
+    rlang::warn("age contains values > 116 years. Confirm data is correct.")
   }
 
   if (any(0 <= age & age < 28 / 365, na.rm = TRUE)) {
-    warning("Neonate ages detected. Confirm assignment.")
+    rlang::warn("Neonate ages detected. Confirm assignment.")
   }
 
   if (any(dplyr::near(age, 28 / 365), na.rm = TRUE)) {
-    message("Age near Neonate boundary (28 days)")
+    rlang::inform("Age near Neonate boundary (28 days)")
   }
 
   # TODO: fix up division check. Maybe age * 365 < 28

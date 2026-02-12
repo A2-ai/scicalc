@@ -111,22 +111,23 @@ rfc <- function(
   category_standard <- match.arg(category_standard)
 
   mv_est <- check_mv_computation(estimator, "estimator")
-  mv_bsa <- if (!is.null(bsa)) check_mv_computation(bsa, "bsa") else NULL
+  estimator[mv_est] <- NA
+  mv_bsa <- NULL
 
   # Infer units from attribute if present
   input_units <- attr(estimator, "units")
   if (!is.null(input_units)) {
     inferred_absolute <- (input_units == "mL/min")
     if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
-      warning(
+      rlang::warn(paste0(
         "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
         input_units, "). Using provided absolute_units."
-      )
+      ))
     } else {
       absolute_units <- inferred_absolute
     }
   } else if (is.null(absolute_units)) {
-    stop("Must supply absolute_units when input has no units attribute.")
+    rlang::abort("Must supply absolute_units when input has no units attribute.")
   }
 
   if (category_standard == "clinical") {
@@ -135,13 +136,15 @@ rfc <- function(
     } else {
       checkmate::assert_numeric(bsa, null.ok = FALSE)
       if (any(!is.na(estimator) & is.na(bsa))) {
-        stop("bsa cannot be missing when absolute_est has values")
+        rlang::abort("bsa cannot be missing when absolute_est has values")
       }
+      mv_bsa <- check_mv_computation(bsa, "bsa")
+      bsa[mv_bsa] <- NA
       rel_est <- convert_abs_to_rel(estimator, bsa)
     }
 
     if (any(is.na(rel_est))) {
-      message("Estimator input has missing values")
+      rlang::inform("Estimator input has missing values")
     }
 
     rfc <- clinical_rfc(rel_est)
@@ -151,13 +154,15 @@ rfc <- function(
     } else {
       checkmate::assert_numeric(bsa, null.ok = FALSE)
       if (any(!is.na(estimator) & is.na(bsa))) {
-        stop("bsa cannot be missing when relative_est has values")
+        rlang::abort("bsa cannot be missing when relative_est has values")
       }
+      mv_bsa <- check_mv_computation(bsa, "bsa")
+      bsa[mv_bsa] <- NA
       abs_est <- convert_rel_to_abs(estimator, bsa)
     }
 
     if (any(is.na(abs_est))) {
-      message("Estimator input has missing values")
+      rlang::inform("Estimator input has missing values")
     }
 
     rfc <- regulatory_rfc(abs_est)
