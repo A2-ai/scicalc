@@ -20,7 +20,7 @@ test_that("ibw works for basic calculations", {
 
 test_that("ibw sets units attribute", {
   result <- ibw(170, 0, 25)
-  expect_equal(attr(result, "units"), "kg")
+  expect_equal(as.character(units(result)), "kg")
 })
 
 test_that("ibw handles allow_ibw_lt_intercept parameter correctly", {
@@ -28,14 +28,14 @@ test_that("ibw handles allow_ibw_lt_intercept parameter correctly", {
 
   # When allow_ibw_lt_intercept = TRUE (default), IBW can be less than intercept
   short_male_allow <- ibw(141., 0, 25, allow_ibw_lt_intercept = TRUE)
-  expect_lt(short_male_allow, 50) # Should be less than base weight
+  expect_lt(as.numeric(short_male_allow), 50) # Should be less than base weight
 
   # When allow_ibw_lt_intercept = FALSE, IBW gets clamped to intercept
   short_male_clamp <- ibw(141., 0, 25, allow_ibw_lt_intercept = FALSE)
   expect_equal(short_male_clamp, 50, ignore_attr = TRUE) # Should equal base weight
 
   # Results should be different
-  expect_false(short_male_allow == short_male_clamp)
+  expect_false(as.numeric(short_male_allow) == as.numeric(short_male_clamp))
 })
 
 test_that("ibw can be used in a mutate", {

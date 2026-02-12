@@ -6,7 +6,21 @@
   toset <- !(names(op_scicalc) %in% names(op))
   if (any(toset)) options(op_scicalc[toset])
 
+  tryCatch(
+    units::install_unit("bsa_ref", "1.73 m^2", "reference_bsa"),
+    error = function(e) {
+      # Already registered (e.g. during load_all/test cycling) — safe to ignore
+    }
+  )
+
   invisible()
+}
+
+.onUnload <- function(libpath) {
+  tryCatch(
+    units::remove_unit(symbol = "bsa_ref", name = "reference_bsa"),
+    error = function(e) NULL
+  )
 }
 
 .onAttach <- function(libname, pkgname) {
@@ -16,8 +30,10 @@
 scicalc_options_message <- function() {
   rule <- cli::rule(left = "scicalc options")
   msg <- cli::format_inline("{.alert-success scicalc.missing_value : {getOption('scicalc.missing_value', -999)}}")
+  bsa_msg <- cli::format_inline("{.alert-info bsa_ref unit = 1.73 m^2}")
   packageStartupMessage(rule)
   packageStartupMessage(msg)
+  packageStartupMessage(bsa_msg)
 }
 
 check_mv_computation <- function(x, name) {

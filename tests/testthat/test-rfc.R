@@ -155,9 +155,8 @@ test_that("rfc validates required parameters", {
 })
 
 test_that("rfc infers absolute_units from input attribute", {
-  # Create input with relative units attribute (from egfr())
-  relative_input <- 60
-  attr(relative_input, "units") <- "mL/min/1.73m^2"
+  # Create input with relative units (from egfr())
+  relative_input <- units::set_units(60, "mL/min/bsa_ref", mode = "standard")
 
   # Should infer absolute_units = FALSE and use clinical pathway without bsa
   expect_equal(
@@ -166,9 +165,8 @@ test_that("rfc infers absolute_units from input attribute", {
     ignore_attr = TRUE
   )
 
-  # Create input with absolute units attribute (from aegfr())
-  absolute_input <- 60
-  attr(absolute_input, "units") <- "mL/min"
+  # Create input with absolute units (from aegfr())
+  absolute_input <- units::set_units(60, "mL/min", mode = "standard")
 
   # Should infer absolute_units = TRUE and use regulatory pathway
 
@@ -177,30 +175,28 @@ test_that("rfc infers absolute_units from input attribute", {
 
 test_that("rfc warns when absolute_units conflicts with attribute", {
   # Create input with relative units
-  relative_input <- 60
-  attr(relative_input, "units") <- "mL/min/1.73m^2"
+  relative_input <- units::set_units(60, "mL/min/bsa_ref", mode = "standard")
 
   # Providing absolute_units = TRUE should warn and use provided absolute_units
   expect_warning(
     rfc(estimator = relative_input, absolute_units = TRUE, bsa = 1.73),
-    "conflicts with input units attribute"
+    "conflicts with input units"
   )
 
   # Create input with absolute units
-  absolute_input <- 60
-  attr(absolute_input, "units") <- "mL/min"
+  absolute_input <- units::set_units(60, "mL/min", mode = "standard")
 
   # Providing absolute_units = FALSE should warn and use provided absolute_units
   expect_warning(
     rfc(estimator = absolute_input, absolute_units = FALSE, bsa = 1.73),
-    "conflicts with input units attribute"
+    "conflicts with input units"
   )
 })
 
 test_that("rfc works with egfr() output directly", {
   # Simulate pipeline: egfr() -> rfc()
   egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  expect_equal(attr(egfr_result, "units"), "mL/min/1.73m^2")
+  expect_true(inherits(egfr_result, "units"))
 
   # rfc should infer units from attribute
   rfc_result <- rfc(egfr_result, category_standard = "clinical")
@@ -211,7 +207,7 @@ test_that("rfc works with aegfr() output directly", {
   # Simulate pipeline: egfr() -> aegfr() -> rfc()
   egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
   aegfr_result <- aegfr(egfr_result, 1.8)
-  expect_equal(attr(aegfr_result, "units"), "mL/min")
+  expect_true(inherits(aegfr_result, "units"))
 
   # rfc should infer units from attribute
   rfc_result <- rfc(aegfr_result)
@@ -272,13 +268,14 @@ test_that("rfc handles missing values correctly", {
 test_that("rfc respects explicit absolute_units over carried units attribute", {
   egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
   bsa_result <- dubois_bsa(70, 165)
-  aegfr_result <- egfr_result * (bsa_result / 1.73)
-  
-	# Explicit absolute_units = TRUE should work
-	# but give a warning about mismatch units attr
+  aegfr_result <- units::drop_units(egfr_result) * (units::drop_units(bsa_result) / 1.73)
+  aegfr_result <- units::set_units(aegfr_result, "mL/min/bsa_ref", mode = "standard")
+
+  # Explicit absolute_units = TRUE should work
+  # but give a warning about mismatch units
   expect_warning(
     rfc_res <- rfc(aegfr_result, absolute_units = TRUE),
-    "conflicts with input units attribute"
+    "conflicts with input units"
   )
   expect_equal(rfc_res, 2, ignore_attr = TRUE)
 })
@@ -305,4 +302,17 @@ test_that("rfc conversion functions handle BSA validation correctly", {
     c(2, -999),
     ignore_attr = TRUE
   )
+})
+
+test_that("legacy attr(x, 'units') triggers deprecation warning in rfc", {
+  x <- c(90, 85)
+  attr(x, "units") <- "mL/min/1.73m^2"
+  lifecycle::expect_deprecated(
+    rfc(x, category_standard = "clinical")
+  )
+})
+
+test_that("rfc errors on unrecognized estimator units", {
+  est <- units::set_units(90, "mL/h")
+  expect_error(rfc(est), "not a recognized eGFR/CrCL unit")
 })

@@ -5,10 +5,10 @@ test_that("bsa works for numerical input", {
 
 test_that("bsa sets units attribute", {
   result <- bsa(67.2, 173)
-  expect_equal(attr(result, "units"), "m^2")
+  expect_equal(as.character(units(result)), "m^2")
 
   result_mosteller <- bsa(67.2, 173, method = "Mosteller")
-  expect_equal(attr(result_mosteller, "units"), "m^2")
+  expect_equal(as.character(units(result_mosteller)), "m^2")
 })
 
 test_that("bsa works for dataframe columns", {

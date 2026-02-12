@@ -75,7 +75,7 @@ test_that("mdrd_egfr can be used within mutate after a group_by", {
 
 test_that("mdrd_egfr sets units attribute", {
   result <- mdrd_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1)
-  expect_equal(attr(result, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result)), "mL/(min*bsa_ref)")
 })
 
 test_that("mdrd_egfr won't work for character Sex", {

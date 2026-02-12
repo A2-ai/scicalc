@@ -22,13 +22,12 @@ test_that("aegfr handles vectorized input", {
 
 test_that("aegfr sets units attribute to mL/min", {
   result <- aegfr(90, 1.8)
-  expect_equal(attr(result, "units"), "mL/min")
+  expect_equal(as.character(units(result)), "mL/min")
 })
 
 test_that("aegfr warns and returns unchanged if input already has absolute units", {
-  # Create input with absolute units attribute
-  input <- 90
- attr(input, "units") <- "mL/min"
+  # Create input with absolute units (units object)
+  input <- units::set_units(90, "mL/min", mode = "standard")
 
   expect_warning(
     result <- aegfr(input, 1.8),
@@ -36,8 +35,22 @@ test_that("aegfr warns and returns unchanged if input already has absolute units
   )
 
   # Should return unchanged
- expect_equal(as.numeric(result), 90)
-  expect_equal(attr(result, "units"), "mL/min")
+  expect_equal(as.numeric(result), 90)
+  expect_equal(as.character(units(result)), "mL/min")
+})
+
+test_that("aegfr warns about legacy attr units", {
+  # Legacy attr fallback triggers deprecation warning
+  input <- 90
+  attr(input, "units") <- "mL/min"
+
+  lifecycle::expect_deprecated(
+    expect_warning(
+      result <- aegfr(input, 1.8),
+      "already has absolute units"
+    )
+  )
+  expect_equal(as.numeric(result), 90)
 })
 
 test_that("aegfr handles missing values", {
@@ -51,8 +64,8 @@ test_that("aegfr handles missing values", {
 test_that("aegfr preserves units attribute through pipeline from egfr()", {
   # Simulate pipeline: egfr() -> aegfr()
   egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  expect_equal(attr(egfr_result, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(egfr_result)), "mL/(min*bsa_ref)")
 
   aegfr_result <- aegfr(egfr_result, 1.8)
-  expect_equal(attr(aegfr_result, "units"), "mL/min")
+  expect_equal(as.character(units(aegfr_result)), "mL/min")
 })

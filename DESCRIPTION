@@ -32,7 +32,8 @@ Imports:
     rlang,
     stats,
     stringr,
-    tibble
+    tibble,
+    units
 Suggests: 
     knitr,
     rmarkdown,

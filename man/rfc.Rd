@@ -25,7 +25,8 @@ or mL/min/1.73m² (\code{FALSE})}
 }
 \value{
 Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+Returns the value of \code{getOption("scicalc.missing_value")} (default \code{-999})
+for missing values. Includes a \code{category_standard} attribute
 indicating the source ("FDA" or "KDIGO").
 }
 \description{
@@ -90,7 +91,7 @@ df <- data.frame(
 )
 
 library(dplyr)
-df \%>\%
+df <- df \%>\%
   mutate(
     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),

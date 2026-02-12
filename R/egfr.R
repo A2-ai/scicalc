@@ -91,6 +91,9 @@ egfr <- function(
 #' df <- dplyr::mutate(df, egfr = ckdepi_2009_egfr(SEXF, RACEB, AGE, CREAT))
 #' df
 ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
+  age <- assert_and_strip_units(age, "years")
+  creat <- assert_and_strip_units(creat, "mg/dL")
+
   checkmate::assert_logical(sexf)
   checkmate::assert_logical(raceb)
   checkmate::assertNumeric(age)
@@ -136,7 +139,7 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
-  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
   egfr
 }
 
@@ -176,6 +179,9 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
 #' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
 #' df
 ckdepi_2021_egfr <- function(sexf, age, creat) {
+  age <- assert_and_strip_units(age, "years")
+  creat <- assert_and_strip_units(creat, "mg/dL")
+
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
@@ -215,7 +221,7 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
     (0.9938^age) *
     sex_mult
 
-  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
   egfr
 }
 
@@ -259,6 +265,10 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
 #' df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
 #' df
 ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
+  age <- assert_and_strip_units(age, "years")
+  creat <- assert_and_strip_units(creat, "mg/dL")
+  cystc <- assert_and_strip_units(cystc, "mg/L")
+
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
@@ -308,7 +318,7 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
     (0.9961^age) *
     sex_mult
 
-  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
   egfr
 }
 
@@ -348,6 +358,9 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
 #' df <- dplyr::mutate(df, egfr = mdrd_egfr(SEXF, RACEB, AGE, CREAT))
 #' df
 mdrd_egfr <- function(sexf, raceb, age, creat) {
+  age <- assert_and_strip_units(age, "years")
+  creat <- assert_and_strip_units(creat, "mg/dL")
+
   checkmate::assert_logical(sexf)
   checkmate::assert_logical(raceb)
   checkmate::assertNumeric(age)
@@ -386,7 +399,7 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
     sex_mult *
     race_mult
 
-  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
   egfr
 }
 
@@ -413,6 +426,9 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
 #' @examples
 #' schwartz_egfr(100, 1)
 schwartz_egfr <- function(height, creat) {
+  height <- assert_and_strip_units(height, "cm")
+  creat <- assert_and_strip_units(creat, "mg/dL")
+
   checkmate::assertNumeric(height)
   checkmate::assertNumeric(creat)
 
@@ -430,6 +446,6 @@ schwartz_egfr <- function(height, creat) {
 
   egfr <- 0.413 * height / creat
 
-  attr(egfr, "units") <- "mL/min/1.73m^2"
+  egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
   egfr
 }

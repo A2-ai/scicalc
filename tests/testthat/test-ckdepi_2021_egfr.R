@@ -82,7 +82,7 @@ test_that("ckdepi_2021_egfr can be used within mutate after a group_by", {
 
 test_that("ckdepi_2021_egfr_cystatin sets units attribute", {
   result <- ckdepi_2021_egfr_cystatin(sexf = FALSE, age = 24, creat = 1, cystc = 1)
-  expect_equal(attr(result, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result)), "mL/(min*bsa_ref)")
 })
 
 test_that("ckdepi_2021_egfr won't work for character Sex", {

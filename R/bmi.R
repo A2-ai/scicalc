@@ -28,6 +28,9 @@
 #' df <- dplyr::mutate(df, bmi = bmi(WT, HT))
 #' df
 bmi <- function(weight, height) {
+  weight <- assert_and_strip_units(weight, "kg")
+  height <- assert_and_strip_units(height, "cm")
+
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
@@ -46,7 +49,7 @@ bmi <- function(weight, height) {
   }
 
   bmi <- weight / ((height / 100)^2)
-  attr(bmi, "units") <- "kg/m^2"
+  bmi <- units::set_units(bmi, "kg/m^2", mode = "standard")
   return(bmi)
 }
 

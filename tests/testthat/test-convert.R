@@ -1,6 +1,6 @@
 test_that("convert_alb sets units attribute", {
   result <- convert_alb(40)
-  expect_equal(attr(result, "units"), "g/dL")
+  expect_equal(as.character(units(result)), "g/dL")
 })
 
 test_that("convert_alb converts g/L to g/dL", {
@@ -23,7 +23,7 @@ test_that("convert_alb handles missing values", {
 
 test_that("convert_bili sets units attribute", {
   result <- convert_bili(17.1)
-  expect_equal(attr(result, "units"), "mg/dL")
+  expect_equal(as.character(units(result)), "mg/dL")
 })
 
 test_that("convert_bili converts umol/L to mg/dL", {
@@ -49,7 +49,7 @@ test_that("convert_bili handles missing values", {
 
 test_that("convert_creat sets units attribute", {
   result <- convert_creat(88.4)
-  expect_equal(attr(result, "units"), "mg/dL")
+  expect_equal(as.character(units(result)), "mg/dL")
 })
 
 test_that("convert_creat converts umol/L to mg/dL", {

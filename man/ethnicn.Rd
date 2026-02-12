@@ -20,7 +20,7 @@ ethnicn("HISPANIC OR LATINO") # 1
 
 ethnicn("NOT HISPANIC OR LATINO") # 0
 
-ethnicn("UNKNOWN") # -999
+ethnicn("UNKNOWN") # default missing value
 }
 \seealso{
 Other demographics: 

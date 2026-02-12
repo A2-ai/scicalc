@@ -8,7 +8,7 @@ test_that("crcl works for single entries", {
 
 test_that("crcl sets units attribute", {
   result <- crcl(TRUE, 30, 10, 70)
-  expect_equal(attr(result, "units"), "mL/min")
+  expect_equal(as.character(units(result)), "mL/min")
 })
 
 test_that("crcl works within mutates", {

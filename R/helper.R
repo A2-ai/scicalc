@@ -1,3 +1,39 @@
+#' Assert and strip units from input
+#'
+#' If `x` is a `units` object, convert to `expected_unit` and strip units.
+#' If `x` is plain numeric, pass through unchanged. If units are incompatible,
+#' throw an informative error.
+#'
+#' @param x numeric or units vector
+#' @param expected_unit character string of the expected unit (e.g. "kg", "cm")
+#' @param arg_name character name of the argument (for error messages)
+#'
+#' @return numeric vector
+#' @keywords internal
+assert_and_strip_units <- function(x, expected_unit, arg_name = deparse(substitute(x))) {
+  if (!inherits(x, "units")) return(x)
+
+  supplied_unit <- as.character(units(x))
+  target <- units::as_units(expected_unit)
+  result <- tryCatch(
+    units::drop_units(units::set_units(x, target, mode = "standard")),
+    error = function(e) {
+      rlang::abort(paste0(
+        "`", arg_name, "` has units [", supplied_unit,
+        "] which cannot be converted to [", expected_unit, "]."
+      ))
+    }
+  )
+
+  if (as.character(units(x)) != as.character(units(target))) {
+    rlang::inform(paste0(
+      "`", arg_name, "`: converted from [", supplied_unit, "] to [", expected_unit, "]."
+    ))
+  }
+
+  result
+}
+
 #' Check if Sex is Female
 #'
 #' @param x input character representing female or male

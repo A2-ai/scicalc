@@ -1,6 +1,6 @@
 test_that("aibw sets units attribute", {
   result <- aibw(70, 170, 0, 25)
-  expect_equal(attr(result, "units"), "kg")
+  expect_equal(as.character(units(result)), "kg")
 })
 
 test_that("aibw works for basic calculations", {
@@ -17,9 +17,9 @@ test_that("aibw works for basic calculations", {
   expect_true(all(!is.na(results)))
 
   # Verify mathematical correctness: AIBW = IBW + 0.4 * (weight - IBW)
-  ibw_values <- ibw(heights, sexes, ages)
+  ibw_values <- units::drop_units(ibw(heights, sexes, ages))
   expected <- ibw_values + 0.4 * (weights - ibw_values)
-  expect_true(all(dplyr::near(results, expected)))
+  expect_true(all(dplyr::near(as.numeric(results), expected)))
 })
 
 test_that("aibw handles allow_tbw_lt_ibw parameter correctly", {

@@ -55,6 +55,7 @@
 #'   BMIC = bmic(BMI, AGE)
 #' )
 bmic <- function(bmi, age) {
+  if (inherits(bmi, "units")) bmi <- units::drop_units(bmi)
   checkmate::assertNumeric(bmi)
   checkmate::assertNumeric(age)
 

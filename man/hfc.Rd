@@ -18,8 +18,9 @@ Typically 33 IU/L for most laboratories}
 Typically 1.2 mg/dL for most laboratories}
 }
 \value{
-Integer vector of hepatic function categories (1-4). Returns \code{-999}
-for missing values.
+Integer vector of hepatic function categories (1-4). Returns the value of
+\code{getOption("scicalc.missing_value")} (default \code{-999}) for
+missing values.
 }
 \description{
 This function categorizes hepatic function impairment using the National Cancer Institute

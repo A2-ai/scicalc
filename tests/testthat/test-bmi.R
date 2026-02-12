@@ -4,7 +4,7 @@ test_that("bmi works for numerical input", {
 
 test_that("bmi sets units attribute", {
   result <- bmi(weight = 60, height = 170)
-  expect_equal(attr(result, "units"), "kg/m^2")
+  expect_equal(as.character(units(result)), "kg/m^2")
 })
 
 test_that("bmi works for dataframe columns", {

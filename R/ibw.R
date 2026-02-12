@@ -39,6 +39,8 @@
 #' df <- dplyr::mutate(df, IBW = ibw(HEIGHT, SEX, AGE))
 #' df
 ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
+  height <- assert_and_strip_units(height, "cm")
+
   checkmate::assert_numeric(height)
   checkmate::assert_numeric(sexf)
   checkmate::assert_numeric(age)
@@ -73,6 +75,6 @@ ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
   }
 
   ibw <- ideal_weight + 2.3 / 2.54 * (height - 152.4)
-  attr(ibw, "units") <- "kg"
+  ibw <- units::set_units(ibw, "kg", mode = "standard")
   return(ibw)
 }

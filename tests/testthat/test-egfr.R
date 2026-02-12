@@ -150,21 +150,21 @@ test_that("egfr messages about <18 being used in non schwartz methods", {
 test_that("egfr functions set units attribute to mL/min/1.73m^2", {
   # Test each method
   result_2009 <- ckdepi_2009_egfr(TRUE, FALSE, 30, 1.0)
-  expect_equal(attr(result_2009, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result_2009)), "mL/(min*bsa_ref)")
 
   result_2021 <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  expect_equal(attr(result_2021, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result_2021)), "mL/(min*bsa_ref)")
 
   result_cystatin <- ckdepi_2021_egfr_cystatin(TRUE, 30, 1.0, 0.8)
-  expect_equal(attr(result_cystatin, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result_cystatin)), "mL/(min*bsa_ref)")
 
   result_mdrd <- mdrd_egfr(TRUE, FALSE, 30, 1.0)
-  expect_equal(attr(result_mdrd, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result_mdrd)), "mL/(min*bsa_ref)")
 
   result_schwartz <- schwartz_egfr(150, 1.0)
-  expect_equal(attr(result_schwartz, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result_schwartz)), "mL/(min*bsa_ref)")
 
   # Test via main egfr() dispatcher
   result_main <- egfr(TRUE, FALSE, 30, 1.0, method = "CKDEPI 2021")
-  expect_equal(attr(result_main, "units"), "mL/min/1.73m^2")
+  expect_equal(as.character(units(result_main)), "mL/(min*bsa_ref)")
 })

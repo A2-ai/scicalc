@@ -20,6 +20,8 @@
 #'   dplyr::mutate(ALBBL = convert_alb(ALB))
 #' df
 convert_alb <- function(alb) {
+  alb <- assert_and_strip_units(alb, "g/L")
+
   checkmate::assertNumeric(alb)
 
   if (any(is.na(alb))) {
@@ -27,7 +29,7 @@ convert_alb <- function(alb) {
   }
 
   alb_gdl <- alb / 10
-  attr(alb_gdl, "units") <- "g/dL"
+  alb_gdl <- units::set_units(alb_gdl, "g/dL", mode = "standard")
   return(alb_gdl)
 }
 
@@ -53,6 +55,8 @@ convert_alb <- function(alb) {
 #'   dplyr::mutate(BILIBL = convert_bili(BILI))
 #' df
 convert_bili <- function(bili) {
+  bili <- assert_and_strip_units(bili, "umol/L")
+
   checkmate::assertNumeric(bili)
 
   if (any(is.na(bili))) {
@@ -63,7 +67,7 @@ convert_bili <- function(bili) {
   # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
   conversion_factor <- mol_weight_bili / 10^4
   bili_mgdl <- bili * conversion_factor
-  attr(bili_mgdl, "units") <- "mg/dL"
+  bili_mgdl <- units::set_units(bili_mgdl, "mg/dL", mode = "standard")
   return(bili_mgdl)
 }
 
@@ -89,6 +93,8 @@ convert_bili <- function(bili) {
 #'   dplyr::mutate(CREATBL = convert_creat(CREAT))
 #' df
 convert_creat <- function(creat) {
+  creat <- assert_and_strip_units(creat, "umol/L")
+
   checkmate::assertNumeric(creat)
 
   if (any(is.na(creat))) {
@@ -99,6 +105,6 @@ convert_creat <- function(creat) {
   # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
   conversion_factor <- mol_weight_creat / 10^4
   creat_mgdl <- creat * conversion_factor
-  attr(creat_mgdl, "units") <- "mg/dL"
+  creat_mgdl <- units::set_units(creat_mgdl, "mg/dL", mode = "standard")
   return(creat_mgdl)
 }

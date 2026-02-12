@@ -54,6 +54,9 @@ bsa <- function(weight, height, method = "Dubois") {
 #' df <- dplyr::mutate(df, bsa = dubois_bsa(WT, HT))
 #' df
 dubois_bsa <- function(weight, height) {
+  weight <- assert_and_strip_units(weight, "kg")
+  height <- assert_and_strip_units(height, "cm")
+
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
@@ -72,7 +75,7 @@ dubois_bsa <- function(weight, height) {
   }
 
   bsa <- (weight^0.425) * (height^0.725) * 0.007184
-  attr(bsa, "units") <- "m^2"
+  bsa <- units::set_units(bsa, "m^2", mode = "standard")
   return(bsa)
 } # bsa
 
@@ -100,6 +103,9 @@ dubois_bsa <- function(weight, height) {
 #' @examples
 #' mosteller_bsa(70, 170)
 mosteller_bsa <- function(weight, height) {
+  weight <- assert_and_strip_units(weight, "kg")
+  height <- assert_and_strip_units(height, "cm")
+
   checkmate::assertNumeric(height)
   checkmate::assertNumeric(weight)
 
@@ -116,6 +122,6 @@ mosteller_bsa <- function(weight, height) {
   }
 
   bsa <- sqrt(height * weight / 3600)
-  attr(bsa, "units") <- "m^2"
+  bsa <- units::set_units(bsa, "m^2", mode = "standard")
   return(bsa)
 }

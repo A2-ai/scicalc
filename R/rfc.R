@@ -87,7 +87,7 @@
 #' )
 #'
 #' library(dplyr)
-#' df %>%
+#' df <- df %>%
 #'   mutate(
 #'     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
 #'     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
@@ -107,33 +107,70 @@ rfc <- function(
   category_standard = c("regulatory", "clinical"),
   absolute_units = NULL
 ) {
-  checkmate::assert_numeric(estimator, null.ok = FALSE)
+  checkmate::assert_numeric(
+    if (inherits(estimator, "units")) units::drop_units(estimator) else estimator,
+    null.ok = FALSE
+  )
   category_standard <- match.arg(category_standard)
 
-  mv_est <- check_mv_computation(estimator, "estimator")
-  estimator[mv_est] <- NA
-  mv_bsa <- NULL
-
-  # Infer units from attribute if present
-  input_units <- attr(estimator, "units")
-  if (!is.null(input_units)) {
-    inferred_absolute <- (input_units == "mL/min")
+  # --- Infer units FIRST, then strip to plain numeric ---
+  if (inherits(estimator, "units")) {
+    abs_unit <- units(units::set_units(1, "mL/min", mode = "standard"))
+    rel_unit <- units(units::set_units(1, "mL/min/bsa_ref", mode = "standard"))
+    est_unit <- units(estimator)
+    is_abs <- (est_unit == abs_unit)
+    is_rel <- (est_unit == rel_unit)
+    if (!is_abs && !is_rel) {
+      rlang::abort(paste0(
+        "`estimator` has units [", as.character(est_unit),
+        "] which is not a recognized eGFR/CrCL unit. ",
+        "Expected [mL/min] (absolute) or [mL/min/bsa_ref] (relative)."
+      ))
+    }
+    inferred_absolute <- is_abs
     if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
+      expected_unit <- if (absolute_units) "mL/min" else "mL/min/bsa_ref"
       rlang::warn(paste0(
-        "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
-        input_units, "). Using provided absolute_units."
+        "Provided absolute_units (", absolute_units, ") conflicts with input units [",
+        as.character(est_unit), "]. Expected [",
+        expected_unit, "]. Using provided absolute_units."
       ))
     } else {
       absolute_units <- inferred_absolute
     }
-  } else if (is.null(absolute_units)) {
-    rlang::abort("Must supply absolute_units when input has no units attribute.")
+    estimator <- units::drop_units(estimator)
+  } else {
+    # Legacy attr fallback
+    input_units <- attr(estimator, "units")
+    if (!is.null(input_units)) {
+      lifecycle::deprecate_warn(
+        "0.4.0", I('attr(estimator, "units")'),
+        details = "Pass a units object from egfr()/aegfr() instead."
+      )
+      inferred_absolute <- (input_units == "mL/min")
+      if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
+        rlang::warn(paste0(
+          "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
+          input_units, "). Using provided absolute_units."
+        ))
+      } else {
+        absolute_units <- inferred_absolute
+      }
+    } else if (is.null(absolute_units)) {
+      rlang::abort("Must supply absolute_units when input has no units attribute.")
+    }
   }
+
+  # Now estimator is plain numeric — safe for sentinel checks
+  mv_est <- check_mv_computation(estimator, "estimator")
+  estimator[mv_est] <- NA
+  mv_bsa <- NULL
 
   if (category_standard == "clinical") {
     if (!absolute_units) {
       rel_est <- estimator
     } else {
+      bsa <- assert_and_strip_units(bsa, "m^2", "bsa")
       checkmate::assert_numeric(bsa, null.ok = FALSE)
       if (any(!is.na(estimator) & is.na(bsa))) {
         rlang::abort("bsa cannot be missing when absolute_est has values")
@@ -152,6 +189,7 @@ rfc <- function(
     if (absolute_units) {
       abs_est <- estimator
     } else {
+      bsa <- assert_and_strip_units(bsa, "m^2", "bsa")
       checkmate::assert_numeric(bsa, null.ok = FALSE)
       if (any(!is.na(estimator) & is.na(bsa))) {
         rlang::abort("bsa cannot be missing when relative_est has values")

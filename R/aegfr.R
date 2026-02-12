@@ -35,26 +35,39 @@
 #'   dplyr::mutate(AEGFR = aegfr(EGFR, BSA))
 #' df
 aegfr <- function(egfr, bsa) {
-  checkmate::assertNumeric(egfr)
-  checkmate::assertNumeric(bsa)
-
-  # Check if input already has absolute units
-
-  input_units <- attr(egfr, "units")
-  if (!is.null(input_units) && input_units == "mL/min") {
-    warning("Input eGFR already has absolute units (mL/min), returning unchanged")
-    return(egfr)
+  # --- Detect units (units class or legacy attr) and check if already absolute ---
+  if (inherits(egfr, "units")) {
+    abs_unit <- units(units::set_units(1, "mL/min", mode = "standard"))
+    if (units(egfr) == abs_unit) {
+      warning("Input eGFR already has absolute units (mL/min), returning unchanged")
+      return(egfr)
+    }
+  } else {
+    # Legacy attr fallback — support for one release cycle
+    input_units <- attr(egfr, "units")
+    if (!is.null(input_units)) {
+      lifecycle::deprecate_warn(
+        "0.4.0", I('attr(egfr, "units")'),
+        details = "Pass a units object from egfr() instead."
+      )
+      if (input_units == "mL/min") {
+        warning("Input eGFR already has absolute units (mL/min), returning unchanged")
+        return(egfr)
+      }
+    }
   }
 
-  if (any(is.na(egfr))) {
-    message("egfr contains missing values")
-  }
-  if (any(is.na(bsa))) {
-    message("bsa contains missing values")
-  }
+  # --- Convert to canonical units and strip before any checks ---
+  egfr_val <- assert_and_strip_units(egfr, "mL/min/bsa_ref", "egfr")
+  bsa_val <- assert_and_strip_units(bsa, "m^2", "bsa")
+  checkmate::assertNumeric(egfr_val)
+  checkmate::assertNumeric(bsa_val)
 
-  aegfr <- convert_rel_to_abs(egfr, bsa)
-  attr(aegfr, "units") <- "mL/min"
+  if (any(is.na(egfr_val))) message("egfr contains missing values")
+  if (any(is.na(bsa_val))) message("bsa contains missing values")
+
+  aegfr <- convert_rel_to_abs(egfr_val, bsa_val)
+  aegfr <- units::set_units(aegfr, "mL/min", mode = "standard")
   return(aegfr)
 }
 

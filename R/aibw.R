@@ -45,6 +45,9 @@ aibw <- function(
   allow_ibw_lt_intercept = TRUE,
   allow_tbw_lt_ibw = TRUE
 ) {
+  weight <- assert_and_strip_units(weight, "kg")
+  height <- assert_and_strip_units(height, "cm")
+
   checkmate::assert_numeric(weight)
 
   input_lengths <- lengths(list(weight, height, sexf, age))
@@ -56,7 +59,7 @@ aibw <- function(
     message("weight contains missing values.")
   }
 
-  ideal_bw <- ibw(height, sexf, age, allow_ibw_lt_intercept)
+  ideal_bw <- units::drop_units(ibw(height, sexf, age, allow_ibw_lt_intercept))
 
   mult <- weight - ideal_bw
   if (!allow_tbw_lt_ibw) {
@@ -64,6 +67,6 @@ aibw <- function(
   }
 
   aibw <- ideal_bw + 0.4 * mult
-  attr(aibw, "units") <- "kg"
+  aibw <- units::set_units(aibw, "kg", mode = "standard")
   return(aibw)
 }

@@ -10,7 +10,8 @@ agec(age)
 \item{age}{Numeric vector of baseline age in years}
 }
 \value{
-Integer vector of age categories (1-6). Returns \code{-999} for
+Integer vector of age categories (1-6). Returns the value of
+\code{getOption("scicalc.missing_value")} (default \code{-999}) for
 missing values. Includes a \code{category_standard} attribute set to "FDA".
 }
 \description{

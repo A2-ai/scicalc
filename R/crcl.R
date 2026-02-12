@@ -39,6 +39,10 @@
 #'   dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
 #' df
 crcl <- function(sexf, age, creat, weight) {
+  age <- assert_and_strip_units(age, "years")
+  creat <- assert_and_strip_units(creat, "mg/dL")
+  weight <- assert_and_strip_units(weight, "kg")
+
   checkmate::assertLogical(sexf)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
@@ -64,6 +68,6 @@ crcl <- function(sexf, age, creat, weight) {
 
   sex_mult <- ifelse(sexf, 0.85, 1)
   crcl <- (140 - age) * weight / (72 * creat) * sex_mult
-  attr(crcl, "units") <- "mL/min"
+  crcl <- units::set_units(crcl, "mL/min", mode = "standard")
   return(crcl)
 }

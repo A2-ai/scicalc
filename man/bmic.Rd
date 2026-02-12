@@ -14,8 +14,9 @@ the function will issue warnings for individuals under 18 years old, as
 adult BMI categories may not be appropriate for pediatric populations}
 }
 \value{
-Integer vector of obesity categories (1-4). Returns \code{-999}
-for missing BMI values.
+Integer vector of obesity categories (1-6). Returns the value of
+\code{getOption("scicalc.missing_value")} (default \code{-999}) for
+missing BMI values.
 }
 \description{
 Categorizes individuals based on their Body Mass Index (BMI) according to

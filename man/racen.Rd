@@ -24,7 +24,7 @@ racen("ASIAN") # 3
 
 racen("OTHER") # 4
 
-racen("UNKNOWN") # -999
+racen("UNKNOWN") # default missing value
 }
 \seealso{
 Other demographics: 
