@@ -21,11 +21,12 @@ test_that("write_csv_with_hash prints a hash", {
   md5_hash <- digest::digest(file = path)
   blake3_hash <- digest::digest(file = path, algo = "blake3")
 
-  expect_output(.write_csv_with_hash(df, path), paste0("test.csv: ", md5_hash))
+  # blake3 is the default, matching the read functions
+  expect_output(.write_csv_with_hash(df, path), paste0("test.csv: ", blake3_hash))
   unlink(path, recursive = TRUE)
   expect_output(
-    .write_csv_with_hash(df, path, algo = "blake3"),
-    paste0("test.csv: ", blake3_hash)
+    .write_csv_with_hash(df, path, algo = "md5"),
+    paste0("test.csv: ", md5_hash)
   )
   unlink(path, recursive = TRUE)
 })

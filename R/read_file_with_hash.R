@@ -108,7 +108,7 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3", reader = NULL, 
 #' }
 read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "read_csv_with_hash()",
     with = "read_file_with_hash()",
     details = "read_csv_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
@@ -154,7 +154,7 @@ read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
 #' }
 read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "read_parquet_with_hash()",
     with = "read_file_with_hash()",
     details = "read_parquet_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
@@ -201,7 +201,7 @@ read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
 #' }
 read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "read_sas_with_hash()",
     with = "read_file_with_hash()",
     details = "read_sas_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
@@ -246,7 +246,7 @@ read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
 #' }
 read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "read_xpt_with_hash()",
     with = "read_file_with_hash()",
     details = "read_xpt_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
@@ -292,7 +292,7 @@ read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
 #' }
 read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "read_excel_with_hash()",
     with = "read_file_with_hash()",
     details = "read_excel_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
@@ -340,7 +340,7 @@ read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
 #' }
 read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "read_pzfx_with_hash()",
     with = "read_file_with_hash()",
     details = "read_pzfx_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."

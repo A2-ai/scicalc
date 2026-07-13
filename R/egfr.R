@@ -342,7 +342,7 @@ egfr <- function(
 #' e <- egfr(TRUE, TRUE, 24, 1, method = "CKDEPI 2009")
 ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "ckdepi_2009_egfr()",
     with = 'egfr(method = "CKDEPI 2009")'
   )
@@ -383,7 +383,7 @@ ckdepi_2009_egfr <- function(sexf, raceb, age, creat) {
 #' e <- egfr(TRUE, FALSE, 24, 1, method = "CKDEPI 2021")
 ckdepi_2021_egfr <- function(sexf, age, creat) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "ckdepi_2021_egfr()",
     with = 'egfr(method = "CKDEPI 2021")'
   )
@@ -427,7 +427,7 @@ ckdepi_2021_egfr <- function(sexf, age, creat) {
 #' e <- egfr(TRUE, FALSE, 24, 1, cystc = 2, method = "CKDEPI 2021 cystatin")
 ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "ckdepi_2021_egfr_cystatin()",
     with = 'egfr(method = "CKDEPI 2021 cystatin")'
   )
@@ -468,7 +468,7 @@ ckdepi_2021_egfr_cystatin <- function(sexf, age, creat, cystc) {
 #' e <- egfr(TRUE, TRUE, 24, 1, method = "MDRD")
 mdrd_egfr <- function(sexf, raceb, age, creat) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "mdrd_egfr()",
     with = 'egfr(method = "MDRD")'
   )
@@ -505,7 +505,7 @@ mdrd_egfr <- function(sexf, raceb, age, creat) {
 #' egfr(FALSE, FALSE, 10, 1, height = 100, method = "Schwartz")
 schwartz_egfr <- function(height, creat) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "schwartz_egfr()",
     with = 'egfr(method = "Schwartz")'
   )

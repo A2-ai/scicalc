@@ -177,7 +177,8 @@ test_that("rfc warns when absolute_units conflicts with attribute", {
   # Create input with relative units
   relative_input <- units::set_units(60, "mL/min/bsa_ref", mode = "standard")
 
-  # Providing absolute_units = TRUE should warn and use provided absolute_units
+  # Providing absolute_units = TRUE conflicts with the relative unit: warn (and
+  # ignore the flag, using the estimator's real units)
   expect_warning(
     rfc(estimator = relative_input, absolute_units = TRUE, bsa = 1.73),
     "conflicts with input units"
@@ -186,7 +187,7 @@ test_that("rfc warns when absolute_units conflicts with attribute", {
   # Create input with absolute units
   absolute_input <- units::set_units(60, "mL/min", mode = "standard")
 
-  # Providing absolute_units = FALSE should warn and use provided absolute_units
+  # Providing absolute_units = FALSE conflicts with the absolute unit: warn
   expect_warning(
     rfc(estimator = absolute_input, absolute_units = FALSE, bsa = 1.73),
     "conflicts with input units"
@@ -265,19 +266,17 @@ test_that("rfc handles missing values correctly", {
   )
 })
 
-test_that("rfc respects explicit absolute_units over carried units attribute", {
-  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
-  bsa_result <- .bsa_dubois(70, 165)
-  aegfr_result <- units::drop_units(egfr_result) * (units::drop_units(bsa_result) / 1.73)
-  aegfr_result <- units::set_units(aegfr_result, "mL/min/bsa_ref", mode = "standard")
+test_that("rfc uses the estimator's real units over a conflicting absolute_units", {
+  rel <- units::set_units(50, "mL/min/bsa_ref", mode = "standard")
 
-  # Explicit absolute_units = TRUE should work
-  # but give a warning about mismatch units
+  # a conflicting absolute_units flag warns but is ignored: the result matches
+  # what rfc computes when it infers the (relative) unit itself
   expect_warning(
-    rfc_res <- rfc(aegfr_result, absolute_units = TRUE),
+    conflicted <- rfc(rel, absolute_units = TRUE, bsa = 2.5),
     "conflicts with input units"
   )
-  expect_equal(rfc_res, 2, ignore_attr = TRUE)
+  inferred <- rfc(rel, bsa = 2.5)
+  expect_equal(conflicted, inferred, ignore_attr = TRUE)
 })
 
 test_that("rfc conversion functions handle BSA validation correctly", {

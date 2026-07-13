@@ -129,15 +129,12 @@ rfc <- function(
     }
     inferred_absolute <- is_abs
     if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
-      expected_unit <- if (absolute_units) "mL/min" else "mL/min/bsa_ref"
       rlang::warn(paste0(
         "Provided absolute_units (", absolute_units, ") conflicts with input units [",
-        as.character(est_unit), "]. Expected [",
-        expected_unit, "]. Using provided absolute_units."
+        as.character(est_unit), "]. Using the units of `estimator`."
       ))
-    } else {
-      absolute_units <- inferred_absolute
     }
+    absolute_units <- inferred_absolute
     estimator <- units::drop_units(estimator)
   } else {
     # Legacy attr fallback
@@ -151,11 +148,10 @@ rfc <- function(
       if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
         rlang::warn(paste0(
           "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
-          input_units, "). Using provided absolute_units."
+          input_units, "). Using the units attribute of `estimator`."
         ))
-      } else {
-        absolute_units <- inferred_absolute
       }
+      absolute_units <- inferred_absolute
     } else if (is.null(absolute_units)) {
       rlang::abort("Must supply absolute_units when input has no units attribute.")
     }

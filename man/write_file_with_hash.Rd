@@ -9,6 +9,7 @@ write_file_with_hash(
   path,
   overwrite = FALSE,
   ...,
+  algo = "blake3",
   writer = NULL,
   force = FALSE
 )
@@ -21,6 +22,8 @@ write_file_with_hash(
 \item{overwrite}{boolean of whether to overwrite or not.}
 
 \item{...}{additional arguments for digest, write_csv, write_parquet, or \code{writer}.}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
 
 \item{writer}{optional function used to write the file, called as \code{writer(data, path, ...)}.
 Required for file extensions this function doesn't know how to write. For a known

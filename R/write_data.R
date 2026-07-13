@@ -4,6 +4,7 @@
 #' @param path the destination of the file (csv or parquet)
 #' @param overwrite boolean of whether to overwrite or not.
 #' @param ... additional arguments for digest, write_csv, write_parquet, or `writer`.
+#' @param algo hashing algorithm to use, default is "blake3"
 #' @param writer optional function used to write the file, called as `writer(data, path, ...)`.
 #'   Required for file extensions this function doesn't know how to write. For a known
 #'   extension (csv, parquet), `writer` is ignored unless `force = TRUE`.
@@ -23,7 +24,7 @@
 #' write_file_with_hash(df, "data.csv")
 #' write_file_with_hash(df, "data.rds", writer = saveRDS)
 #' }
-write_file_with_hash <- function(data, path, overwrite = FALSE, ..., writer = NULL, force = FALSE) {
+write_file_with_hash <- function(data, path, overwrite = FALSE, ..., algo = "blake3", writer = NULL, force = FALSE) {
   if (!overwrite) {
     checkmate::assert(!file.exists(path))
   }
@@ -58,24 +59,25 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ..., writer = NU
 
   if (!is.null(writer)) {
     writer(data, path, ...)
-    return(print_file_hash(path, ...))
+    return(print_file_hash(path, ..., algo = algo))
   }
 
   if (extension == "csv") {
-    .write_csv_with_hash(data, path, ...)
+    .write_csv_with_hash(data, path, ..., algo = algo)
   } else if (extension == "parquet") {
-    .write_parquet_with_hash(data, path, ...)
+    .write_parquet_with_hash(data, path, ..., algo = algo)
   }
 }
 
 #' @noRd
-.write_csv_with_hash <- function(data, csv_path, ...) {
+.write_csv_with_hash <- function(data, csv_path, ..., algo = "blake3") {
   checkmate::assert(tools::file_ext(basename(csv_path)) == "csv")
 
   args <- rlang::list2(...)
 
   digest_args <- args[names(args) %in% names(formals(digest::digest))]
   digest_args$file = csv_path
+  digest_args$algo <- algo
 
   write_csv_args <- args[names(args) %in% names(formals(readr::write_csv))]
   write_csv_args$x = data
@@ -113,7 +115,7 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ..., writer = NU
 #' }
 write_csv_with_hash <- function(data, csv_path, ...) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "write_csv_with_hash()",
     with = "write_file_with_hash()"
   )
@@ -121,13 +123,14 @@ write_csv_with_hash <- function(data, csv_path, ...) {
 }
 
 #' @noRd
-.write_parquet_with_hash <- function(data, parquet_path, ...) {
+.write_parquet_with_hash <- function(data, parquet_path, ..., algo = "blake3") {
   checkmate::assert(tools::file_ext(basename(parquet_path)) == "parquet")
 
   args <- rlang::list2(...)
 
   digest_args <- args[names(args) %in% names(formals(digest::digest))]
   digest_args$file = parquet_path
+  digest_args$algo <- algo
 
   write_parquet_args <- args[
     names(args) %in% names(formals(arrow::write_parquet))
@@ -168,7 +171,7 @@ write_csv_with_hash <- function(data, csv_path, ...) {
 #' }
 write_parquet_with_hash <- function(data, parquet_path, ...) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "write_parquet_with_hash()",
     with = "write_file_with_hash()"
   )

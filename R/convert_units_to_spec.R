@@ -89,10 +89,20 @@ convert_units_to_map <- function(data, unit_map) {
     } else if (is.numeric(data[[col]])) {
       if (!is.null(tgt_log)) {
         # plain numeric assumed already log-transformed on the target basis
-        with_unit <- data[[col]]
-        units(with_unit) <- tgt_log$unit
-        data[[col]] <- restore_attrs(with_unit, data[[col]])
-        attached <- c(attached, paste0(col, " [", target, "]"))
+        with_unit <- tryCatch(
+          {
+            tmp <- data[[col]]
+            units(tmp) <- tgt_log$unit
+            tmp
+          },
+          error = function(e) NULL
+        )
+        if (is.null(with_unit)) {
+          failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
+        } else {
+          data[[col]] <- restore_attrs(with_unit, data[[col]])
+          attached <- c(attached, paste0(col, " [", target, "]"))
+        }
       } else {
         with_unit <- tryCatch(
           units::set_units(data[[col]], target, mode = "standard"),

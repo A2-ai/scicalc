@@ -123,6 +123,27 @@ test_that("write_file_with_hash uses writer for a known extension when forced", 
   unlink(path, recursive = TRUE)
 })
 
+test_that("injected writer hashes with blake3 by default (round-trips with reads)", {
+  df <- data.frame("a" = 1:3, "b" = c("x", "y", "z"))
+  path <- "rt.rds"
+  out <- capture.output(write_file_with_hash(df, path, writer = saveRDS))
+  hash <- sub(".*: ", "", out[length(out)])
+  # the read side defaults to blake3; the written hash must match it
+  expect_equal(hash, digest::digest(file = path, algo = "blake3"))
+  expect_no_error(read_hashed_file(path, hash, reader = readRDS))
+  unlink(path, recursive = TRUE)
+})
+
+test_that("write_file_with_hash does not forward algo to the injected writer", {
+  df <- data.frame("a" = 1:3)
+  path <- "rt.rds"
+  # algo is a formal, so it must not reach saveRDS (which would error)
+  expect_no_error(
+    write_file_with_hash(df, path, writer = saveRDS, algo = "blake3", overwrite = TRUE)
+  )
+  unlink(path, recursive = TRUE)
+})
+
 test_that("write_file_with_hash errors when force is TRUE without a writer", {
   path <- "test.csv"
   df <- data.frame(
@@ -147,12 +168,12 @@ test_that("write_file_with_hash can use different digest algorithms", {
 
   expect_output(
     write_file_with_hash(df, path, overwrite = TRUE),
-    paste0("test_2.parquet: ", md5_hash)
+    paste0("test_2.parquet: ", blake3_hash)
   )
   unlink(path, recursive = TRUE)
   expect_output(
-    write_file_with_hash(df, path, overwrite = TRUE, algo = "blake3"),
-    paste0("test_2.parquet: ", blake3_hash)
+    write_file_with_hash(df, path, overwrite = TRUE, algo = "md5"),
+    paste0("test_2.parquet: ", md5_hash)
   )
   unlink(path, recursive = TRUE)
 })

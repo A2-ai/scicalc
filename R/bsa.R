@@ -106,7 +106,7 @@ bsa <- function(weight, height, method = "Dubois") {
 #' b <- bsa(80.56, 167, method = "Dubois")
 dubois_bsa <- function(weight, height) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "dubois_bsa()",
     with = 'bsa(method = "Dubois")'
   )
@@ -144,7 +144,7 @@ dubois_bsa <- function(weight, height) {
 #' mosteller_bsa <- bsa(70, 170, method = "Mosteller")
 mosteller_bsa <- function(weight, height) {
   lifecycle::deprecate_warn(
-    when = "0.6.0",
+    when = "0.4.0",
     what = "mosteller_bsa()",
     with = 'bsa(method = "Mosteller")'
   )

@@ -345,8 +345,9 @@ is_pacific_islander <- function(x) {
 #' is_unspecified("UNKNOWN")
 is_unspecified <- function(x, known = character(0)) {
   if (is.numeric(x)) {
-    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
-    return(!(x %in% c(1, 2, 3, 4, 5, 6, -999)) & !is.na(x))
+    mv <- getOption("scicalc.missing_value", -999)
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, ", mv, " = Missing.")
+    return(!(x %in% c(1, 2, 3, 4, 5, 6, mv)) & !is.na(x))
   }
 
   checkmate::assert_character(x)
