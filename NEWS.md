@@ -7,6 +7,7 @@
 * `read_file_with_hash()` and `read_hashed_file()` gained a `reader` argument for reading file types they don't natively support (e.g. `reader = arrow::read_feather`). For an already-supported extension, `reader` is ignored unless `force = TRUE`.
 * `write_file_with_hash()` gained a matching `writer` argument (e.g. `writer = saveRDS`) with the same `force` behavior for known extensions.
 * Added `convert_units_to_spec()`, an S3 generic that converts a data frame's unit-carrying columns to the units declared in a data specification (currently supports `yspec` objects). Unitless numeric columns get the spec unit attached with a warning; impossible conversions are left untouched and reported together in a warning.
+* Added `is_missing_value()`, a units-safe predicate for the missing value indicator (`getOption("scicalc.missing_value")`), useful for filtering columns that carry units (e.g. `dplyr::filter(df, !is_missing_value(NTFD))`).
 
 ## Bug fixes
 
