@@ -40,6 +40,7 @@
 #' )
 #' dplyr::mutate(df, AGEC = agec(AGE))
 agec <- function(age) {
+  age <- assert_and_strip_units(age, "years")
   checkmate::assertNumeric(age)
 
   mv_age <- check_mv_computation(age, "age")

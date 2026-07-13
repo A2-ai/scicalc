@@ -100,3 +100,8 @@ test_that("agec handles edge cases and invalid inputs", {
   expect_equal(suppressWarnings(agec(27 / 365)), 1, ignore_attr = TRUE) # 27 days should be neonate
   expect_equal(agec(29 / 365), 2, ignore_attr = TRUE) # 29 days should be infant
 })
+
+test_that("agec accepts a units object for age", {
+  age <- units::set_units(c(24, 70), "years", mode = "standard")
+  expect_equal(agec(age), c(5, 6), ignore_attr = TRUE)
+})

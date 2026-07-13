@@ -47,6 +47,7 @@ aibw <- function(
 ) {
   weight <- assert_and_strip_units(weight, "kg")
   height <- assert_and_strip_units(height, "cm")
+  age <- assert_and_strip_units(age, "years")
 
   checkmate::assert_numeric(weight)
 

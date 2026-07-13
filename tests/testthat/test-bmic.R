@@ -77,3 +77,14 @@ test_that("bmic handles negative and zero BMI correctly", {
   result_zero <- suppressMessages(bmic(c(0, 22.0), c(25, 30)))
   expect_equal(result_zero, c(-999, 2), ignore_attr = TRUE)
 })
+
+test_that("bmic accepts units objects for bmi and age", {
+  bmi <- units::set_units(c(22, 31), "kg/m^2", mode = "standard")
+  age <- units::set_units(c(30, 40), "years", mode = "standard")
+  expect_equal(bmic(bmi, age), bmic(c(22, 31), c(30, 40)), ignore_attr = TRUE)
+})
+
+test_that("bmic errors for bmi with non-convertible units", {
+  bmi <- units::set_units(c(22, 31), "kg", mode = "standard")
+  expect_error(bmic(bmi, c(30, 40)), "cannot be converted")
+})

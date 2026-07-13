@@ -119,3 +119,15 @@ test_that("ibw warns about recycling", {
     "Inputs have different lengths! Please check data."
   )
 })
+
+test_that("ibw accepts units objects for height and age", {
+  height <- units::set_units(c(160, 170), "cm", mode = "standard")
+  age <- units::set_units(c(30, 40), "years", mode = "standard")
+
+  result <- ibw(height, c(1, 0), age)
+  expect_equal(as.character(units(result)), "kg")
+  expect_equal(
+    as.numeric(result),
+    as.numeric(ibw(c(160, 170), c(1, 0), c(30, 40)))
+  )
+})

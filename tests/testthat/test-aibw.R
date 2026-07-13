@@ -195,3 +195,16 @@ test_that("aibw warns about recycling", {
   # Shorter height ⇒ will recycle if no checks exist
   expect_warning(aibw(w, 170, 0, 30))
 })
+
+test_that("aibw accepts units objects for weight, height, and age", {
+  weight <- units::set_units(c(70, 90), "kg", mode = "standard")
+  height <- units::set_units(c(160, 170), "cm", mode = "standard")
+  age <- units::set_units(c(30, 40), "years", mode = "standard")
+
+  result <- aibw(weight, height, c(1, 0), age)
+  expect_equal(as.character(units(result)), "kg")
+  expect_equal(
+    as.numeric(result),
+    as.numeric(aibw(c(70, 90), c(160, 170), c(1, 0), c(30, 40)))
+  )
+})

@@ -40,6 +40,7 @@
 #' df
 ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
   height <- assert_and_strip_units(height, "cm")
+  age <- assert_and_strip_units(age, "years")
 
   checkmate::assert_numeric(height)
   checkmate::assert_numeric(sexf)
