@@ -61,28 +61,49 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 
   for (col in names(unit_map)) {
     target <- unit_map[[col]]
+    tgt_log <- .parse_log_spec(target)
 
     if (inherits(data[[col]], "units")) {
       current <- as.character(units(data[[col]]))
-      converted <- tryCatch(
-        units::set_units(data[[col]], target, mode = "standard"),
-        error = function(e) NULL
-      )
-      if (is.null(converted)) {
-        failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+      src_log <- .parse_log_unit(current)
+
+      if (!is.null(src_log) || !is.null(tgt_log)) {
+        # at least one side is a log unit: reconcile via a reference shift
+        shifted <- .shift_log_column(data[[col]], src_log, tgt_log)
+        if (is.null(shifted)) {
+          failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+        } else {
+          data[[col]] <- shifted
+        }
       } else {
-        data[[col]] <- converted
+        converted <- tryCatch(
+          units::set_units(data[[col]], target, mode = "standard"),
+          error = function(e) NULL
+        )
+        if (is.null(converted)) {
+          failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+        } else {
+          data[[col]] <- converted
+        }
       }
     } else if (is.numeric(data[[col]])) {
-      with_unit <- tryCatch(
-        units::set_units(data[[col]], target, mode = "standard"),
-        error = function(e) NULL
-      )
-      if (is.null(with_unit)) {
-        failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-      } else {
+      if (!is.null(tgt_log)) {
+        # plain numeric assumed already log-transformed on the target basis
+        with_unit <- data[[col]]
+        units(with_unit) <- tgt_log$unit
         data[[col]] <- with_unit
         attached <- c(attached, paste0(col, " [", target, "]"))
+      } else {
+        with_unit <- tryCatch(
+          units::set_units(data[[col]], target, mode = "standard"),
+          error = function(e) NULL
+        )
+        if (is.null(with_unit)) {
+          failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
+        } else {
+          data[[col]] <- with_unit
+          attached <- c(attached, paste0(col, " [", target, "]"))
+        }
       }
     }
   }
@@ -102,4 +123,104 @@ convert_units_to_spec.default <- function(data, spec, ...) {
   }
 
   data
+}
+
+#' Parse a udunits logarithmic-unit deparse
+#'
+#' Splits e.g. `"ln(re 1e-06 m-3.kg)"` into its log base symbol, the numeric
+#' coefficient of the (SI-reduced) reference level, and the reference dimension.
+#'
+#' @param unit_str character deparse of a unit.
+#' @return a list(base, coef, dim), or `NULL` if `unit_str` is not a log unit.
+#' @noRd
+.parse_log_unit <- function(unit_str) {
+  m <- regmatches(unit_str, regexec("^(ln|lg|lb)[(]re (.+)[)]$", unit_str))[[1]]
+  if (length(m) == 0) {
+    return(NULL)
+  }
+  base <- m[2]
+  ref <- m[3]
+
+  nm <- regmatches(ref, regexec("^([0-9.eE+-]+)[ ](.+)$", ref))[[1]]
+  if (length(nm) == 0) {
+    coef <- 1
+    dim <- ref
+  } else {
+    coef <- as.numeric(nm[2])
+    dim <- nm[3]
+  }
+
+  list(base = base, coef = coef, dim = dim)
+}
+
+#' Parse a spec log-unit string into a target template
+#'
+#' Recognizes `log(<u>)` (natural), `log10(<u>)`/`lg(<u>)`, and `log2(<u>)`/
+#' `lb(<u>)`, builds a `units` template carrying the corresponding log unit, and
+#' returns its parsed components plus the template's units object.
+#'
+#' @param spec_unit character spec unit string.
+#' @return a list(base, coef, dim, unit), or `NULL` if `spec_unit` is not a log
+#'   spec or its inner unit is unparseable.
+#' @noRd
+.parse_log_spec <- function(spec_unit) {
+  m <- regmatches(
+    spec_unit,
+    regexec("^(log10|log2|log|ln|lg|lb)[(](.+)[)]$", spec_unit)
+  )[[1]]
+  if (length(m) == 0) {
+    return(NULL)
+  }
+  word <- m[2]
+  inner <- m[3]
+
+  logfun <- switch(
+    word,
+    log = log,
+    ln = log,
+    log10 = log10,
+    lg = log10,
+    log2 = log2,
+    lb = log2
+  )
+
+  tmpl <- tryCatch(
+    logfun(units::set_units(1, inner, mode = "standard")),
+    error = function(e) NULL
+  )
+  if (is.null(tmpl)) {
+    return(NULL)
+  }
+
+  parsed <- .parse_log_unit(as.character(units(tmpl)))
+  if (is.null(parsed)) {
+    return(NULL)
+  }
+  parsed$unit <- units(tmpl)
+  parsed
+}
+
+#' Shift a log-unit column to a target log reference
+#'
+#' Changing a log unit's reference level is a constant additive shift,
+#' `value - log(coef_target / coef_source)`, taken in the unit's own log base.
+#' Both sides must be log units of the same base and dimension.
+#'
+#' @param col a `units` vector carrying a log unit.
+#' @param src_log parsed source log unit (from `.parse_log_unit()`).
+#' @param tgt_log parsed target log spec (from `.parse_log_spec()`).
+#' @return the shifted `units` vector, or `NULL` if the sides are incompatible.
+#' @noRd
+.shift_log_column <- function(col, src_log, tgt_log) {
+  if (is.null(src_log) || is.null(tgt_log)) {
+    return(NULL)
+  }
+  if (src_log$base != tgt_log$base || src_log$dim != tgt_log$dim) {
+    return(NULL)
+  }
+
+  logfun <- switch(src_log$base, ln = log, lg = log10, lb = log2)
+  shifted <- as.numeric(col) - logfun(tgt_log$coef / src_log$coef)
+  units(shifted) <- tgt_log$unit
+  shifted
 }

@@ -69,6 +69,68 @@ test_that("convert_units_to_spec dispatches on a yspec object", {
   expect_equal(as.character(units(out$AGE)), "years")
 })
 
+test_that("worker converts a log column to a new log reference", {
+  odv <- units::set_units(c(1000, 2000, 500), "ng/mL", mode = "standard")
+  df <- data.frame(row = 1:3)
+  df$LDV <- log(odv) # ln(re 1 ng/mL)
+
+  out <- .convert_units_to_map(df, c(LDV = "log(ug/mL)"))
+  truth <- log(units::set_units(odv, "ug/mL"))
+
+  expect_equal(as.numeric(out$LDV), as.numeric(truth))
+  expect_equal(units(out$LDV), units(truth))
+})
+
+test_that("worker handles log10 and log2 spec bases", {
+  odv <- units::set_units(c(1000, 2000), "ng/mL", mode = "standard")
+
+  df10 <- data.frame(row = 1:2)
+  df10$LDV <- log10(odv)
+  out10 <- .convert_units_to_map(df10, c(LDV = "log10(ug/mL)"))
+  expect_equal(as.numeric(out10$LDV), as.numeric(log10(units::set_units(odv, "ug/mL"))))
+
+  df2 <- data.frame(row = 1:2)
+  df2$LDV <- log2(odv)
+  out2 <- .convert_units_to_map(df2, c(LDV = "log2(ug/mL)"))
+  expect_equal(as.numeric(out2$LDV), as.numeric(log2(units::set_units(odv, "ug/mL"))))
+})
+
+test_that("worker reports a log column against a mismatched base as an offender", {
+  odv <- units::set_units(c(1000, 2000), "ng/mL", mode = "standard")
+  df <- data.frame(row = 1:2)
+  df$LDV <- log(odv) # natural log
+
+  before <- df$LDV
+  expect_warning(
+    out <- .convert_units_to_map(df, c(LDV = "log10(ug/mL)")),
+    "Could not convert"
+  )
+  # left untouched
+  expect_equal(as.numeric(out$LDV), as.numeric(before))
+})
+
+test_that("worker reports a log column against a non-log spec as an offender", {
+  odv <- units::set_units(c(1000, 2000), "ng/mL", mode = "standard")
+  df <- data.frame(row = 1:2)
+  df$LDV <- log(odv)
+
+  expect_warning(
+    out <- .convert_units_to_map(df, c(LDV = "ug/mL")),
+    "Could not convert"
+  )
+  expect_true(inherits(out$LDV, "units"))
+})
+
+test_that("worker attaches a log unit to an already-logged plain numeric column", {
+  df <- data.frame(LDV = c(0, 0.6931472))
+  expect_warning(
+    out <- .convert_units_to_map(df, c(LDV = "log(ug/mL)")),
+    "Attached spec units to unitless column"
+  )
+  expect_equal(units(out$LDV), units(log(units::set_units(1, "ug/mL", mode = "standard"))))
+  expect_equal(as.numeric(out$LDV), c(0, 0.6931472))
+})
+
 test_that("convert_units_to_spec errors informatively for unsupported spec classes", {
   df <- data.frame(A = 1)
   expect_error(
