@@ -93,3 +93,16 @@ test_that("hfc handles edge cases", {
   bhfc <- hfc(df$AST, df$ULNAST, df$BILI, df$ULNBILI)
   expect_equal(bhfc, c(2, 1, 3, 4), ignore_attr = TRUE)
 })
+
+test_that("hfc accepts units objects for ast, ulnast, bili, ulnbili", {
+  ast <- units::set_units(c(25, 45, 30, 20), "U/L", mode = "standard")
+  ulnast <- units::set_units(rep(33, 4), "U/L", mode = "standard")
+  bili <- units::set_units(c(0.8, 1.0, 2.5, 4.0), "mg/dL", mode = "standard")
+  ulnbili <- units::set_units(rep(1.2, 4), "mg/dL", mode = "standard")
+
+  expect_equal(
+    hfc(ast, ulnast, bili, ulnbili),
+    hfc(c(25, 45, 30, 20), rep(33, 4), c(0.8, 1.0, 2.5, 4.0), rep(1.2, 4)),
+    ignore_attr = TRUE
+  )
+})

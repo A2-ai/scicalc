@@ -65,6 +65,11 @@
 #'
 #' @export
 hfc <- function(ast, ulnast, bili, ulnbili) {
+  ast <- assert_and_strip_units(ast, "U/L")
+  ulnast <- assert_and_strip_units(ulnast, "U/L")
+  bili <- assert_and_strip_units(bili, "mg/dL")
+  ulnbili <- assert_and_strip_units(ulnbili, "mg/dL")
+
   checkmate::assertNumeric(ast)
   checkmate::assertNumeric(ulnast)
   checkmate::assertNumeric(bili)
