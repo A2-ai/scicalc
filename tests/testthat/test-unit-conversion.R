@@ -41,12 +41,12 @@ test_that("bmi errors on incompatible input units", {
 
 test_that("bsa auto-converts units on input", {
   expect_message(
-    result <- dubois_bsa(units::set_units(150, "lb"), units::set_units(67, "inches")),
+    result <- .bsa_dubois(units::set_units(150, "lb"), units::set_units(67, "inches")),
     "converted from"
   )
   expect_equal(
     as.numeric(result),
-    as.numeric(dubois_bsa(68.04, 170.18)),
+    as.numeric(.bsa_dubois(68.04, 170.18)),
     tolerance = 0.01
   )
 })

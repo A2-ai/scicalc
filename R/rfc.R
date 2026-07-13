@@ -115,9 +115,9 @@ rfc <- function(
 
   # --- Infer units FIRST, then strip to plain numeric ---
   if (inherits(estimator, "units")) {
-    abs_unit <- units(units::set_units(1, "mL/min", mode = "standard"))
-    rel_unit <- units(units::set_units(1, "mL/min/bsa_ref", mode = "standard"))
-    est_unit <- units(estimator)
+    abs_unit <- units::deparse_unit(units::set_units(1, "mL/min", mode = "standard"))
+    rel_unit <- units::deparse_unit(units::set_units(1, "mL/min/bsa_ref", mode = "standard"))
+    est_unit <- units::deparse_unit(estimator)
     is_abs <- (est_unit == abs_unit)
     is_rel <- (est_unit == rel_unit)
     if (!is_abs && !is_rel) {

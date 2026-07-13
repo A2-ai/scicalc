@@ -17,7 +17,9 @@ ckdepi_2021_egfr(sexf, age, creat)
 the eGFR value (mL/min/1.73m2)
 }
 \description{
-Calculate eGFR Using CKD-EPI 2021 Creatinine Equation
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=egfr]{egfr()}} with \code{method = "CKDEPI 2021"}.
 }
 \details{
 The CKD-EPI 2021 creatinine equation (race-free):
@@ -33,16 +35,7 @@ where:
 }
 }
 \examples{
-e <- ckdepi_2021_egfr(TRUE, 24, 1)
-
-df <- data.frame(
-  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-  "AGE" = c(24, 24, 23, 24),
-  "CREAT" = c(1, 1, 2, 1)
-)
-df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr(SEXF, AGE, CREAT))
-df
+e <- egfr(TRUE, FALSE, 24, 1, method = "CKDEPI 2021")
 }
 \seealso{
 Other renal_function: 
@@ -56,3 +49,4 @@ Other renal_function:
 \code{\link{schwartz_egfr}()}
 }
 \concept{renal_function}
+\keyword{internal}

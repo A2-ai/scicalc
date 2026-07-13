@@ -37,8 +37,8 @@
 aegfr <- function(egfr, bsa) {
   # --- Detect units (units class or legacy attr) and check if already absolute ---
   if (inherits(egfr, "units")) {
-    abs_unit <- units(units::set_units(1, "mL/min", mode = "standard"))
-    if (units(egfr) == abs_unit) {
+    abs_unit <- units::deparse_unit(units::set_units(1, "mL/min", mode = "standard"))
+    if (units::deparse_unit(egfr) == abs_unit) {
       warning("Input eGFR already has absolute units (mL/min), returning unchanged")
       return(egfr)
     }

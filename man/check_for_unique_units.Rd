@@ -30,6 +30,8 @@ check_for_unique_units(df$PARAM, df$UNIT)
 }
 \seealso{
 Other unit_checking: 
-\code{\link{get_unique_units_df}()}
+\code{\link{convert_units_to_spec}()},
+\code{\link{get_unique_units_df}()},
+\code{\link{pivot_with_units}()}
 }
 \concept{unit_checking}

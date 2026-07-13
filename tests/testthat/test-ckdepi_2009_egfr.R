@@ -1,7 +1,7 @@
 METHOD = "CKDEPI 2009"
 test_that("ckdepi_2009_egfr works for numerical input", {
   expect_equal(
-    ckdepi_2009_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1) %>%
+    .egfr_ckdepi_2009(sexf = FALSE, raceb = TRUE, age = 24, creat = 1) %>%
       round(3),
     121.552,
     ignore_attr = TRUE
@@ -10,7 +10,7 @@ test_that("ckdepi_2009_egfr works for numerical input", {
 
 test_that("ckdepi_2009_egfr works for vector input", {
   expect_equal(
-    ckdepi_2009_egfr(
+    .egfr_ckdepi_2009(
       c(FALSE, TRUE, FALSE, TRUE),
       c(FALSE, FALSE, TRUE, FALSE),
       c(24, 24, 23, 24),
@@ -30,7 +30,7 @@ test_that("ckdepi_2009_egfr works for dataframe columns", {
     "CREAT" = c(1, 1, 2, 1)
   )
   expect_equal(
-    ckdepi_2009_egfr(df$SEXN, df$RACEN, df$AGE, df$CREAT) %>% round(3),
+    .egfr_ckdepi_2009(df$SEXN, df$RACEN, df$AGE, df$CREAT) %>% round(3),
     c(104.877, 78.790, 52.950, 78.790),
     ignore_attr = TRUE
   )
@@ -44,7 +44,7 @@ test_that("ckdepi_2009_egfr can be used in a mutate", {
     "CREAT" = c(1, 1, 2, 1)
   )
   df <- df %>%
-    dplyr::mutate(ckdepi_2009_egfr = ckdepi_2009_egfr(SEXN, RACEN, AGE, CREAT))
+    dplyr::mutate(ckdepi_2009_egfr = .egfr_ckdepi_2009(SEXN, RACEN, AGE, CREAT))
 
   expect_equal(
     df$ckdepi_2009_egfr %>% round(3),
@@ -65,7 +65,7 @@ test_that("ckdepi_2009_egfr can be used within mutate after a group_by", {
   df <- df %>%
     dplyr::group_by(ID) %>%
     dplyr::mutate(
-      ckdepi_2009_egfr = ckdepi_2009_egfr(SEXN, RACEN, AGE, CREAT)
+      ckdepi_2009_egfr = .egfr_ckdepi_2009(SEXN, RACEN, AGE, CREAT)
     )
   expect_equal(
     df$ckdepi_2009_egfr %>% round(3),
@@ -75,7 +75,7 @@ test_that("ckdepi_2009_egfr can be used within mutate after a group_by", {
 })
 
 test_that("ckdepi_2009_egfr sets units attribute", {
-  result <- ckdepi_2009_egfr(sexf = FALSE, raceb = TRUE, age = 24, creat = 1)
+  result <- .egfr_ckdepi_2009(sexf = FALSE, raceb = TRUE, age = 24, creat = 1)
   expect_equal(as.character(units(result)), "mL/(min*bsa_ref)")
 })
 
@@ -100,7 +100,7 @@ test_that("ckdepi_2009_egfr won't work for character Sex", {
     df <- df %>%
       dplyr::group_by(ID) %>%
       dplyr::mutate(
-        ckdepi_2009_egfr = ckdepi_2009_egfr(SEX, RACEN, AGE, CREAT) #error here due to non numerical sex
+        ckdepi_2009_egfr = .egfr_ckdepi_2009(SEX, RACEN, AGE, CREAT) #error here due to non numerical sex
       )
   )
 })
@@ -126,30 +126,30 @@ test_that("ckdepi_2009_egfr won't work for character Race", {
     df <- df %>%
       dplyr::group_by(ID) %>%
       dplyr::mutate(
-        ckdepi_2009_egfr = ckdepi_2009_egfr(SEXN, RACE, AGE, CREAT) #error here due to non numerical sex
+        ckdepi_2009_egfr = .egfr_ckdepi_2009(SEXN, RACE, AGE, CREAT) #error here due to non numerical sex
       )
   )
 })
 
 test_that("ckdepi_2009_egfr messages about missing values", {
-  expect_message(ckdepi_2009_egfr(NA, TRUE, 24, 1), "sexf contains ")
-  expect_message(ckdepi_2009_egfr(FALSE, NA, 24, 1), "raceb contains ")
-  expect_message(ckdepi_2009_egfr(FALSE, TRUE, NA, 1), "age contains ")
-  expect_message(ckdepi_2009_egfr(FALSE, TRUE, 24, NA), "creat contains ")
+  expect_message(.egfr_ckdepi_2009(NA, TRUE, 24, 1), "sexf contains ")
+  expect_message(.egfr_ckdepi_2009(FALSE, NA, 24, 1), "raceb contains ")
+  expect_message(.egfr_ckdepi_2009(FALSE, TRUE, NA, 1), "age contains ")
+  expect_message(.egfr_ckdepi_2009(FALSE, TRUE, 24, NA), "creat contains ")
 })
 
 test_that("ckdepi_2009_egfr warns about recycling", {
   sexf <- c(TRUE, FALSE, TRUE)
   expect_warning(
-    ckdepi_2009_egfr(sexf, TRUE, 24, 1),
+    .egfr_ckdepi_2009(sexf, TRUE, 24, 1),
     "Inputs have different lengths! Please check data."
   )
   expect_warning(
-    ckdepi_2009_egfr(TRUE, c(TRUE, FALSE), 24, 1),
+    .egfr_ckdepi_2009(TRUE, c(TRUE, FALSE), 24, 1),
     "Inputs have different lengths! Please check data."
   )
   expect_warning(
-    ckdepi_2009_egfr(TRUE, FALSE, c(25, 30, 35), 1),
+    .egfr_ckdepi_2009(TRUE, FALSE, c(25, 30, 35), 1),
     "Inputs have different lengths! Please check data."
   )
 })

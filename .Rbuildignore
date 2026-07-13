@@ -14,5 +14,5 @@
 ^rproject.toml$
 ^rv\.toml$
 ^\.Rprofile$
-^_starlightr\.yaml$
+^_starlightr\.toml$
 ^\.claude$

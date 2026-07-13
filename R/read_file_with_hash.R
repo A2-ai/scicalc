@@ -1,8 +1,26 @@
+#' @noRd
+.print_file_hash <- function(file_path, ..., label = file_path) {
+  args <- rlang::list2(...)
+  digest_args <- args[names(args) %in% names(formals(digest::digest))]
+  digest_args$file <- file_path
+
+  hash <- do.call(digest::digest, digest_args)
+  cat(label, hash, sep = ": ")
+  cat("\n")
+  invisible(hash)
+}
+
 #' Read Data File with Hash Verification
 #'
 #' @param file_path path to data file
-#' @param ... additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx, read_xpt
+#' @param ... additional arguments to digest, read_csv, read_parquet, read_sas, read_pzfx, read_xpt, or `reader`
 #' @param algo hashing algorithm to use, default is "blake3"
+#' @param reader optional function used to read the file, called as `reader(file_path, ...)`.
+#'   Required for file extensions this function doesn't know how to read. For a known
+#'   extension (csv, parquet, sas7bdat, xpt, pzfx, xlsx/xls/xlsm), `reader` is ignored
+#'   unless `force = TRUE`.
+#' @param force if `TRUE`, use `reader` even for a known extension instead of the built-in
+#'   reader. Must be `FALSE` (the default) when `reader` is not supplied.
 #'
 #' @return data within the supplied file
 #'
@@ -12,9 +30,18 @@
 #' @examples \dontrun{
 #' dat <- read_file_with_hash("data/derived/PK_data.parquet")
 #' dat2 <- read_file_with_hash("data/source/data.csv")
+#' dat3 <- read_file_with_hash("data/derived/pk.feather", reader = arrow::read_feather)
 #' }
-read_file_with_hash <- function(file_path, ..., algo = "blake3") {
+read_file_with_hash <- function(file_path, ..., algo = "blake3", reader = NULL, force = FALSE) {
   checkmate::assert(file.exists(file_path))
+
+  if (!is.null(reader)) {
+    checkmate::assert_function(reader)
+  }
+  checkmate::assert_flag(force)
+  if (force && is.null(reader)) {
+    rlang::abort("`force` requires `reader` to be supplied.")
+  }
 
   valid_algos <- eval(formals(digest::digest)$algo)
   if (!algo %in% valid_algos) {
@@ -27,20 +54,41 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3") {
   }
 
   extension <- tools::file_ext(file_path)
+  known_extensions <- c("csv", "parquet", "sas7bdat", "pzfx", "xpt", "xlsx", "xls", "xlsm")
+
+  if (extension %in% known_extensions) {
+    if (!is.null(reader) && !force) {
+      rlang::warn(paste0(
+        "Supplied `reader` ignored for known extension '", extension,
+        "'; use `force = TRUE` to override."
+      ))
+      reader <- NULL
+    }
+  } else if (is.null(reader)) {
+    warning(paste0(
+      "File type: ", extension,
+      " not currently supported. Supply a `reader` function to read this file type.\n"
+    ))
+    return(invisible(NULL))
+  }
+
+  if (!is.null(reader)) {
+    .print_file_hash(file_path, ..., algo = algo, label = basename(file_path))
+    return(reader(file_path, ...))
+  }
+
   if (extension == "csv") {
-    read_csv_with_hash(file_path, ..., algo = algo)
+    .read_csv_with_hash(file_path, ..., algo = algo)
   } else if (extension == "parquet") {
-    read_parquet_with_hash(file_path, ..., algo = algo)
+    .read_parquet_with_hash(file_path, ..., algo = algo)
   } else if (extension == "sas7bdat") {
-    read_sas_with_hash(file_path, ..., algo = algo)
+    .read_sas_with_hash(file_path, ..., algo = algo)
   } else if (extension == "pzfx") {
-    read_pzfx_with_hash(file_path, ..., algo = algo)
+    .read_pzfx_with_hash(file_path, ..., algo = algo)
   } else if (extension == "xpt") {
-    read_xpt_with_hash(file_path, ..., algo = algo)
+    .read_xpt_with_hash(file_path, ..., algo = algo)
   } else if (extension %in% c("xlsx", "xls", "xlsm")) {
-    read_excel_with_hash(file_path, ..., algo = algo)
-  } else {
-    warning(paste0("File type: ", extension, " not currently supported\n"))
+    .read_excel_with_hash(file_path, ..., algo = algo)
   }
 }
 
@@ -59,13 +107,17 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3") {
 #' read_csv_with_hash("data/derived/example_data.csv")
 #' }
 read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
-  lifecycle::deprecate_soft(
+  lifecycle::deprecate_warn(
     when = "0.6.0",
     what = "read_csv_with_hash()",
     with = "read_file_with_hash()",
     details = "read_csv_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
+  .read_csv_with_hash(csv_file_path, ..., algo = algo)
+}
 
+#' @noRd
+.read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
   checkmate::assert(file.exists(csv_file_path))
   checkmate::assert(
     tools::file_ext(basename(csv_file_path)) == "csv"
@@ -101,13 +153,17 @@ read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
 #' read_parquet_with_hash("data/derived/example_data.parquet")
 #' }
 read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
-  lifecycle::deprecate_soft(
+  lifecycle::deprecate_warn(
     when = "0.6.0",
     what = "read_parquet_with_hash()",
     with = "read_file_with_hash()",
     details = "read_parquet_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
+  .read_parquet_with_hash(parquet_file_path, ..., algo = algo)
+}
 
+#' @noRd
+.read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
   checkmate::assert(file.exists(parquet_file_path))
   checkmate::assert(
     tools::file_ext(basename(parquet_file_path)) == "parquet"
@@ -144,13 +200,17 @@ read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
 #' read_sas_with_hash("data/source/example.sas7bdat")
 #' }
 read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
-  lifecycle::deprecate_soft(
+  lifecycle::deprecate_warn(
     when = "0.6.0",
     what = "read_sas_with_hash()",
     with = "read_file_with_hash()",
     details = "read_sas_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
+  .read_sas_with_hash(sas_file_path, ..., algo = algo)
+}
 
+#' @noRd
+.read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
   checkmate::assert(file.exists(sas_file_path))
   checkmate::assert(
     tools::file_ext(basename(sas_file_path)) == "sas7bdat"
@@ -185,13 +245,17 @@ read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
 #' read_xpt_with_hash("data/source/example.xpt")
 #' }
 read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
-  lifecycle::deprecate_soft(
+  lifecycle::deprecate_warn(
     when = "0.6.0",
     what = "read_xpt_with_hash()",
     with = "read_file_with_hash()",
     details = "read_xpt_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
+  .read_xpt_with_hash(xpt_file_path, ..., algo = algo)
+}
 
+#' @noRd
+.read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
   checkmate::assert(file.exists(xpt_file_path))
   checkmate::assert(
     tools::file_ext(basename(xpt_file_path)) == "xpt"
@@ -227,13 +291,17 @@ read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
 #' read_excel_with_hash("data/source/example.xpt")
 #' }
 read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
-  lifecycle::deprecate_soft(
+  lifecycle::deprecate_warn(
     when = "0.6.0",
     what = "read_excel_with_hash()",
     with = "read_file_with_hash()",
     details = "read_excel_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
+  .read_excel_with_hash(xlsx_file_path, ..., algo = algo)
+}
 
+#' @noRd
+.read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
   checkmate::assert(file.exists(xlsx_file_path))
   checkmate::assert(
     tools::file_ext(basename(xlsx_file_path)) %in% c("xlsx", "xls", "xlsm")
@@ -271,13 +339,17 @@ read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
 #' read_pzfx_with_hash("mydata.pzfx", table = "experiment1")
 #' }
 read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
-  lifecycle::deprecate_soft(
+  lifecycle::deprecate_warn(
     when = "0.6.0",
     what = "read_pzfx_with_hash()",
     with = "read_file_with_hash()",
     details = "read_pzfx_with_hash() will become internal in a future version. Use read_file_with_hash() which automatically detects file type."
   )
+  .read_pzfx_with_hash(pzfx_file_path, ..., algo = algo)
+}
 
+#' @noRd
+.read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
   rlang::check_installed("pzfx")
   checkmate::assert(file.exists(pzfx_file_path))
   checkmate::assert(
@@ -309,8 +381,14 @@ read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
 #'
 #' @param file_path path to file with data you want to read
 #' @param hash hash you expect the file to have
-#' @param ... additional arguments for digest or read_csv, parquet, sas
+#' @param ... additional arguments for digest or read_csv, parquet, sas, or `reader`
 #' @param algo hashing algorithm to use, default is "blake3"
+#' @param reader optional function used to read the file, called as `reader(file_path, ...)`
+#'   once the hash check passes. Required for file extensions this function doesn't know
+#'   how to read. For a known extension (csv, parquet, sas7bdat, xpt, pzfx, xlsx/xls/xlsm),
+#'   `reader` is ignored unless `force = TRUE`.
+#' @param force if `TRUE`, use `reader` even for a known extension instead of the built-in
+#'   reader. Must be `FALSE` (the default) when `reader` is not supplied.
 #'
 #' @return data object of contents of file_path
 #'
@@ -323,8 +401,16 @@ read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
 #' hash <- 0cfd6da55e6c1e198effe1e584c26d79
 #' read_hashed_file(file_path, hash)
 #' }
-read_hashed_file <- function(file_path, hash, ..., algo = "blake3") {
+read_hashed_file <- function(file_path, hash, ..., algo = "blake3", reader = NULL, force = FALSE) {
   checkmate::assert(file.exists(file_path))
+
+  if (!is.null(reader)) {
+    checkmate::assert_function(reader)
+  }
+  checkmate::assert_flag(force)
+  if (force && is.null(reader)) {
+    rlang::abort("`force` requires `reader` to be supplied.")
+  }
 
   args <- rlang::list2(...)
 
@@ -334,8 +420,21 @@ read_hashed_file <- function(file_path, hash, ..., algo = "blake3") {
 
   file_hash <- do.call(digest::digest, digest_args)
   extension <- tools::file_ext(basename(file_path))
+  known_extensions <- c("csv", "parquet", "sas7bdat", "xpt", "pzfx", "xlsx", "xls", "xlsm")
 
   if (file_hash == hash) {
+    if (extension %in% known_extensions && !is.null(reader) && !force) {
+      rlang::warn(paste0(
+        "Supplied `reader` ignored for known extension '", extension,
+        "'; use `force = TRUE` to override."
+      ))
+      reader <- NULL
+    }
+
+    if (!is.null(reader)) {
+      return(reader(file_path, ...))
+    }
+
     if (extension == "csv") {
       read_csv_args <- args[names(args) %in% names(formals(readr::read_csv))]
       read_csv_args$file = file_path
@@ -370,7 +469,10 @@ read_hashed_file <- function(file_path, hash, ..., algo = "blake3") {
       read_excel_args$path = file_path
       do.call(readxl::read_excel, read_excel_args)
     } else {
-      warning(paste0("File type: ", extension, " not currently supported\n"))
+      warning(paste0(
+        "File type: ", extension,
+        " not currently supported. Supply a `reader` function to read this file type.\n"
+      ))
     }
   } else {
     rlang::abort("Hash does not match file's hash!")

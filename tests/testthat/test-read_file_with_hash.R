@@ -86,3 +86,43 @@ test_that("read_file_with_hash can use different algos", {
 test_that("read_file_with_hash errors for pzfx without table arg", {
   expect_error(read_file_with_hash("testdata/test_data.pzfx"))
 })
+
+test_that("read_file_with_hash uses a supplied reader for an unknown extension", {
+  df <- read_file_with_hash(
+    "testdata/test_data.txt",
+    reader = function(path, ...) readr::read_csv(path, ...)
+  )
+  expect_true(nrow(df) > 0)
+})
+
+test_that("read_file_with_hash warns and ignores reader for a known extension without force", {
+  expect_warning(
+    df <- read_file_with_hash(
+      "testdata/test_data.csv",
+      reader = function(path, ...) stop("should not be called")
+    ),
+    "Supplied `reader` ignored"
+  )
+  expect_true(nrow(df) > 0)
+})
+
+test_that("read_file_with_hash uses reader for a known extension when forced", {
+  called <- FALSE
+  df <- read_file_with_hash(
+    "testdata/test_data.csv",
+    reader = function(path, ...) {
+      called <<- TRUE
+      readr::read_csv(path, ...)
+    },
+    force = TRUE
+  )
+  expect_true(called)
+  expect_true(nrow(df) > 0)
+})
+
+test_that("read_file_with_hash errors when force is TRUE without a reader", {
+  expect_error(
+    read_file_with_hash("testdata/test_data.csv", force = TRUE),
+    "requires `reader`"
+  )
+})

@@ -63,7 +63,7 @@ test_that("aegfr handles missing values", {
 
 test_that("aegfr preserves units attribute through pipeline from egfr()", {
   # Simulate pipeline: egfr() -> aegfr()
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
   expect_equal(as.character(units(egfr_result)), "mL/(min*bsa_ref)")
 
   aegfr_result <- aegfr(egfr_result, 1.8)

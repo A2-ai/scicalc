@@ -2,7 +2,7 @@
 METHOD = "Schwartz"
 test_that("schwartz_egfr works for numerical input", {
   expect_equal(
-    schwartz_egfr(height = 174, creat = 1) %>% round(3),
+    .egfr_schwartz(height = 174, creat = 1) %>% round(3),
     71.862,
     ignore_attr = TRUE
   )
@@ -10,7 +10,7 @@ test_that("schwartz_egfr works for numerical input", {
 
 test_that("schwartz_egfr works for vector input", {
   expect_equal(
-    schwartz_egfr(c(174, 202, 186, 179), c(0.4, 0.8, 1, 2)) %>% round(3),
+    .egfr_schwartz(c(174, 202, 186, 179), c(0.4, 0.8, 1, 2)) %>% round(3),
     c(179.655, 104.282, 76.818, 36.963),
     ignore_attr = TRUE
   )
@@ -26,7 +26,7 @@ test_that("schwartz_egfr works for dataframe columns", {
     "HEIGHT" = c(174, 202, 186, 179)
   )
   expect_equal(
-    schwartz_egfr(df$HEIGHT, df$CREAT) %>% round(3),
+    .egfr_schwartz(df$HEIGHT, df$CREAT) %>% round(3),
     c(71.862, 83.426, 38.409, 73.927),
     ignore_attr = TRUE
   )
@@ -42,7 +42,7 @@ test_that("schwartz_egfr can be used in a mutate", {
     "HEIGHT" = c(174, 202, 186, 179)
   )
   df <- df %>%
-    dplyr::mutate(schwartz_egfr = schwartz_egfr(HEIGHT, CREAT))
+    dplyr::mutate(schwartz_egfr = .egfr_schwartz(HEIGHT, CREAT))
 
   expect_equal(
     df$schwartz_egfr %>% round(3),
@@ -65,7 +65,7 @@ test_that("schwartz_egfr can be used within mutate after a group_by", {
   df <- df %>%
     dplyr::group_by(ID) %>%
     dplyr::mutate(
-      schwartz_egfr = schwartz_egfr(HEIGHT, CREAT)
+      schwartz_egfr = .egfr_schwartz(HEIGHT, CREAT)
     )
   expect_equal(
     df$schwartz_egfr %>% round(3),
@@ -75,23 +75,23 @@ test_that("schwartz_egfr can be used within mutate after a group_by", {
 })
 
 test_that("schwartz_egfr sets units attribute", {
-  result <- schwartz_egfr(height = 174, creat = 1)
+  result <- .egfr_schwartz(height = 174, creat = 1)
   expect_equal(as.character(units(result)), "mL/(min*bsa_ref)")
 })
 
 test_that("schwartz_egfr messages about missing values", {
-  expect_message(schwartz_egfr(NA, 0.9), "height contains ")
-  expect_message(schwartz_egfr(174, NA), "creat contains ")
+  expect_message(.egfr_schwartz(NA, 0.9), "height contains ")
+  expect_message(.egfr_schwartz(174, NA), "creat contains ")
 })
 
 test_that("schwartz_egfr warns about recycling", {
   heights <- c(160, 170, 180)
   expect_warning(
-    schwartz_egfr(heights, 1.0),
+    .egfr_schwartz(heights, 1.0),
     "Inputs have different lengths! Please check data."
   )
   expect_warning(
-    schwartz_egfr(170, c(1.0, 1.2)),
+    .egfr_schwartz(170, c(1.0, 1.2)),
     "Inputs have different lengths! Please check data."
   )
 })

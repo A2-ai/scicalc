@@ -72,13 +72,76 @@ test_that("write_file_with_hash will warn about non supported file types", {
   expect_warning(write_file_with_hash(df, path))
 })
 
+test_that("write_file_with_hash uses a supplied writer for an unknown extension", {
+  path <- "test.rds"
+  df <- data.frame(
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
+  )
+  write_file_with_hash(df, path, writer = saveRDS)
+  expect_true(file.exists(path))
+  expect_equal(readRDS(path), df)
+  unlink(path, recursive = TRUE)
+})
+
+test_that("write_file_with_hash warns and ignores writer for a known extension without force", {
+  path <- "test.csv"
+  df <- data.frame(
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
+  )
+  expect_warning(
+    write_file_with_hash(
+      df,
+      path,
+      writer = function(data, path, ...) stop("should not be called")
+    ),
+    "Supplied `writer` ignored"
+  )
+  expect_true(file.exists(path))
+  unlink(path, recursive = TRUE)
+})
+
+test_that("write_file_with_hash uses writer for a known extension when forced", {
+  path <- "test.csv"
+  df <- data.frame(
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
+  )
+  called <- FALSE
+  write_file_with_hash(
+    df,
+    path,
+    writer = function(data, path, ...) {
+      called <<- TRUE
+      saveRDS(data, path)
+    },
+    force = TRUE
+  )
+  expect_true(called)
+  expect_true(file.exists(path))
+  unlink(path, recursive = TRUE)
+})
+
+test_that("write_file_with_hash errors when force is TRUE without a writer", {
+  path <- "test.csv"
+  df <- data.frame(
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
+  )
+  expect_error(
+    write_file_with_hash(df, path, force = TRUE),
+    "requires `writer`"
+  )
+})
+
 test_that("write_file_with_hash can use different digest algorithms", {
   df <- data.frame(
     "a" = c(1, 2, 3, 4),
     "b" = c("A", "B", "C", "D")
   )
   path <- "test_2.parquet"
-  write_parquet_with_hash(df, path) #Generating file to digest it for hash to test output
+  .write_parquet_with_hash(df, path) #Generating file to digest it for hash to test output
   md5_hash <- digest::digest(file = path)
   blake3_hash <- digest::digest(file = path, algo = "blake3")
 

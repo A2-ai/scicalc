@@ -195,7 +195,7 @@ test_that("rfc warns when absolute_units conflicts with attribute", {
 
 test_that("rfc works with egfr() output directly", {
   # Simulate pipeline: egfr() -> rfc()
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
   expect_true(inherits(egfr_result, "units"))
 
   # rfc should infer units from attribute
@@ -205,7 +205,7 @@ test_that("rfc works with egfr() output directly", {
 
 test_that("rfc works with aegfr() output directly", {
   # Simulate pipeline: egfr() -> aegfr() -> rfc()
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
   aegfr_result <- aegfr(egfr_result, 1.8)
   expect_true(inherits(aegfr_result, "units"))
 
@@ -266,8 +266,8 @@ test_that("rfc handles missing values correctly", {
 })
 
 test_that("rfc respects explicit absolute_units over carried units attribute", {
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  bsa_result <- dubois_bsa(70, 165)
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
+  bsa_result <- .bsa_dubois(70, 165)
   aegfr_result <- units::drop_units(egfr_result) * (units::drop_units(bsa_result) / 1.73)
   aegfr_result <- units::set_units(aegfr_result, "mL/min/bsa_ref", mode = "standard")
 

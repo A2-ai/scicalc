@@ -149,19 +149,19 @@ test_that("egfr messages about <18 being used in non schwartz methods", {
 
 test_that("egfr functions set units attribute to mL/min/1.73m^2", {
   # Test each method
-  result_2009 <- ckdepi_2009_egfr(TRUE, FALSE, 30, 1.0)
+  result_2009 <- .egfr_ckdepi_2009(TRUE, FALSE, 30, 1.0)
   expect_equal(as.character(units(result_2009)), "mL/(min*bsa_ref)")
 
-  result_2021 <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  result_2021 <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
   expect_equal(as.character(units(result_2021)), "mL/(min*bsa_ref)")
 
-  result_cystatin <- ckdepi_2021_egfr_cystatin(TRUE, 30, 1.0, 0.8)
+  result_cystatin <- .egfr_ckdepi_2021_cystatin(TRUE, 30, 1.0, 0.8)
   expect_equal(as.character(units(result_cystatin)), "mL/(min*bsa_ref)")
 
-  result_mdrd <- mdrd_egfr(TRUE, FALSE, 30, 1.0)
+  result_mdrd <- .egfr_mdrd(TRUE, FALSE, 30, 1.0)
   expect_equal(as.character(units(result_mdrd)), "mL/(min*bsa_ref)")
 
-  result_schwartz <- schwartz_egfr(150, 1.0)
+  result_schwartz <- .egfr_schwartz(150, 1.0)
   expect_equal(as.character(units(result_schwartz)), "mL/(min*bsa_ref)")
 
   # Test via main egfr() dispatcher

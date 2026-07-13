@@ -13,12 +13,23 @@
     }
   )
 
+  tryCatch(
+    units::install_unit("U"),
+    error = function(e) {
+      # Already registered (e.g. during load_all/test cycling) — safe to ignore
+    }
+  )
+
   invisible()
 }
 
 .onUnload <- function(libpath) {
   tryCatch(
     units::remove_unit(symbol = "bsa_ref", name = "reference_bsa"),
+    error = function(e) NULL
+  )
+  tryCatch(
+    units::remove_unit(symbol = "U"),
     error = function(e) NULL
   )
 }
@@ -31,9 +42,11 @@ scicalc_options_message <- function() {
   rule <- cli::rule(left = "scicalc options")
   msg <- cli::format_inline("{.alert-success scicalc.missing_value : {getOption('scicalc.missing_value', -999)}}")
   bsa_msg <- cli::format_inline("{.alert-info bsa_ref unit = 1.73 m^2}")
+  u_msg <- cli::format_inline("{.alert-info U unit = enzyme activity (units/L as U/L)}")
   packageStartupMessage(rule)
   packageStartupMessage(msg)
   packageStartupMessage(bsa_msg)
+  packageStartupMessage(u_msg)
 }
 
 check_mv_computation <- function(x, name) {

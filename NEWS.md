@@ -1,3 +1,25 @@
+# scicalc 0.4.0
+
+## New features
+
+* Added `pivot_with_units()`, a wrapper around `tidyr::pivot_wider()` that attaches a `units` object to each pivoted column based on a units column in the long data.
+* Registered a `U` unit (enzyme activity, e.g. `U/L`) so lab values in units/L are supported by the `units` machinery.
+* `read_file_with_hash()` and `read_hashed_file()` gained a `reader` argument for reading file types they don't natively support (e.g. `reader = arrow::read_feather`). For an already-supported extension, `reader` is ignored unless `force = TRUE`.
+* `write_file_with_hash()` gained a matching `writer` argument (e.g. `writer = saveRDS`) with the same `force` behavior for known extensions.
+* Added `convert_units_to_spec()`, an S3 generic that converts a data frame's unit-carrying columns to the units declared in a data specification (currently supports `yspec` objects). Unitless numeric columns get the spec unit attached with a warning; impossible conversions are left untouched and reported together in a warning.
+
+## Bug fixes
+
+* `egfr()`: pass `method` by name; positional args are `sexf, raceb, age, creat, cystc, height`. Passing a method string positionally now errors instead of silently defaulting.
+* `write_csv_with_hash()` and `write_parquet_with_hash()` were filtering `...` against the wrong function's arguments (`read_csv()`/`read_parquet()` instead of `write_csv()`/`write_parquet()`), silently dropping valid writer arguments like `eol` or `compression`.
+
+## Deprecations
+
+* The individual eGFR equation functions (`ckdepi_2009_egfr()`, `ckdepi_2021_egfr()`, `ckdepi_2021_egfr_cystatin()`, `mdrd_egfr()`, `schwartz_egfr()`) and BSA equation functions (`dubois_bsa()`, `mosteller_bsa()`) are deprecated. Use `egfr(method = ...)` and `bsa(method = ...)` instead. They will become internal in 0.6.0.
+* `read_csv_with_hash()`, `read_parquet_with_hash()`, `read_sas_with_hash()`, `read_xpt_with_hash()`, `read_excel_with_hash()`, and `read_pzfx_with_hash()` now warn on every call (previously a soft deprecation). Use `read_file_with_hash()`.
+* `write_csv_with_hash()` and `write_parquet_with_hash()` are deprecated. Use `write_file_with_hash()` instead. They will become internal in 0.6.0.
+
+
 # scicalc 0.3.0
 
 ## New features
