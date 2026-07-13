@@ -58,7 +58,7 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ..., writer = NU
 
   if (!is.null(writer)) {
     writer(data, path, ...)
-    return(.print_file_hash(path, ...))
+    return(print_file_hash(path, ...))
   }
 
   if (extension == "csv") {

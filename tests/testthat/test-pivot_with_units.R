@@ -74,6 +74,17 @@ test_that("pivot_with_units leaves columns with missing units unitless", {
   expect_equal(wide$SCORE, c(5, 7))
 })
 
+test_that("pivot_with_units carries the value column's label onto pivoted columns", {
+  long <- make_long()
+  long$VAL <- structure(long$VAL, label = "Standard Result")
+
+  wide <- pivot_with_units(long, VAL, UNIT, TEST)
+  expect_equal(attr(wide$ALT, "label"), "Standard Result")
+  expect_equal(attr(wide$CREAT, "label"), "Standard Result")
+  # units still attached
+  expect_equal(as.character(units(wide$ALT)), "U/L")
+})
+
 test_that("pivot_with_units errors on unparseable units", {
   long <- data.frame(
     ID = c(1, 2),

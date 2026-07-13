@@ -34,6 +34,34 @@ assert_and_strip_units <- function(x, expected_unit, arg_name = deparse(substitu
   result
 }
 
+#' Restore attributes dropped by a units operation
+#'
+#' Copies attributes present on `old` onto `new` where `new` lacks them, so
+#' metadata such as a `label` survives operations (e.g. [units::set_units()])
+#' that drop it. Structural and units-managed attributes (`class`, `units`,
+#' `names`, `dim`, `dimnames`) are never copied, so the class, units, and shape
+#' of `new` are left intact.
+#'
+#' @param new the vector produced by the operation.
+#' @param old the vector whose attributes should be carried over.
+#'
+#' @return `new` with `old`'s non-structural attributes restored.
+#' @keywords internal
+restore_attrs <- function(new, old) {
+  old_attrs <- attributes(old)
+  if (is.null(old_attrs)) {
+    return(new)
+  }
+
+  managed <- c("class", "units", "names", "dim", "dimnames")
+  to_copy <- setdiff(names(old_attrs), c(managed, names(attributes(new))))
+
+  for (a in to_copy) {
+    attr(new, a) <- old_attrs[[a]]
+  }
+  new
+}
+
 #' Check if Sex is Female
 #'
 #' @param x input character representing female or male

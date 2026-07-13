@@ -2,7 +2,7 @@ test_that("worker converts unit-carrying columns to the target unit", {
   df <- data.frame(WT = c(70000, 80000))
   df$WT <- units::set_units(df$WT, "g", mode = "standard")
 
-  out <- .convert_units_to_map(df, c(WT = "kg"))
+  out <- convert_units_to_map(df, c(WT = "kg"))
 
   expect_equal(as.character(units(out$WT)), "kg")
   expect_equal(as.numeric(out$WT), c(70, 80))
@@ -12,7 +12,7 @@ test_that("worker attaches units to plain numeric columns with a warning", {
   df <- data.frame(WT = c(70, 80))
 
   expect_warning(
-    out <- .convert_units_to_map(df, c(WT = "kg")),
+    out <- convert_units_to_map(df, c(WT = "kg")),
     "Attached spec units to unitless column\\(s\\): WT \\[kg\\]"
   )
   expect_equal(as.character(units(out$WT)), "kg")
@@ -25,7 +25,7 @@ test_that("worker warns with offenders and leaves failed conversions untouched",
   df$WT <- units::set_units(df$WT, "g", mode = "standard")
 
   expect_warning(
-    out <- .convert_units_to_map(df, c(CREAT = "hours", WT = "kg")),
+    out <- convert_units_to_map(df, c(CREAT = "hours", WT = "kg")),
     "Could not convert column\\(s\\) to spec units: CREAT \\[mg/dL\\] -> \\[hours\\]"
   )
   # failed column untouched
@@ -39,7 +39,7 @@ test_that("worker leaves columns not in the map and non-numeric columns untouche
   df <- data.frame(ID = c("a", "b"), AGE = c(30, 40), OTHER = c(1, 2))
 
   expect_warning(
-    out <- .convert_units_to_map(df, c(AGE = "years", ID = "kg")),
+    out <- convert_units_to_map(df, c(AGE = "years", ID = "kg")),
     "AGE \\[years\\]"
   )
   expect_identical(out$ID, df$ID)
@@ -49,7 +49,7 @@ test_that("worker leaves columns not in the map and non-numeric columns untouche
 
 test_that("worker ignores empty and NA spec units", {
   df <- data.frame(A = c(1, 2), B = c(3, 4))
-  out <- expect_silent(.convert_units_to_map(df, c(A = "", B = NA_character_)))
+  out <- expect_silent(convert_units_to_map(df, c(A = "", B = NA_character_)))
   expect_identical(out, df)
 })
 
@@ -74,7 +74,7 @@ test_that("worker converts a log column to a new log reference", {
   df <- data.frame(row = 1:3)
   df$LDV <- log(odv) # ln(re 1 ng/mL)
 
-  out <- .convert_units_to_map(df, c(LDV = "log(ug/mL)"))
+  out <- convert_units_to_map(df, c(LDV = "log(ug/mL)"))
   truth <- log(units::set_units(odv, "ug/mL"))
 
   expect_equal(as.numeric(out$LDV), as.numeric(truth))
@@ -86,12 +86,12 @@ test_that("worker handles log10 and log2 spec bases", {
 
   df10 <- data.frame(row = 1:2)
   df10$LDV <- log10(odv)
-  out10 <- .convert_units_to_map(df10, c(LDV = "log10(ug/mL)"))
+  out10 <- convert_units_to_map(df10, c(LDV = "log10(ug/mL)"))
   expect_equal(as.numeric(out10$LDV), as.numeric(log10(units::set_units(odv, "ug/mL"))))
 
   df2 <- data.frame(row = 1:2)
   df2$LDV <- log2(odv)
-  out2 <- .convert_units_to_map(df2, c(LDV = "log2(ug/mL)"))
+  out2 <- convert_units_to_map(df2, c(LDV = "log2(ug/mL)"))
   expect_equal(as.numeric(out2$LDV), as.numeric(log2(units::set_units(odv, "ug/mL"))))
 })
 
@@ -102,7 +102,7 @@ test_that("worker reports a log column against a mismatched base as an offender"
 
   before <- df$LDV
   expect_warning(
-    out <- .convert_units_to_map(df, c(LDV = "log10(ug/mL)")),
+    out <- convert_units_to_map(df, c(LDV = "log10(ug/mL)")),
     "Could not convert"
   )
   # left untouched
@@ -115,7 +115,7 @@ test_that("worker reports a log column against a non-log spec as an offender", {
   df$LDV <- log(odv)
 
   expect_warning(
-    out <- .convert_units_to_map(df, c(LDV = "ug/mL")),
+    out <- convert_units_to_map(df, c(LDV = "ug/mL")),
     "Could not convert"
   )
   expect_true(inherits(out$LDV, "units"))
@@ -124,11 +124,28 @@ test_that("worker reports a log column against a non-log spec as an offender", {
 test_that("worker attaches a log unit to an already-logged plain numeric column", {
   df <- data.frame(LDV = c(0, 0.6931472))
   expect_warning(
-    out <- .convert_units_to_map(df, c(LDV = "log(ug/mL)")),
+    out <- convert_units_to_map(df, c(LDV = "log(ug/mL)")),
     "Attached spec units to unitless column"
   )
   expect_equal(units(out$LDV), units(log(units::set_units(1, "ug/mL", mode = "standard"))))
   expect_equal(as.numeric(out$LDV), c(0, 0.6931472))
+})
+
+test_that("convert_units_to_spec preserves a column label through conversion", {
+  df <- data.frame(row = 1:2)
+  df$WT <- structure(units::set_units(c(70000, 80000), "g", mode = "standard"), label = "Weight")
+
+  out <- convert_units_to_map(df, c(WT = "kg"))
+  expect_equal(attr(out$WT, "label"), "Weight")
+  expect_equal(as.character(units(out$WT)), "kg")
+  expect_equal(as.numeric(out$WT), c(70, 80))
+})
+
+test_that("convert_units_to_spec preserves a label when attaching to plain numeric", {
+  df <- data.frame(AGE = structure(c(30, 40), label = "Age"))
+  suppressWarnings(out <- convert_units_to_map(df, c(AGE = "years")))
+  expect_equal(attr(out$AGE, "label"), "Age")
+  expect_equal(as.character(units(out$AGE)), "years")
 })
 
 test_that("convert_units_to_spec errors informatively for unsupported spec classes", {

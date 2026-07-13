@@ -35,7 +35,10 @@ pivot_with_units <- function(data, values_from, units_from, names_from, ...) {
 
   units_name <- rlang::as_name(rlang::enquo(units_from))
   names_name <- rlang::as_name(rlang::enquo(names_from))
-  checkmate::assert_subset(c(units_name, names_name), colnames(data))
+  values_name <- rlang::as_name(rlang::enquo(values_from))
+  checkmate::assert_subset(c(values_name, units_name, names_name), colnames(data))
+
+  values_col <- data[[values_name]]
 
   names_vec <- as.character(data[[names_name]])
   units_vec <- as.character(data[[units_name]])
@@ -65,17 +68,21 @@ pivot_with_units <- function(data, values_from, units_from, names_from, ...) {
     unit <- lookup$UNIT[i]
 
     if (!param %in% colnames(wide)) next
-    if (is.na(unit) || unit == "") next
 
-    wide[[param]] <- tryCatch(
-      units::set_units(wide[[param]], unit, mode = "standard"),
-      error = function(e) {
-        rlang::abort(paste0(
-          "Could not attach unit [", unit, "] to column `", param, "`: ",
-          conditionMessage(e)
-        ))
-      }
-    )
+    if (!is.na(unit) && unit != "") {
+      wide[[param]] <- tryCatch(
+        units::set_units(wide[[param]], unit, mode = "standard"),
+        error = function(e) {
+          rlang::abort(paste0(
+            "Could not attach unit [", unit, "] to column `", param, "`: ",
+            conditionMessage(e)
+          ))
+        }
+      )
+    }
+
+    # carry the source value column's attributes (e.g. label) onto each column
+    wide[[param]] <- restore_attrs(wide[[param]], values_col)
   }
 
   wide

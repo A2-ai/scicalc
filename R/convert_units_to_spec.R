@@ -35,7 +35,7 @@ convert_units_to_spec <- function(data, spec, ...) {
 convert_units_to_spec.yspec <- function(data, spec, ...) {
   rlang::check_installed("yspec")
   unit_map <- unlist(yspec::ys_get_unit(spec))
-  .convert_units_to_map(data, unit_map)
+  convert_units_to_map(data, unit_map)
 }
 
 #' @rdname convert_units_to_spec
@@ -49,7 +49,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 }
 
 #' @noRd
-.convert_units_to_map <- function(data, unit_map) {
+convert_units_to_map <- function(data, unit_map) {
   checkmate::assert_data_frame(data)
   checkmate::assert_character(unit_map, names = "named")
 
@@ -61,19 +61,19 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 
   for (col in names(unit_map)) {
     target <- unit_map[[col]]
-    tgt_log <- .parse_log_spec(target)
+    tgt_log <- parse_log_spec(target)
 
     if (inherits(data[[col]], "units")) {
       current <- as.character(units(data[[col]]))
-      src_log <- .parse_log_unit(current)
+      src_log <- parse_log_unit(current)
 
       if (!is.null(src_log) || !is.null(tgt_log)) {
         # at least one side is a log unit: reconcile via a reference shift
-        shifted <- .shift_log_column(data[[col]], src_log, tgt_log)
+        shifted <- shift_log_column(data[[col]], src_log, tgt_log)
         if (is.null(shifted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
         } else {
-          data[[col]] <- shifted
+          data[[col]] <- restore_attrs(shifted, data[[col]])
         }
       } else {
         converted <- tryCatch(
@@ -83,7 +83,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
         if (is.null(converted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
         } else {
-          data[[col]] <- converted
+          data[[col]] <- restore_attrs(converted, data[[col]])
         }
       }
     } else if (is.numeric(data[[col]])) {
@@ -91,7 +91,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
         # plain numeric assumed already log-transformed on the target basis
         with_unit <- data[[col]]
         units(with_unit) <- tgt_log$unit
-        data[[col]] <- with_unit
+        data[[col]] <- restore_attrs(with_unit, data[[col]])
         attached <- c(attached, paste0(col, " [", target, "]"))
       } else {
         with_unit <- tryCatch(
@@ -101,7 +101,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
         } else {
-          data[[col]] <- with_unit
+          data[[col]] <- restore_attrs(with_unit, data[[col]])
           attached <- c(attached, paste0(col, " [", target, "]"))
         }
       }
@@ -133,7 +133,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 #' @param unit_str character deparse of a unit.
 #' @return a list(base, coef, dim), or `NULL` if `unit_str` is not a log unit.
 #' @noRd
-.parse_log_unit <- function(unit_str) {
+parse_log_unit <- function(unit_str) {
   m <- regmatches(unit_str, regexec("^(ln|lg|lb)[(]re (.+)[)]$", unit_str))[[1]]
   if (length(m) == 0) {
     return(NULL)
@@ -163,7 +163,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 #' @return a list(base, coef, dim, unit), or `NULL` if `spec_unit` is not a log
 #'   spec or its inner unit is unparseable.
 #' @noRd
-.parse_log_spec <- function(spec_unit) {
+parse_log_spec <- function(spec_unit) {
   m <- regmatches(
     spec_unit,
     regexec("^(log10|log2|log|ln|lg|lb)[(](.+)[)]$", spec_unit)
@@ -192,7 +192,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
     return(NULL)
   }
 
-  parsed <- .parse_log_unit(as.character(units(tmpl)))
+  parsed <- parse_log_unit(as.character(units(tmpl)))
   if (is.null(parsed)) {
     return(NULL)
   }
@@ -207,11 +207,11 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 #' Both sides must be log units of the same base and dimension.
 #'
 #' @param col a `units` vector carrying a log unit.
-#' @param src_log parsed source log unit (from `.parse_log_unit()`).
-#' @param tgt_log parsed target log spec (from `.parse_log_spec()`).
+#' @param src_log parsed source log unit (from `parse_log_unit()`).
+#' @param tgt_log parsed target log spec (from `parse_log_spec()`).
 #' @return the shifted `units` vector, or `NULL` if the sides are incompatible.
 #' @noRd
-.shift_log_column <- function(col, src_log, tgt_log) {
+shift_log_column <- function(col, src_log, tgt_log) {
   if (is.null(src_log) || is.null(tgt_log)) {
     return(NULL)
   }

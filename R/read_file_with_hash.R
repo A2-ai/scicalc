@@ -1,5 +1,5 @@
 #' @noRd
-.print_file_hash <- function(file_path, ..., label = file_path) {
+print_file_hash <- function(file_path, ..., label = file_path) {
   args <- rlang::list2(...)
   digest_args <- args[names(args) %in% names(formals(digest::digest))]
   digest_args$file <- file_path
@@ -73,7 +73,7 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3", reader = NULL, 
   }
 
   if (!is.null(reader)) {
-    .print_file_hash(file_path, ..., algo = algo, label = basename(file_path))
+    print_file_hash(file_path, ..., algo = algo, label = basename(file_path))
     return(reader(file_path, ...))
   }
 
