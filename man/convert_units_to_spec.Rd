@@ -44,6 +44,7 @@ df <- convert_units_to_spec(df, spec)
 Other unit_checking: 
 \code{\link{check_for_unique_units}()},
 \code{\link{get_unique_units_df}()},
-\code{\link{pivot_with_units}()}
+\code{\link{pivot_with_units}()},
+\code{\link{with_units}()}
 }
 \concept{unit_checking}

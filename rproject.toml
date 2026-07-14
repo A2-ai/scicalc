@@ -10,7 +10,7 @@ repositories = [
 
 dependencies = [
 	"devtools",
-	"covr",
+	{ name = "covr", install_suggestions = true },
 	{ name = "scicalc", path = ".", dependencies_only = false, install_suggestions = true },
 	{ name = "starlightr", git = "https://github.com/a2-ai/starlightr", branch = "main" },
 ]

@@ -8,6 +8,7 @@
 * `write_file_with_hash()` gained a matching `writer` argument (e.g. `writer = saveRDS`) with the same `force` behavior for known extensions.
 * Added `convert_units_to_spec()`, an S3 generic that converts a data frame's unit-carrying columns to the units declared in a data specification (currently supports `yspec` objects). Unitless numeric columns get the spec unit attached with a warning; impossible conversions are left untouched and reported together in a warning.
 * Added `is_missing_value()`, a units-safe predicate for the missing value indicator (`getOption("scicalc.missing_value")`), useful for filtering columns that carry units (e.g. `dplyr::filter(df, !is_missing_value(NTFD))`).
+* Added `with_units()`, which attaches units to a values vector from a companion unit column (e.g. `with_units(PCSTRESN, PCSTRESU)`), requiring a single unit (blanks ignored with a warning) and normalizing `IU`/`µ`.
 
 ## Bug fixes
 
