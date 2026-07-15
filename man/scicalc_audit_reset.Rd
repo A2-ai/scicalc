@@ -4,12 +4,12 @@
 \alias{scicalc_audit_reset}
 \title{Reset a scicalc Assembly Audit Log}
 \usage{
-scicalc_audit_reset(name = NULL, dir = ".scicalc-logs", log_file = NULL)
+scicalc_audit_reset(name = NULL, dir = default_audit_dir(), log_file = NULL)
 }
 \arguments{
 \item{name}{audit name; deletes \verb{<dir>/<name>.audit.log}.}
 
-\item{dir}{directory holding named logs (default \code{.scicalc-logs}).}
+\item{dir}{directory holding named logs (default: \code{.scicalc-logs} at the project root).}
 
 \item{log_file}{explicit path (overrides \code{name}/\code{dir}).}
 }

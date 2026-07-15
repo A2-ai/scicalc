@@ -11,6 +11,40 @@ local_capture <- function(env = parent.frame()) {
   log_file
 }
 
+test_that("scicalc_project_root walks up to the nearest marker", {
+  root <- withr::local_tempdir()
+  # marker at the root, working dir two levels down
+  writeLines("x", file.path(root, "proj.Rproj"))
+  deep <- file.path(root, "analysis", "pk")
+  dir.create(deep, recursive = TRUE)
+
+  expect_equal(
+    normalizePath(scicalc_project_root(deep)),
+    normalizePath(root)
+  )
+})
+
+test_that("scicalc_project_root anchors on an existing .scicalc-logs", {
+  root <- withr::local_tempdir()
+  dir.create(file.path(root, ".scicalc-logs"))
+  sub <- file.path(root, "sub")
+  dir.create(sub)
+  expect_equal(normalizePath(scicalc_project_root(sub)), normalizePath(root))
+})
+
+test_that("scicalc_project_root falls back to start when no marker exists", {
+  bare <- withr::local_tempdir()
+  # a bare temp dir has no markers up to the fs root
+  expect_equal(scicalc_project_root(bare), bare)
+})
+
+test_that("startup message declares the project root", {
+  root <- withr::local_tempdir()
+  writeLines("x", file.path(root, "p.Rproj"))
+  withr::local_dir(root)
+  expect_message(scicalc_options_message(), "scicalc project root")
+})
+
 test_that("nothing is logged unless a capture is active", {
   log_file <- withr::local_tempfile(fileext = ".log")
   # path is set, but SCICALC_AUDITING is not -> capture inactive
@@ -60,10 +94,9 @@ test_that("audit_script refuses to overwrite an existing log by default", {
   expect_error(audit_script(script, dir = dir), "already exists")
 })
 
-test_that("scicalc_audit reports gracefully when no log exists", {
+test_that("scicalc_audit errors clearly when no log exists", {
   log_file <- withr::local_tempfile(fileext = ".log")
-  expect_message(res <- scicalc_audit(log_file = log_file), "No scicalc audit log")
-  expect_equal(nrow(res), 0)
+  expect_error(scicalc_audit(log_file = log_file), "No scicalc audit log")
 })
 
 test_that("audit_script captures a full assembly run in a subprocess", {

@@ -39,10 +39,13 @@
 }
 
 scicalc_options_message <- function() {
+  root <- scicalc_project_root()
+  root_msg <- cli::format_inline("{.alert-info scicalc project root: {root}}")
   rule <- cli::rule(left = "scicalc options")
   msg <- cli::format_inline("{.alert-success scicalc.missing_value : {getOption('scicalc.missing_value', -999)}}")
   bsa_msg <- cli::format_inline("{.alert-info bsa_ref unit = 1.73 m^2}")
   u_msg <- cli::format_inline("{.alert-info U unit = enzyme activity (units/L as U/L)}")
+  packageStartupMessage(root_msg)
   packageStartupMessage(rule)
   packageStartupMessage(msg)
   packageStartupMessage(bsa_msg)

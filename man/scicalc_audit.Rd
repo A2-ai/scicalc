@@ -4,12 +4,12 @@
 \alias{scicalc_audit}
 \title{Read a scicalc Assembly Audit Log}
 \usage{
-scicalc_audit(name = NULL, dir = ".scicalc-logs", log_file = NULL)
+scicalc_audit(name = NULL, dir = default_audit_dir(), log_file = NULL)
 }
 \arguments{
 \item{name}{audit name; reads \verb{<dir>/<name>.audit.log}.}
 
-\item{dir}{directory holding named logs (default \code{.scicalc-logs}).}
+\item{dir}{directory holding named logs (default: \code{.scicalc-logs} at the project root).}
 
 \item{log_file}{explicit path to a log file (overrides \code{name}/\code{dir}).}
 }

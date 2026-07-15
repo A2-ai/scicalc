@@ -4,7 +4,7 @@
 \alias{audit_script}
 \title{Audit an Assembly Script}
 \usage{
-audit_script(script, name = NULL, dir = ".scicalc-logs", overwrite = FALSE)
+audit_script(script, name = NULL, dir = default_audit_dir(), overwrite = FALSE)
 }
 \arguments{
 \item{script}{path to the assembly script (\code{.R}, \code{.qmd}, or \code{.Rmd}).}
@@ -12,7 +12,7 @@ audit_script(script, name = NULL, dir = ".scicalc-logs", overwrite = FALSE)
 \item{name}{audit name; the log is written to \verb{<dir>/<name>.audit.log}.
 Defaults to the script's base name.}
 
-\item{dir}{directory for the named audit log (default \code{.scicalc-logs}).}
+\item{dir}{directory for the named audit log (default: \code{.scicalc-logs} at the project root).}
 
 \item{overwrite}{if \code{FALSE} (default), error rather than replace an existing
 audit log of the same name. Pass \code{TRUE} to re-run and replace it.}

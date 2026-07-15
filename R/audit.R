@@ -15,6 +15,45 @@ audit_active <- function() {
   nzchar(Sys.getenv("SCICALC_AUDITING", unset = ""))
 }
 
+#' Does a directory hold a project-root marker?
+#'
+#' An existing `.scicalc-logs` (so logs stay put once started), an RStudio
+#' `.Rproj`, a `.git` dir/file, or a `.here` file.
+#' @keywords internal
+has_root_marker <- function(dir) {
+  dir.exists(file.path(dir, ".scicalc-logs")) ||
+    file.exists(file.path(dir, ".here")) ||
+    file.exists(file.path(dir, ".git")) ||
+    length(list.files(dir, pattern = "[.]Rproj$")) > 0
+}
+
+#' Project root for audit logs
+#'
+#' Walks up from `start` (the working directory) and returns the nearest
+#' ancestor holding a root marker (see [has_root_marker()]); falls back to
+#' `start` if none is found.
+#' @keywords internal
+scicalc_project_root <- function(start = getwd()) {
+  dir <- normalizePath(start, mustWork = FALSE)
+  repeat {
+    if (has_root_marker(dir)) {
+      return(dir)
+    }
+    parent <- dirname(dir)
+    if (identical(parent, dir)) {
+      break # reached the filesystem root
+    }
+    dir <- parent
+  }
+  start
+}
+
+#' Default audit log directory (`.scicalc-logs` at the project root)
+#' @keywords internal
+default_audit_dir <- function() {
+  file.path(scicalc_project_root(), ".scicalc-logs")
+}
+
 #' Resolve the audit log file path for the active capture
 #'
 #' During an `audit_script()` run the driver sets `SCICALC_AUDIT_LOG`; that
@@ -30,12 +69,7 @@ audit_log_file <- function() {
   if (!is.null(opt)) {
     return(opt)
   }
-  root <- if (requireNamespace("here", quietly = TRUE)) {
-    tryCatch(here::here(), error = function(e) getwd())
-  } else {
-    getwd()
-  }
-  file.path(root, ".scicalc-logs", "audit.log")
+  file.path(default_audit_dir(), "audit.log")
 }
 
 #' Build (and cache) the audit logger for the active log path
@@ -94,7 +128,7 @@ log_audit_event <- function(event_type, ...) {
 #' @param script path to the assembly script (`.R`, `.qmd`, or `.Rmd`).
 #' @param name audit name; the log is written to `<dir>/<name>.audit.log`.
 #'   Defaults to the script's base name.
-#' @param dir directory for the named audit log (default `.scicalc-logs`).
+#' @param dir directory for the named audit log (default: `.scicalc-logs` at the project root).
 #' @param overwrite if `FALSE` (default), error rather than replace an existing
 #'   audit log of the same name. Pass `TRUE` to re-run and replace it.
 #'
@@ -107,7 +141,7 @@ log_audit_event <- function(event_type, ...) {
 #' audit_script("assembly.qmd", name = "pk")
 #' scicalc_audit("pk")
 #' }
-audit_script <- function(script, name = NULL, dir = ".scicalc-logs", overwrite = FALSE) {
+audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwrite = FALSE) {
   # re-entrancy guard: if we are already inside an audit run, do nothing
   if (audit_active()) {
     return(invisible(NULL))
@@ -184,7 +218,7 @@ audit_script <- function(script, name = NULL, dir = ".scicalc-logs", overwrite =
 #' hash (`spec`), a unit conversion (`unit`), or an output file hash (`write`).
 #'
 #' @param name audit name; reads `<dir>/<name>.audit.log`.
-#' @param dir directory holding named logs (default `.scicalc-logs`).
+#' @param dir directory holding named logs (default: `.scicalc-logs` at the project root).
 #' @param log_file explicit path to a log file (overrides `name`/`dir`).
 #'
 #' @return a tibble of audit events (empty if the log does not exist).
@@ -195,7 +229,7 @@ audit_script <- function(script, name = NULL, dir = ".scicalc-logs", overwrite =
 #' @examples \dontrun{
 #' scicalc_audit("pk")
 #' }
-scicalc_audit <- function(name = NULL, dir = ".scicalc-logs", log_file = NULL) {
+scicalc_audit <- function(name = NULL, dir = default_audit_dir(), log_file = NULL) {
   if (is.null(log_file)) {
     log_file <- if (!is.null(name)) {
       file.path(dir, paste0(name, ".audit.log"))
@@ -204,8 +238,12 @@ scicalc_audit <- function(name = NULL, dir = ".scicalc-logs", log_file = NULL) {
     }
   }
   if (!file.exists(log_file)) {
-    rlang::inform("No scicalc audit log found.")
-    return(tibble::tibble())
+    rlang::abort(paste0(
+      "No scicalc audit log found at: ",
+      normalizePath(log_file, mustWork = FALSE), "\n",
+      "Run `audit_script()` to produce it (from the same working directory), ",
+      "and check the `name`/`dir`."
+    ))
   }
   events <- jsonlite::stream_in(file(log_file), verbose = FALSE)
   events <- tibble::as_tibble(events)
@@ -218,7 +256,7 @@ scicalc_audit <- function(name = NULL, dir = ".scicalc-logs", log_file = NULL) {
 #' Deletes a named audit log and drops the cached logger.
 #'
 #' @param name audit name; deletes `<dir>/<name>.audit.log`.
-#' @param dir directory holding named logs (default `.scicalc-logs`).
+#' @param dir directory holding named logs (default: `.scicalc-logs` at the project root).
 #' @param log_file explicit path (overrides `name`/`dir`).
 #'
 #' @return invisibly `NULL`.
@@ -229,7 +267,7 @@ scicalc_audit <- function(name = NULL, dir = ".scicalc-logs", log_file = NULL) {
 #' @examples \dontrun{
 #' scicalc_audit_reset("pk")
 #' }
-scicalc_audit_reset <- function(name = NULL, dir = ".scicalc-logs", log_file = NULL) {
+scicalc_audit_reset <- function(name = NULL, dir = default_audit_dir(), log_file = NULL) {
   if (is.null(log_file)) {
     log_file <- if (!is.null(name)) {
       file.path(dir, paste0(name, ".audit.log"))
