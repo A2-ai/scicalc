@@ -2,7 +2,7 @@
 % Please edit documentation in R/audit.R
 \name{log_audit_event}
 \alias{log_audit_event}
-\title{Append one event to the audit log}
+\title{Append one event to the audit log (no-op unless a capture is active)}
 \usage{
 log_audit_event(event_type, ...)
 }
@@ -12,7 +12,6 @@ log_audit_event(event_type, ...)
 \item{...}{structured fields for the event (scalars).}
 }
 \description{
-Never breaks the caller: a logging failure warns once rather than erroring,
-so data processing is unaffected.
+Append one event to the audit log (no-op unless a capture is active)
 }
 \keyword{internal}

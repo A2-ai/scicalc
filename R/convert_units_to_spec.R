@@ -151,8 +151,14 @@ convert_units_to_map <- function(data, unit_map) {
 }
 
 #' Log one `convert_units_to_spec()` per-column conversion event
+#'
+#' No-op conversions (already in the target unit) are not logged, to keep the
+#' audit focused on columns that actually changed.
 #' @noRd
 log_unit_conversion <- function(col, from, to, transform, n) {
+  if (transform == "convert" && !is.na(from) && identical(from, to)) {
+    return(invisible())
+  }
   log_audit_event(
     "unit",
     input = col,

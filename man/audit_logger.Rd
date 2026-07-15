@@ -2,16 +2,11 @@
 % Please edit documentation in R/audit.R
 \name{audit_logger}
 \alias{audit_logger}
-\title{Build (and cache) the audit logger}
+\title{Build (and cache) the audit logger for the active log path}
 \usage{
 audit_logger()
 }
-\value{
-a log4r logger, or \code{NULL} if auditing is disabled.
-}
 \description{
-Lazily creates the log directory and a log4r JSON file appender on first
-use, so setting \code{options(scicalc.audit_log=)} before the first event is
-respected.
+Build (and cache) the audit logger for the active log path
 }
 \keyword{internal}

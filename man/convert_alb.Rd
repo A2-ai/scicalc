@@ -16,7 +16,6 @@ Albumin concentration (g/dL)
 Convert Albumin Concentration Units
 }
 \examples{
-\dontshow{.old <- options(scicalc.no_audit = TRUE)}
 convert_alb(40)
 
 df <- data.frame(
@@ -28,7 +27,6 @@ df <- df \%>\%
   dplyr::group_by(ID) \%>\%
   dplyr::mutate(ALBBL = convert_alb(ALB))
 df
-\dontshow{options(.old)}
 }
 \seealso{
 Other unit_conversion: 

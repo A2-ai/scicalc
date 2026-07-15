@@ -2,30 +2,33 @@
 % Please edit documentation in R/audit.R
 \name{scicalc_audit}
 \alias{scicalc_audit}
-\title{Read the scicalc Assembly Audit Log}
+\title{Read a scicalc Assembly Audit Log}
 \usage{
-scicalc_audit(log_file = audit_log_file())
+scicalc_audit(name = NULL, dir = ".scicalc-logs", log_file = NULL)
 }
 \arguments{
-\item{log_file}{path to the audit log. Defaults to the active log
-(\code{options(scicalc.audit_log=)}, else \verb{<project root>/.scicalc-logs/audit.log}).}
+\item{name}{audit name; reads \verb{<dir>/<name>.audit.log}.}
+
+\item{dir}{directory holding named logs (default \code{.scicalc-logs}).}
+
+\item{log_file}{explicit path to a log file (overrides \code{name}/\code{dir}).}
 }
 \value{
-a tibble of audit events (empty if no log exists).
+a tibble of audit events (empty if the log does not exist).
 }
 \description{
-Reads the provenance / chain-of-custody log written by scicalc's unit and
-hashing functions into a tidy tibble. Each row is one event: an input file
-hash (\code{ingest}), a spec hash (\code{spec}), a unit conversion (\code{unit}), or an
-output file hash (\code{write}).
+Reads a provenance / chain-of-custody log written by \code{\link[=audit_script]{audit_script()}} into a
+tidy tibble. Each row is one event: an input file hash (\code{ingest}), a spec
+hash (\code{spec}), a unit conversion (\code{unit}), or an output file hash (\code{write}).
 }
 \examples{
 \dontrun{
-scicalc_audit()
+scicalc_audit("pk")
 }
 }
 \seealso{
 Other audit: 
+\code{\link{audit_script}()},
 \code{\link{scicalc_audit_reset}()}
 }
 \concept{audit}

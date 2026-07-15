@@ -25,12 +25,10 @@ a hand-typed \code{units::set_units(values, "ng/mL")} with the unit carried in t
 data.
 }
 \examples{
-\dontshow{.old <- options(scicalc.no_audit = TRUE)}
 with_units(c(10, 20, 30), c("ng/mL", "ng/mL", "ng/mL"))
 
 # IU is normalized to U
 with_units(c(15, 20), c("IU/L", "IU/L"))
-\dontshow{options(.old)}
 }
 \seealso{
 Other unit_checking: 

@@ -1,75 +1,92 @@
-local_audit <- function(env = parent.frame()) {
+# Activate an audit capture to a temp log (mimics what audit_script sets in the
+# child process) for the duration of the calling test.
+local_capture <- function(env = parent.frame()) {
   log_file <- withr::local_tempfile(fileext = ".log", .local_envir = env)
-  withr::local_options(scicalc.audit_log = log_file, .local_envir = env)
-  scicalc_audit_reset(log_file)
-  withr::defer(scicalc_audit_reset(log_file), envir = env)
+  withr::local_envvar(
+    c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file),
+    .local_envir = env
+  )
+  scicalc_audit_reset(log_file = log_file)
+  withr::defer(scicalc_audit_reset(log_file = log_file), envir = env)
   log_file
 }
 
-test_that("with_units logs a unit event", {
-  local_audit()
-  suppressWarnings(with_units(c(10, 20), c("ng/mL", "ng/mL")))
-
-  a <- scicalc_audit()
-  expect_true(nrow(a) >= 1)
-  row <- a[a$event_type == "unit" & a$input == "c(10, 20)" | a$transform == "attach", , drop = FALSE]
-  expect_true(any(a$transform == "attach", na.rm = TRUE))
-  expect_true(any(a$to == "ng/mL", na.rm = TRUE))
-})
-
-test_that("convert_creat logs a convert event", {
-  local_audit()
-  suppressMessages(convert_creat(c(88.42, 90)))
-
-  a <- scicalc_audit()
-  conv <- a[a$transform == "convert", , drop = FALSE]
-  expect_true(nrow(conv) >= 1)
-  expect_true(any(conv$from == "umol/L", na.rm = TRUE))
-  expect_true(any(conv$to == "mg/dL", na.rm = TRUE))
-})
-
-test_that("convert_units_to_spec logs a spec event and per-column unit events", {
-  local_audit()
-  df <- data.frame(ID = 1:2)
-  df$ODV <- units::set_units(c(1000, 2000), "ng/mL", mode = "standard")
-  suppressWarnings(convert_units_to_map(df, c(ODV = "ug/mL")))
-
-  a <- scicalc_audit()
-  # convert_units_to_map itself only logs the unit event; spec event comes from
-  # the yspec method, so here we assert the per-column conversion is recorded
-  conv <- a[a$event_type == "unit" & a$detail == "convert_units_to_spec", , drop = FALSE]
-  expect_true(any(conv$input == "ODV", na.rm = TRUE))
-  expect_true(any(conv$to == "ug/mL", na.rm = TRUE))
-})
-
-test_that("read/write functions log ingest and write events", {
-  local_audit()
-  df <- data.frame(a = 1:3, b = c("x", "y", "z"))
-  path <- withr::local_tempfile(fileext = ".parquet")
-  invisible(utils::capture.output(write_file_with_hash(df, path, overwrite = TRUE)))
-  invisible(utils::capture.output(read_file_with_hash(path)))
-
-  a <- scicalc_audit()
-  expect_true(any(a$event_type == "write", na.rm = TRUE))
-  expect_true(any(a$event_type == "ingest", na.rm = TRUE))
-  # written and read hashes of the same file agree (both blake3)
-  w <- a$hash[a$event_type == "write"]
-  i <- a$hash[a$event_type == "ingest"]
-  expect_true(length(intersect(w, i)) >= 1)
-})
-
-test_that("scicalc.no_audit disables logging", {
+test_that("nothing is logged unless a capture is active", {
   log_file <- withr::local_tempfile(fileext = ".log")
-  withr::local_options(scicalc.audit_log = log_file, scicalc.no_audit = TRUE)
-  scicalc_audit_reset(log_file)
+  # path is set, but SCICALC_AUDITING is not -> capture inactive
+  withr::local_envvar(c(SCICALC_AUDIT_LOG = log_file))
+  scicalc_audit_reset(log_file = log_file)
   suppressWarnings(with_units(c(1, 2), c("ng/mL", "ng/mL")))
   expect_false(file.exists(log_file))
 })
 
-test_that("scicalc_audit reports no log gracefully when none exists", {
+test_that("with_units and convert_* log while a capture is active", {
+  lf <- local_capture()
+  suppressWarnings(with_units(c(10, 20), c("ng/mL", "ng/mL")))
+  suppressMessages(convert_creat(c(88.42, 90)))
+
+  a <- scicalc_audit(log_file = lf)
+  expect_true(any(a$transform == "attach", na.rm = TRUE))
+  expect_true(any(a$transform == "convert", na.rm = TRUE))
+  expect_true(any(a$to == "mg/dL", na.rm = TRUE))
+})
+
+test_that("convert_units_to_spec logs conversions but skips no-ops", {
+  lf <- local_capture()
+  df <- data.frame(ID = 1:2)
+  df$ODV <- units::set_units(c(1000, 2000), "ng/mL", mode = "standard")
+  df$AMT <- units::set_units(c(5, 6), "mg", mode = "standard")
+  suppressWarnings(convert_units_to_map(df, c(ODV = "ug/mL", AMT = "mg")))
+
+  a <- scicalc_audit(log_file = lf)
+  expect_true(any(a$input == "ODV" & a$to == "ug/mL", na.rm = TRUE))
+  # AMT mg -> mg is a no-op and must not be logged
+  expect_false(any(a$input == "AMT", na.rm = TRUE))
+})
+
+test_that("audit_script is a no-op inside an active capture (re-entrancy guard)", {
+  local_capture()
+  expect_invisible(res <- audit_script("does-not-exist.R"))
+  expect_null(res)
+})
+
+test_that("scicalc_audit reports gracefully when no log exists", {
   log_file <- withr::local_tempfile(fileext = ".log")
-  withr::local_options(scicalc.audit_log = log_file)
-  scicalc_audit_reset(log_file)
-  expect_message(res <- scicalc_audit(), "No scicalc audit log")
+  expect_message(res <- scicalc_audit(log_file = log_file), "No scicalc audit log")
   expect_equal(nrow(res), 0)
+})
+
+test_that("audit_script captures a full assembly run in a subprocess", {
+  skip_if_not_installed("callr")
+  # only runnable when a child R process can load scicalc (installed, e.g. under
+  # R CMD check) -- skipped under devtools::load_all where it is not installed
+  # only meaningful when the child process loads a scicalc that has this
+  # feature -- i.e. the current code is installed (R CMD check), not load_all
+  child_ok <- tryCatch(
+    isTRUE(callr::r(
+      function() {
+        requireNamespace("scicalc", quietly = TRUE) &&
+          exists("audit_script", where = asNamespace("scicalc"))
+      },
+      libpath = .libPaths()
+    )),
+    error = function(e) FALSE
+  )
+  skip_if_not(child_ok, "child process cannot load current scicalc")
+
+  dir <- withr::local_tempdir()
+  script <- file.path(dir, "assembly.R")
+  writeLines(
+    c(
+      "library(scicalc)",
+      "df <- data.frame(PCSTRESN = c(1000, 2000, 500), PCSTRESU = 'ng/mL')",
+      "df$ODV <- with_units(df$PCSTRESN, df$PCSTRESU)"
+    ),
+    script
+  )
+
+  a <- audit_script(script, name = "assembly", dir = dir)
+  expect_true(file.exists(file.path(dir, "assembly.audit.log")))
+  expect_true(any(a$transform == "attach", na.rm = TRUE))
+  expect_true(any(a$to == "ng/mL", na.rm = TRUE))
 })

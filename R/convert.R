@@ -8,7 +8,6 @@
 #' @export
 #'
 #' @examples
-#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' convert_alb(40)
 #'
 #' df <- data.frame(
@@ -20,9 +19,8 @@
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(ALBBL = convert_alb(ALB))
 #' df
-#' \dontshow{options(.old)}
 convert_alb <- function(alb) {
-  input_name <- deparse(substitute(alb))
+  input_name <- deparse1(substitute(alb))
   alb <- assert_and_strip_units(alb, "g/L")
 
   checkmate::assertNumeric(alb)
@@ -50,7 +48,6 @@ convert_alb <- function(alb) {
 #' @export
 #'
 #' @examples
-#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' convert_bili(17.1) # ≈ 1 mg/dL
 #'
 #' df <- data.frame(
@@ -62,9 +59,8 @@ convert_alb <- function(alb) {
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(BILIBL = convert_bili(BILI))
 #' df
-#' \dontshow{options(.old)}
 convert_bili <- function(bili) {
-  input_name <- deparse(substitute(bili))
+  input_name <- deparse1(substitute(bili))
   bili <- assert_and_strip_units(bili, "umol/L")
 
   checkmate::assertNumeric(bili)
@@ -96,7 +92,6 @@ convert_bili <- function(bili) {
 #' @export
 #'
 #' @examples
-#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' convert_creat(88.42) # ≈ 1 mg/dL
 #'
 #' df <- data.frame(
@@ -108,9 +103,8 @@ convert_bili <- function(bili) {
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(CREATBL = convert_creat(CREAT))
 #' df
-#' \dontshow{options(.old)}
 convert_creat <- function(creat) {
-  input_name <- deparse(substitute(creat))
+  input_name <- deparse1(substitute(creat))
   creat <- assert_and_strip_units(creat, "umol/L")
 
   checkmate::assertNumeric(creat)

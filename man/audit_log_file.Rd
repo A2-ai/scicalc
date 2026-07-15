@@ -2,15 +2,12 @@
 % Please edit documentation in R/audit.R
 \name{audit_log_file}
 \alias{audit_log_file}
-\title{Resolve the audit log file path}
+\title{Resolve the audit log file path for the active capture}
 \usage{
 audit_log_file()
 }
-\value{
-a file path.
-}
 \description{
-\verb{options(scicalc.audit_log = <path>)} overrides; otherwise a single
-persistent file at \verb{<project root>/.scicalc-logs/audit.log}.
+During an \code{audit_script()} run the driver sets \code{SCICALC_AUDIT_LOG}; that
+wins. Otherwise falls back to \code{options(scicalc.audit_log=)} or a default.
 }
 \keyword{internal}

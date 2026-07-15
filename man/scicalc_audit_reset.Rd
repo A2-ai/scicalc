@@ -2,27 +2,31 @@
 % Please edit documentation in R/audit.R
 \name{scicalc_audit_reset}
 \alias{scicalc_audit_reset}
-\title{Reset the scicalc Assembly Audit Log}
+\title{Reset a scicalc Assembly Audit Log}
 \usage{
-scicalc_audit_reset(log_file = audit_log_file())
+scicalc_audit_reset(name = NULL, dir = ".scicalc-logs", log_file = NULL)
 }
 \arguments{
-\item{log_file}{path to the audit log (see \code{\link[=scicalc_audit]{scicalc_audit()}}).}
+\item{name}{audit name; deletes \verb{<dir>/<name>.audit.log}.}
+
+\item{dir}{directory holding named logs (default \code{.scicalc-logs}).}
+
+\item{log_file}{explicit path (overrides \code{name}/\code{dir}).}
 }
 \value{
 invisibly \code{NULL}.
 }
 \description{
-Deletes the current audit log file and drops the cached logger so the next
-event starts a fresh log. Use at the start of a new assembly.
+Deletes a named audit log and drops the cached logger.
 }
 \examples{
 \dontrun{
-scicalc_audit_reset()
+scicalc_audit_reset("pk")
 }
 }
 \seealso{
 Other audit: 
+\code{\link{audit_script}()},
 \code{\link{scicalc_audit}()}
 }
 \concept{audit}
