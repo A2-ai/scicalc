@@ -16,3 +16,4 @@
 ^\.Rprofile$
 ^_starlightr\.toml$
 ^\.claude$
+^\.scicalc-logs$

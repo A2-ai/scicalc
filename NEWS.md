@@ -9,6 +9,7 @@
 * Added `convert_units_to_spec()`, an S3 generic that converts a data frame's unit-carrying columns to the units declared in a data specification (currently supports `yspec` objects). Unitless numeric columns get the spec unit attached with a warning; impossible conversions are left untouched and reported together in a warning.
 * Added `is_missing_value()`, a units-safe predicate for the missing value indicator (`getOption("scicalc.missing_value")`), useful for filtering columns that carry units (e.g. `dplyr::filter(df, !is_missing_value(NTFD))`).
 * Added `with_units()`, which attaches units to a values vector from a companion unit column (e.g. `with_units(PCSTRESN, PCSTRESU)`), requiring a single unit (blanks ignored with a warning) and normalizing `IU`/`µ`.
+* Added an assembly provenance audit log. `with_units()`, `convert_*()`, `convert_units_to_spec()`, and the hashing read/write functions record unit conversions and input/spec/output hashes to an append-only log (`<project root>/.scicalc-logs/audit.log`, via `log4r`); `scicalc_audit()` reads it back as a tidy tibble and `scicalc_audit_reset()` starts a fresh log. Disable with `options(scicalc.no_audit = TRUE)` or relocate with `options(scicalc.audit_log = <path>)`.
 
 ## Bug fixes
 

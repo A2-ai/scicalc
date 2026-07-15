@@ -34,6 +34,12 @@ convert_units_to_spec <- function(data, spec, ...) {
 #' @export
 convert_units_to_spec.yspec <- function(data, spec, ...) {
   rlang::check_installed("yspec")
+  spec_file <- attr(spec, "file")
+  log_audit_event(
+    "spec",
+    spec_hash = digest::digest(spec, algo = "blake3"),
+    spec_file = if (is.null(spec_file)) NA_character_ else basename(spec_file)
+  )
   unit_map <- unlist(yspec::ys_get_unit(spec))
   convert_units_to_map(data, unit_map)
 }
@@ -62,6 +68,7 @@ convert_units_to_map <- function(data, unit_map) {
   for (col in names(unit_map)) {
     target <- unit_map[[col]]
     tgt_log <- parse_log_spec(target)
+    n_col <- sum(!is.na(as.numeric(data[[col]])))
 
     if (inherits(data[[col]], "units")) {
       current <- as.character(units(data[[col]]))
@@ -72,8 +79,10 @@ convert_units_to_map <- function(data, unit_map) {
         shifted <- shift_log_column(data[[col]], src_log, tgt_log)
         if (is.null(shifted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+          log_unit_conversion(col, current, target, "failed", n_col)
         } else {
           data[[col]] <- restore_attrs(shifted, data[[col]])
+          log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col)
         }
       } else {
         converted <- tryCatch(
@@ -82,8 +91,10 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(converted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+          log_unit_conversion(col, current, target, "failed", n_col)
         } else {
           data[[col]] <- restore_attrs(converted, data[[col]])
+          log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col)
         }
       }
     } else if (is.numeric(data[[col]])) {
@@ -99,9 +110,11 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
+          log_unit_conversion(col, NA_character_, target, "failed", n_col)
         } else {
           data[[col]] <- restore_attrs(with_unit, data[[col]])
           attached <- c(attached, paste0(col, " [", target, "]"))
+          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col)
         }
       } else {
         with_unit <- tryCatch(
@@ -110,9 +123,11 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
+          log_unit_conversion(col, NA_character_, target, "failed", n_col)
         } else {
           data[[col]] <- restore_attrs(with_unit, data[[col]])
           attached <- c(attached, paste0(col, " [", target, "]"))
+          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col)
         }
       }
     }
@@ -133,6 +148,20 @@ convert_units_to_map <- function(data, unit_map) {
   }
 
   data
+}
+
+#' Log one `convert_units_to_spec()` per-column conversion event
+#' @noRd
+log_unit_conversion <- function(col, from, to, transform, n) {
+  log_audit_event(
+    "unit",
+    input = col,
+    from = from,
+    to = to,
+    transform = transform,
+    detail = "convert_units_to_spec",
+    n = n
+  )
 }
 
 #' Parse a udunits logarithmic-unit deparse

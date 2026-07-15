@@ -8,6 +8,7 @@
 #' @export
 #'
 #' @examples
+#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' convert_alb(40)
 #'
 #' df <- data.frame(
@@ -19,7 +20,9 @@
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(ALBBL = convert_alb(ALB))
 #' df
+#' \dontshow{options(.old)}
 convert_alb <- function(alb) {
+  input_name <- deparse(substitute(alb))
   alb <- assert_and_strip_units(alb, "g/L")
 
   checkmate::assertNumeric(alb)
@@ -30,6 +33,10 @@ convert_alb <- function(alb) {
 
   alb_gdl <- alb / 10
   alb_gdl <- units::set_units(alb_gdl, "g/dL", mode = "standard")
+  log_audit_event(
+    "unit", input = input_name, from = "g/L", to = "g/dL",
+    transform = "convert", detail = "x0.1", n = sum(!is.na(alb))
+  )
   return(alb_gdl)
 }
 
@@ -43,6 +50,7 @@ convert_alb <- function(alb) {
 #' @export
 #'
 #' @examples
+#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' convert_bili(17.1) # ≈ 1 mg/dL
 #'
 #' df <- data.frame(
@@ -54,7 +62,9 @@ convert_alb <- function(alb) {
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(BILIBL = convert_bili(BILI))
 #' df
+#' \dontshow{options(.old)}
 convert_bili <- function(bili) {
+  input_name <- deparse(substitute(bili))
   bili <- assert_and_strip_units(bili, "umol/L")
 
   checkmate::assertNumeric(bili)
@@ -68,6 +78,11 @@ convert_bili <- function(bili) {
   conversion_factor <- mol_weight_bili / 10^4
   bili_mgdl <- bili * conversion_factor
   bili_mgdl <- units::set_units(bili_mgdl, "mg/dL", mode = "standard")
+  log_audit_event(
+    "unit", input = input_name, from = "umol/L", to = "mg/dL",
+    transform = "convert", detail = paste0("x", signif(conversion_factor, 4)),
+    n = sum(!is.na(bili))
+  )
   return(bili_mgdl)
 }
 
@@ -81,6 +96,7 @@ convert_bili <- function(bili) {
 #' @export
 #'
 #' @examples
+#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' convert_creat(88.42) # ≈ 1 mg/dL
 #'
 #' df <- data.frame(
@@ -92,7 +108,9 @@ convert_bili <- function(bili) {
 #'   dplyr::group_by(ID) %>%
 #'   dplyr::mutate(CREATBL = convert_creat(CREAT))
 #' df
+#' \dontshow{options(.old)}
 convert_creat <- function(creat) {
+  input_name <- deparse(substitute(creat))
   creat <- assert_and_strip_units(creat, "umol/L")
 
   checkmate::assertNumeric(creat)
@@ -106,5 +124,10 @@ convert_creat <- function(creat) {
   conversion_factor <- mol_weight_creat / 10^4
   creat_mgdl <- creat * conversion_factor
   creat_mgdl <- units::set_units(creat_mgdl, "mg/dL", mode = "standard")
+  log_audit_event(
+    "unit", input = input_name, from = "umol/L", to = "mg/dL",
+    transform = "convert", detail = paste0("x", signif(conversion_factor, 4)),
+    n = sum(!is.na(creat))
+  )
   return(creat_mgdl)
 }

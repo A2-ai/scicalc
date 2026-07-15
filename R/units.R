@@ -72,11 +72,15 @@ normalize_unit_string <- function(x) {
 #' @export
 #'
 #' @examples
+#' \dontshow{.old <- options(scicalc.no_audit = TRUE)}
 #' with_units(c(10, 20, 30), c("ng/mL", "ng/mL", "ng/mL"))
 #'
 #' # IU is normalized to U
 #' with_units(c(15, 20), c("IU/L", "IU/L"))
+#' \dontshow{options(.old)}
 with_units <- function(values, units) {
+  values_name <- deparse(substitute(values))
+  units_name <- deparse(substitute(units))
   checkmate::assert_numeric(values)
 
   norm <- normalize_unit_string(as.character(units))
@@ -100,6 +104,16 @@ with_units <- function(values, units) {
       "."
     ))
   }
+
+  log_audit_event(
+    "unit",
+    input = values_name,
+    from = NA_character_,
+    to = distinct_units,
+    transform = "attach",
+    detail = units_name,
+    n = sum(!missing_mask)
+  )
 
   units::set_units(values, distinct_units, mode = "standard")
 }

@@ -16,6 +16,7 @@ Serum Creatinine concentration (mg/dL)
 Convert Serum Creatinine Concentration Units
 }
 \examples{
+\dontshow{.old <- options(scicalc.no_audit = TRUE)}
 convert_creat(88.42) # ≈ 1 mg/dL
 
 df <- data.frame(
@@ -27,6 +28,7 @@ df <- df \%>\%
   dplyr::group_by(ID) \%>\%
   dplyr::mutate(CREATBL = convert_creat(CREAT))
 df
+\dontshow{options(.old)}
 }
 \seealso{
 Other unit_conversion: 

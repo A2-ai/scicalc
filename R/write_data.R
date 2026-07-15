@@ -59,7 +59,7 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ..., algo = "bla
 
   if (!is.null(writer)) {
     writer(data, path, ...)
-    return(print_file_hash(path, ..., algo = algo))
+    return(print_file_hash(path, ..., algo = algo, event = "write"))
   }
 
   if (extension == "csv") {
@@ -87,6 +87,7 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ..., algo = "bla
   hash <- do.call(digest::digest, digest_args)
   cat(csv_path, hash, sep = ": ")
   cat("\n")
+  log_audit_event("write", file = basename(csv_path), hash = hash, algo = algo)
 }
 
 #' Write CSV File with Hash Output
@@ -143,6 +144,7 @@ write_csv_with_hash <- function(data, csv_path, ...) {
   hash <- do.call(digest::digest, digest_args)
   cat(parquet_path, hash, sep = ": ")
   cat("\n")
+  log_audit_event("write", file = basename(parquet_path), hash = hash, algo = algo)
 }
 
 #' Write Parquet File with Hash Output

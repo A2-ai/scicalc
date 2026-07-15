@@ -16,6 +16,7 @@ Bilirubin concentration (mg/dL)
 Convert Bilirubin Concentration Units
 }
 \examples{
+\dontshow{.old <- options(scicalc.no_audit = TRUE)}
 convert_bili(17.1) # ≈ 1 mg/dL
 
 df <- data.frame(
@@ -27,6 +28,7 @@ df <- df \%>\%
   dplyr::group_by(ID) \%>\%
   dplyr::mutate(BILIBL = convert_bili(BILI))
 df
+\dontshow{options(.old)}
 }
 \seealso{
 Other unit_conversion: 
