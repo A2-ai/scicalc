@@ -50,6 +50,16 @@ test_that("audit_script is a no-op inside an active capture (re-entrancy guard)"
   expect_null(res)
 })
 
+test_that("audit_script refuses to overwrite an existing log by default", {
+  skip_if_not_installed("callr")
+  dir <- withr::local_tempdir()
+  script <- file.path(dir, "a.R")
+  writeLines("invisible(NULL)", script)
+  writeLines("{}", file.path(dir, "a.audit.log")) # pre-existing log
+
+  expect_error(audit_script(script, dir = dir), "already exists")
+})
+
 test_that("scicalc_audit reports gracefully when no log exists", {
   log_file <- withr::local_tempfile(fileext = ".log")
   expect_message(res <- scicalc_audit(log_file = log_file), "No scicalc audit log")

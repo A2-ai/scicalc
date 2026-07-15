@@ -95,6 +95,8 @@ log_audit_event <- function(event_type, ...) {
 #' @param name audit name; the log is written to `<dir>/<name>.audit.log`.
 #'   Defaults to the script's base name.
 #' @param dir directory for the named audit log (default `.scicalc-logs`).
+#' @param overwrite if `FALSE` (default), error rather than replace an existing
+#'   audit log of the same name. Pass `TRUE` to re-run and replace it.
 #'
 #' @return the audit as a tibble (invisibly), read from the named log.
 #'
@@ -105,12 +107,13 @@ log_audit_event <- function(event_type, ...) {
 #' audit_script("assembly.qmd", name = "pk")
 #' scicalc_audit("pk")
 #' }
-audit_script <- function(script, name = NULL, dir = ".scicalc-logs") {
+audit_script <- function(script, name = NULL, dir = ".scicalc-logs", overwrite = FALSE) {
   # re-entrancy guard: if we are already inside an audit run, do nothing
   if (audit_active()) {
     return(invisible(NULL))
   }
   checkmate::assert_file_exists(script, access = "r")
+  checkmate::assert_flag(overwrite)
   rlang::check_installed("callr")
 
   if (is.null(name)) {
@@ -124,6 +127,12 @@ audit_script <- function(script, name = NULL, dir = ".scicalc-logs") {
     mustWork = FALSE
   )
   if (file.exists(log_path)) {
+    if (!overwrite) {
+      rlang::abort(paste0(
+        "Audit log already exists: ", log_path, "\n",
+        "Pass `overwrite = TRUE` to re-run and replace it."
+      ))
+    }
     file.remove(log_path)
   }
 
@@ -140,16 +149,30 @@ audit_script <- function(script, name = NULL, dir = ".scicalc-logs") {
     ))
   }
 
-  callr::rscript(
+  res <- callr::rscript(
     run_file,
     libpath = .libPaths(),
+    wd = getwd(),
     env = c(
       callr::rcmd_safe_env(),
       SCICALC_AUDITING = name,
       SCICALC_AUDIT_LOG = log_path
     ),
-    show = TRUE
+    show = TRUE,
+    fail_on_status = FALSE
   )
+
+  if (!is.null(res$status) && res$status != 0L) {
+    detail <- if (!is.null(res$stderr) && nzchar(res$stderr)) {
+      paste0("\n", res$stderr)
+    } else {
+      " See the script's output above."
+    }
+    rlang::abort(paste0(
+      "The audited assembly script failed (exit status ", res$status, ").",
+      detail
+    ))
+  }
 
   invisible(scicalc_audit(log_file = log_path))
 }
