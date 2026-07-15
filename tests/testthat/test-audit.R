@@ -78,6 +78,20 @@ test_that("with_units and convert_* log while a capture is active", {
   expect_true(any(a$to == "mg/dL", na.rm = TRUE))
 })
 
+test_that("convert_units_to_spec logs a spec event with the spec file path", {
+  skip_if_not_installed("yspec")
+  lf <- local_capture()
+  spec <- yspec::ys_help$spec()
+  df <- data.frame(WT = units::set_units(c(70, 80), "kg", mode = "standard"))
+  suppressWarnings(suppressMessages(convert_units_to_spec(df, spec)))
+
+  a <- scicalc_audit(log_file = lf)
+  spec_row <- a[a$event_type == "spec", , drop = FALSE]
+  expect_equal(nrow(spec_row), 1)
+  expect_true(!is.na(spec_row$spec_hash))
+  expect_match(spec_row$spec_file, "\\.yml$")
+})
+
 test_that("convert_units_to_spec logs conversions but skips no-ops", {
   lf <- local_capture()
   df <- data.frame(ID = 1:2)

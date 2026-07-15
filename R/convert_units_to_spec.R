@@ -34,7 +34,7 @@ convert_units_to_spec <- function(data, spec, ...) {
 #' @export
 convert_units_to_spec.yspec <- function(data, spec, ...) {
   rlang::check_installed("yspec")
-  spec_file <- spec$meta$spec_file
+  spec_file <- attr(spec, "meta")$spec_file
   log_audit_event(
     "spec",
     fn = "convert_units_to_spec",
