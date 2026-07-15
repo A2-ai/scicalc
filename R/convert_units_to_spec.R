@@ -39,7 +39,7 @@ convert_units_to_spec.yspec <- function(data, spec, ...) {
     "spec",
     fn = "convert_units_to_spec",
     spec_hash = digest::digest(spec, algo = "blake3"),
-    spec_file = if (is.null(spec_file)) NA_character_ else spec_file
+    spec_file = audit_rel_path(spec_file)
   )
   unit_map <- unlist(yspec::ys_get_unit(spec))
   convert_units_to_map(data, unit_map)

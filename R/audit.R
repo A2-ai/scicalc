@@ -54,6 +54,23 @@ default_audit_dir <- function() {
   file.path(scicalc_project_root(), ".scicalc-logs")
 }
 
+#' Express a path relative to the project root for audit logging
+#'
+#' Portable, machine-independent paths in the audit (e.g.
+#' `data/derived/pk.parquet`). Files outside the root get a `../` relative
+#' path. `NULL`/`NA`/empty return `NA`.
+#' @keywords internal
+audit_rel_path <- function(path) {
+  if (is.null(path) || length(path) != 1 || is.na(path) || !nzchar(path)) {
+    return(NA_character_)
+  }
+  root <- scicalc_project_root()
+  tryCatch(
+    as.character(fs::path_rel(fs::path_abs(path), start = root)),
+    error = function(e) path
+  )
+}
+
 #' Resolve the audit log file path for the active capture
 #'
 #' During an `audit_script()` run the driver sets `SCICALC_AUDIT_LOG`; that
