@@ -131,6 +131,8 @@ log_audit_event <- function(event_type, ...) {
 #' @param dir directory for the named audit log (default: `.scicalc-logs` at the project root).
 #' @param overwrite if `FALSE` (default), error rather than replace an existing
 #'   audit log of the same name. Pass `TRUE` to re-run and replace it.
+#' @param quiet if `TRUE`, suppress the assembly script's console output. The
+#'   error message on a failed run still includes the script's error.
 #'
 #' @return the audit as a tibble (invisibly), read from the named log.
 #'
@@ -141,13 +143,14 @@ log_audit_event <- function(event_type, ...) {
 #' audit_script("assembly.qmd", name = "pk")
 #' scicalc_audit("pk")
 #' }
-audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwrite = FALSE) {
+audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwrite = FALSE, quiet = FALSE) {
   # re-entrancy guard: if we are already inside an audit run, do nothing
   if (audit_active()) {
     return(invisible(NULL))
   }
   checkmate::assert_file_exists(script, access = "r")
   checkmate::assert_flag(overwrite)
+  checkmate::assert_flag(quiet)
   rlang::check_installed("callr")
 
   if (is.null(name)) {
@@ -192,7 +195,7 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwri
       SCICALC_AUDITING = name,
       SCICALC_AUDIT_LOG = log_path
     ),
-    show = TRUE,
+    show = !quiet,
     fail_on_status = FALSE
   )
 
@@ -248,7 +251,21 @@ scicalc_audit <- function(name = NULL, dir = default_audit_dir(), log_file = NUL
   events <- jsonlite::stream_in(file(log_file), verbose = FALSE)
   events <- tibble::as_tibble(events)
   names(events)[names(events) == "1"] <- "event_type"
-  events
+
+  # log4r's severity level and timestamp are not meaningful for a single run
+  events[["level"]] <- NULL
+  events[["time"]] <- NULL
+  # drop columns that are empty for this run (e.g. spec_file when the spec
+  # carries no source path)
+  keep <- vapply(events, function(col) !all(is.na(col)), logical(1))
+  events <- events[, keep, drop = FALSE]
+  # sensible column order: what happened, via which function, then details
+  preferred <- c(
+    "event_type", "fn", "input", "from", "to", "transform", "n",
+    "detail", "file", "hash", "algo", "spec_hash", "spec_file"
+  )
+  ord <- c(intersect(preferred, names(events)), setdiff(names(events), preferred))
+  events[, ord, drop = FALSE]
 }
 
 #' Reset a scicalc Assembly Audit Log

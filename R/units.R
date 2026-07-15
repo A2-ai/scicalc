@@ -105,6 +105,7 @@ with_units <- function(values, units) {
 
   log_audit_event(
     "unit",
+    fn = "with_units",
     input = values_name,
     from = NA_character_,
     to = distinct_units,

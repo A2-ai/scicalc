@@ -31,6 +31,8 @@ df
 \seealso{
 Other unit_conversion: 
 \code{\link{convert_alb}()},
-\code{\link{convert_bili}()}
+\code{\link{convert_bili}()},
+\code{\link{convert_mass_to_mol}()},
+\code{\link{convert_mol_to_mass}()}
 }
 \concept{unit_conversion}

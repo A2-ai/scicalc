@@ -54,6 +54,19 @@ test_that("nothing is logged unless a capture is active", {
   expect_false(file.exists(log_file))
 })
 
+test_that("scicalc_audit output is tidied (time first, no level column)", {
+  lf <- local_capture()
+  suppressWarnings(with_units(c(1, 2), c("ng/mL", "ng/mL")))
+
+  a <- scicalc_audit(log_file = lf)
+  expect_false("time" %in% names(a))
+  expect_false("level" %in% names(a))
+  expect_identical(names(a)[1], "event_type")
+  # the function that produced each event is recorded
+  expect_true("fn" %in% names(a))
+  expect_true(any(a$fn == "with_units", na.rm = TRUE))
+})
+
 test_that("with_units and convert_* log while a capture is active", {
   lf <- local_capture()
   suppressWarnings(with_units(c(10, 20), c("ng/mL", "ng/mL")))
@@ -128,7 +141,7 @@ test_that("audit_script captures a full assembly run in a subprocess", {
     script
   )
 
-  a <- audit_script(script, name = "assembly", dir = dir)
+  a <- audit_script(script, name = "assembly", dir = dir, quiet = TRUE)
   expect_true(file.exists(file.path(dir, "assembly.audit.log")))
   expect_true(any(a$transform == "attach", na.rm = TRUE))
   expect_true(any(a$to == "ng/mL", na.rm = TRUE))

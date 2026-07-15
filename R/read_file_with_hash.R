@@ -7,7 +7,8 @@ print_file_hash <- function(file_path, ..., label = file_path, event = "ingest")
   hash <- do.call(digest::digest, digest_args)
   cat(label, hash, sep = ": ")
   cat("\n")
-  log_audit_event(event, file = basename(file_path), hash = hash, algo = digest_args$algo)
+  fn <- if (identical(event, "write")) "write_file_with_hash" else "read_file_with_hash"
+  log_audit_event(event, fn = fn, file = basename(file_path), hash = hash, algo = digest_args$algo)
   invisible(hash)
 }
 
@@ -135,7 +136,7 @@ read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
   hash <- do.call(digest::digest, digest_args)
   cat(basename(csv_file_path), hash, sep = ": ")
   cat("\n")
-  log_audit_event("ingest", file = basename(csv_file_path), hash = hash, algo = algo)
+  log_audit_event("ingest", fn = "read_file_with_hash", file = basename(csv_file_path), hash = hash, algo = algo)
 
   do.call(readr::read_csv, read_csv_args)
 }
@@ -184,7 +185,7 @@ read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
   hash <- do.call(digest::digest, digest_args)
   cat(basename(parquet_file_path), hash, sep = ": ")
   cat("\n")
-  log_audit_event("ingest", file = basename(parquet_file_path), hash = hash, algo = algo)
+  log_audit_event("ingest", fn = "read_file_with_hash", file = basename(parquet_file_path), hash = hash, algo = algo)
   do.call(arrow::read_parquet, read_parquet_args)
 }
 
@@ -230,7 +231,7 @@ read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
   hash <- do.call(digest::digest, digest_args)
   cat(basename(sas_file_path), hash, sep = ": ")
   cat("\n")
-  log_audit_event("ingest", file = basename(sas_file_path), hash = hash, algo = algo)
+  log_audit_event("ingest", fn = "read_file_with_hash", file = basename(sas_file_path), hash = hash, algo = algo)
   do.call(haven::read_sas, read_sas_args)
 }
 
@@ -276,7 +277,7 @@ read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
   hash <- do.call(digest::digest, digest_args)
   cat(basename(xpt_file_path), hash, sep = ": ")
   cat("\n")
-  log_audit_event("ingest", file = basename(xpt_file_path), hash = hash, algo = algo)
+  log_audit_event("ingest", fn = "read_file_with_hash", file = basename(xpt_file_path), hash = hash, algo = algo)
   do.call(haven::read_xpt, read_xpt_args)
 }
 
@@ -323,7 +324,7 @@ read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
   hash <- do.call(digest::digest, digest_args)
   cat(basename(xlsx_file_path), hash, sep = ": ")
   cat("\n")
-  log_audit_event("ingest", file = basename(xlsx_file_path), hash = hash, algo = algo)
+  log_audit_event("ingest", fn = "read_file_with_hash", file = basename(xlsx_file_path), hash = hash, algo = algo)
   cat(sprintf("Sheets in %s: ", basename(xlsx_file_path)))
   cat(readxl::excel_sheets(xlsx_file_path), sep = ", ")
   cat("\n")
@@ -378,7 +379,7 @@ read_pzfx_with_hash <- function(pzfx_file_path, ..., algo = "blake3") {
   hash <- do.call(digest::digest, digest_args)
   cat(basename(pzfx_file_path), hash, sep = ": ")
   cat("\n")
-  log_audit_event("ingest", file = basename(pzfx_file_path), hash = hash, algo = algo)
+  log_audit_event("ingest", fn = "read_file_with_hash", file = basename(pzfx_file_path), hash = hash, algo = algo)
   do.call(pzfx::read_pzfx, read_pzfx_args)
 }
 

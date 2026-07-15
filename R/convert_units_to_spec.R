@@ -34,11 +34,12 @@ convert_units_to_spec <- function(data, spec, ...) {
 #' @export
 convert_units_to_spec.yspec <- function(data, spec, ...) {
   rlang::check_installed("yspec")
-  spec_file <- attr(spec, "file")
+  spec_file <- spec$meta$spec_file
   log_audit_event(
     "spec",
+    fn = "convert_units_to_spec",
     spec_hash = digest::digest(spec, algo = "blake3"),
-    spec_file = if (is.null(spec_file)) NA_character_ else basename(spec_file)
+    spec_file = if (is.null(spec_file)) NA_character_ else spec_file
   )
   unit_map <- unlist(yspec::ys_get_unit(spec))
   convert_units_to_map(data, unit_map)
@@ -161,11 +162,12 @@ log_unit_conversion <- function(col, from, to, transform, n) {
   }
   log_audit_event(
     "unit",
+    fn = "convert_units_to_spec",
     input = col,
     from = from,
     to = to,
     transform = transform,
-    detail = "convert_units_to_spec",
+    detail = NA_character_,
     n = n
   )
 }

@@ -4,7 +4,13 @@
 \alias{audit_script}
 \title{Audit an Assembly Script}
 \usage{
-audit_script(script, name = NULL, dir = default_audit_dir(), overwrite = FALSE)
+audit_script(
+  script,
+  name = NULL,
+  dir = default_audit_dir(),
+  overwrite = FALSE,
+  quiet = FALSE
+)
 }
 \arguments{
 \item{script}{path to the assembly script (\code{.R}, \code{.qmd}, or \code{.Rmd}).}
@@ -16,6 +22,9 @@ Defaults to the script's base name.}
 
 \item{overwrite}{if \code{FALSE} (default), error rather than replace an existing
 audit log of the same name. Pass \code{TRUE} to re-run and replace it.}
+
+\item{quiet}{if \code{TRUE}, suppress the assembly script's console output. The
+error message on a failed run still includes the script's error.}
 }
 \value{
 the audit as a tibble (invisibly), read from the named log.
