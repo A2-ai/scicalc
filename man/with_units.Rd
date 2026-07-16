@@ -12,13 +12,16 @@ with_units(values, units)
 \item{units}{a character vector of unit strings, one per value.}
 }
 \value{
-\code{values} as a \code{units} object.
+\code{values} as a \code{units} object when there is one distinct unit, or as
+a \code{mixed_units} object when there are multiple distinct units.
 }
 \description{
 Sets units on a values vector using a companion column that records each
-value's unit (e.g. \code{PCSTRESN} with \code{PCSTRESU}). The unit column must resolve
-to a single unit after normalizing \code{IU}/\code{µ}; blank (\code{NA}/\code{""}) entries
-are ignored with a warning.
+value's unit (e.g. \code{PCSTRESN} with \code{PCSTRESU}). If the unit column resolves
+to one unit after normalizing \code{IU}/\code{µ}, a standard \code{units} vector is
+returned. If multiple units remain, a warning is issued and a \code{mixed_units}
+vector is returned with the corresponding unit attached to each value.
+Blank (\code{NA}/\code{""}) entries are ignored with a warning.
 
 Intended for use in a \code{mutate()} before \code{\link[=convert_units_to_spec]{convert_units_to_spec()}}, replacing
 a hand-typed \code{units::set_units(values, "ng/mL")} with the unit carried in the
@@ -29,6 +32,9 @@ with_units(c(10, 20, 30), c("ng/mL", "ng/mL", "ng/mL"))
 
 # IU is normalized to U
 with_units(c(15, 20), c("IU/L", "IU/L"))
+
+# Multiple units are retained row by row
+with_units(c(1, 500), c("ug/mL", "ng/mL"))
 }
 \seealso{
 Other unit_checking: 

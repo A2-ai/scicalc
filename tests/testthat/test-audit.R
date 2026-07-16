@@ -78,6 +78,17 @@ test_that("with_units and convert_* log while a capture is active", {
   expect_true(any(a$to == "mg/dL", na.rm = TRUE))
 })
 
+test_that("with_units logs each unit in a mixed_units vector", {
+  lf <- local_capture()
+  suppressWarnings(with_units(c(1, 2, 3), c("ug/mL", "ng/mL", "ng/mL")))
+
+  a <- scicalc_audit(log_file = lf)
+  attached <- a[a$fn == "with_units" & a$transform == "attach", , drop = FALSE]
+  expect_setequal(attached$to, c("ug/mL", "ng/mL"))
+  expect_equal(attached$n[attached$to == "ug/mL"], 1)
+  expect_equal(attached$n[attached$to == "ng/mL"], 2)
+})
+
 test_that("convert_units_to_spec logs a spec event with the spec file path", {
   skip_if_not_installed("yspec")
   lf <- local_capture()

@@ -55,9 +55,11 @@ normalize_unit_string <- function(x) {
 #'
 #' @description
 #' Sets units on a values vector using a companion column that records each
-#' value's unit (e.g. `PCSTRESN` with `PCSTRESU`). The unit column must resolve
-#' to a single unit after normalizing `IU`/`µ`; blank (`NA`/`""`) entries
-#' are ignored with a warning.
+#' value's unit (e.g. `PCSTRESN` with `PCSTRESU`). If the unit column resolves
+#' to one unit after normalizing `IU`/`µ`, a standard `units` vector is
+#' returned. If multiple units remain, a warning is issued and a `mixed_units`
+#' vector is returned with the corresponding unit attached to each value.
+#' Blank (`NA`/`""`) entries are ignored with a warning.
 #'
 #' Intended for use in a `mutate()` before [convert_units_to_spec()], replacing
 #' a hand-typed `units::set_units(values, "ng/mL")` with the unit carried in the
@@ -66,7 +68,8 @@ normalize_unit_string <- function(x) {
 #' @param values a numeric vector of values.
 #' @param units a character vector of unit strings, one per value.
 #'
-#' @return `values` as a `units` object.
+#' @return `values` as a `units` object when there is one distinct unit, or as
+#'   a `mixed_units` object when there are multiple distinct units.
 #'
 #' @family unit_checking
 #' @export
@@ -76,6 +79,9 @@ normalize_unit_string <- function(x) {
 #'
 #' # IU is normalized to U
 #' with_units(c(15, 20), c("IU/L", "IU/L"))
+#'
+#' # Multiple units are retained row by row
+#' with_units(c(1, 500), c("ug/mL", "ng/mL"))
 with_units <- function(values, units) {
   values_name <- deparse1(substitute(values))
   units_name <- deparse1(substitute(units))
@@ -96,11 +102,39 @@ with_units <- function(values, units) {
     rlang::abort("`units` contains no usable unit; cannot attach units to `values`.")
   }
   if (length(distinct_units) > 1) {
-    rlang::abort(paste0(
-      "`units` must resolve to a single unit; found: ",
+    missing_value_units <- missing_mask & !is.na(values)
+    if (any(missing_value_units)) {
+      rlang::abort(paste0(
+        sum(missing_value_units),
+        " non-missing value(s) have a missing/blank unit; cannot create a ",
+        "`mixed_units` vector."
+      ))
+    }
+
+    rlang::warn(paste0(
+      "Multiple units found in `", units_name, "`: ",
       paste0('"', distinct_units, '"', collapse = ", "),
-      "."
+      ". Returning a `mixed_units` vector rather than a standard `units` vector."
     ))
+
+    for (unit in distinct_units) {
+      log_audit_event(
+        "unit",
+        fn = "with_units",
+        input = values_name,
+        from = NA_character_,
+        to = unit,
+        transform = "attach",
+        detail = units_name,
+        n = sum(!missing_mask & norm == unit)
+      )
+    }
+
+    # `mixed_units()` requires a unit for every element. A missing value has no
+    # magnitude to interpret, so use the first observed unit only as its typed
+    # NA placeholder; non-missing values with absent units were rejected above.
+    norm[missing_mask] <- distinct_units[[1]]
+    return(units::mixed_units(values, norm))
   }
 
   log_audit_event(

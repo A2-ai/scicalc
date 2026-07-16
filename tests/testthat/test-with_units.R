@@ -29,10 +29,30 @@ test_that("with_units errors when the units column has no usable unit", {
   )
 })
 
-test_that("with_units errors when multiple distinct units are present", {
+test_that("with_units warns and returns mixed_units for multiple units", {
+  expect_warning(
+    out <- with_units(c(1, 2), c("ng/mL", "ug/mL")),
+    "Multiple units.*mixed_units"
+  )
+  expect_s3_class(out, "mixed_units")
+  expect_equal(units::drop_units(out), c(1, 2))
+  expect_equal(
+    vapply(out, function(x) as.character(units(x)), character(1)),
+    c("ng/mL", "ug/mL")
+  )
+})
+
+test_that("with_units normalizes before deciding whether units are mixed", {
+  expect_no_warning(out <- with_units(c(1, 2), c("IU/L", "U/L")))
+  expect_s3_class(out, "units")
+  expect_false(inherits(out, "mixed_units"))
+  expect_equal(as.character(units(out)), "U/L")
+})
+
+test_that("with_units rejects a non-missing mixed value without a unit", {
   expect_error(
-    with_units(c(1, 2), c("ng/mL", "mg/L")),
-    "single unit"
+    suppressWarnings(with_units(c(1, 2, 3), c("ng/mL", "ug/mL", NA))),
+    "non-missing value.*missing/blank unit"
   )
 })
 
