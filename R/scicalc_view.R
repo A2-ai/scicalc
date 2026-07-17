@@ -15,7 +15,7 @@ format_mixed_fast <- function(x) {
     values <- vapply(present, as.numeric, numeric(1))
     unit_labels <- vapply(
       present,
-      \(element) as.character(units::units(element)),
+      \(element) as.character(units(element)),
       character(1)
     )
 
