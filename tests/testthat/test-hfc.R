@@ -56,8 +56,8 @@ test_that("hfc works within dpylr pipes", {
     "ULNBILI" = c(1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2, 1.2)
   )
 
-  df <- df %>%
-    dplyr::group_by(ID) %>%
+  df <- df |>
+    dplyr::group_by(ID) |>
     dplyr::mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
   expect_equal(df$BHFC, c(4, 4, 4, 4, 1, 1, 1, 1), ignore_attr = TRUE)
 })

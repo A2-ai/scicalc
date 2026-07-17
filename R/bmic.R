@@ -55,44 +55,44 @@
 #'   BMIC = bmic(BMI, AGE)
 #' )
 bmic <- function(bmi, age) {
-  bmi <- assert_and_strip_units(bmi, "kg/m^2")
-  age <- assert_and_strip_units(age, "years")
-  checkmate::assertNumeric(bmi)
-  checkmate::assertNumeric(age)
+	bmi <- assert_and_strip_units(bmi, "kg/m^2")
+	age <- assert_and_strip_units(age, "years")
+	checkmate::assertNumeric(bmi)
+	checkmate::assertNumeric(age)
 
-  mv_bmi <- check_mv_computation(bmi, "bmi")
-  bmi[mv_bmi] <- NA
-  age <- check_mv_reference(age, "age")
+	mv_bmi <- check_mv_computation(bmi, "bmi")
+	bmi[mv_bmi] <- NA
+	age <- check_mv_reference(age, "age")
 
-  # give message if any NAs in BMI
-  if (any(is.na(bmi))) {
-    rlang::inform("BMI contains missing values")
-  }
-  if (any(bmi < 0, na.rm = TRUE)) {
-    rlang::inform("BMI contains negative values")
-  }
+	# give message if any NAs in BMI
+	if (any(is.na(bmi))) {
+		rlang::inform("BMI contains missing values")
+	}
+	if (any(bmi < 0, na.rm = TRUE)) {
+		rlang::inform("BMI contains negative values")
+	}
 
-  if (any(is.na(age))) {
-    rlang::inform("age contains missing values")
-  }
+	if (any(is.na(age))) {
+		rlang::inform("age contains missing values")
+	}
 
-  if (any(age < 18, na.rm = TRUE)) {
-    rlang::warn(
-      "Age contains values less than 18 years. Adult BMI categories may not be appropriate for pediatric populations."
-    )
-  }
+	if (any(age < 18, na.rm = TRUE)) {
+		rlang::warn(
+			"Age contains values less than 18 years. Adult BMI categories may not be appropriate for pediatric populations."
+		)
+	}
 
-  # Categorize BMI
-  bmic <- dplyr::case_when(
-    0 < bmi & bmi < 18.5 ~ 1, # Underweight
-    bmi >= 18.5 & bmi < 25 ~ 2, # Normal weight
-    bmi >= 25 & bmi < 30 ~ 3, # Overweight
-    bmi >= 30 & bmi < 35 ~ 4, # Obese class 1
+	# Categorize BMI
+	bmic <- dplyr::case_when(
+		0 < bmi & bmi < 18.5 ~ 1, # Underweight
+		bmi >= 18.5 & bmi < 25 ~ 2, # Normal weight
+		bmi >= 25 & bmi < 30 ~ 3, # Overweight
+		bmi >= 30 & bmi < 35 ~ 4, # Obese class 1
 		bmi >= 35 & bmi < 40 ~ 5, # Obese class 2
-		bmi >= 40 ~ 6,						# Obese class 3
+		bmi >= 40 ~ 6, # Obese class 3
 		.default = getOption("scicalc.missing_value", -999)
-  )
-  bmic <- apply_mv_mask(bmic, mv_bmi)
-  attr(bmic, "category_standard") <- "WHO"
-  return(bmic)
+	)
+	bmic <- apply_mv_mask(bmic, mv_bmi)
+	attr(bmic, "category_standard") <- "WHO"
+	return(bmic)
 }

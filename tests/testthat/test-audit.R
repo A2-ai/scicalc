@@ -89,6 +89,21 @@ test_that("with_units logs each unit in a mixed_units vector", {
   expect_equal(attached$n[attached$to == "ng/mL"], 2)
 })
 
+test_that("mixed mass-to-molar conversion is captured as one audit event", {
+  lf <- local_capture()
+  mass <- units::mixed_units(c(1, 500), c("ug/mL", "ng/mL"))
+  mw <- units::set_units(c(500, 250), "g/mol", mode = "standard")
+
+  convert_mass_to_mol(mass, mw, mol_units = "nmol/L")
+
+  a <- scicalc_audit(log_file = lf)
+  event <- a[a$fn == "convert_mass_to_mol", , drop = FALSE]
+  expect_equal(nrow(event), 1)
+  expect_setequal(strsplit(event$from, ",", fixed = TRUE)[[1]], c("ug/mL", "ng/mL"))
+  expect_equal(event$to, "nmol/L")
+  expect_equal(event$n, 2)
+})
+
 test_that("convert_units_to_spec logs a spec event with the spec file path", {
   skip_if_not_installed("yspec")
   lf <- local_capture()

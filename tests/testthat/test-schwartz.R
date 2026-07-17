@@ -2,7 +2,7 @@
 METHOD = "Schwartz"
 test_that("schwartz_egfr works for numerical input", {
   expect_equal(
-    .egfr_schwartz(height = 174, creat = 1) %>% round(3),
+    .egfr_schwartz(height = 174, creat = 1) |> round(3),
     71.862,
     ignore_attr = TRUE
   )
@@ -10,7 +10,7 @@ test_that("schwartz_egfr works for numerical input", {
 
 test_that("schwartz_egfr works for vector input", {
   expect_equal(
-    .egfr_schwartz(c(174, 202, 186, 179), c(0.4, 0.8, 1, 2)) %>% round(3),
+    .egfr_schwartz(c(174, 202, 186, 179), c(0.4, 0.8, 1, 2)) |> round(3),
     c(179.655, 104.282, 76.818, 36.963),
     ignore_attr = TRUE
   )
@@ -26,7 +26,7 @@ test_that("schwartz_egfr works for dataframe columns", {
     "HEIGHT" = c(174, 202, 186, 179)
   )
   expect_equal(
-    .egfr_schwartz(df$HEIGHT, df$CREAT) %>% round(3),
+    .egfr_schwartz(df$HEIGHT, df$CREAT) |> round(3),
     c(71.862, 83.426, 38.409, 73.927),
     ignore_attr = TRUE
   )
@@ -41,11 +41,11 @@ test_that("schwartz_egfr can be used in a mutate", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c(174, 202, 186, 179)
   )
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(schwartz_egfr = .egfr_schwartz(HEIGHT, CREAT))
 
   expect_equal(
-    df$schwartz_egfr %>% round(3),
+    df$schwartz_egfr |> round(3),
     c(71.862, 83.426, 38.409, 73.927),
     ignore_attr = TRUE
   )
@@ -62,13 +62,13 @@ test_that("schwartz_egfr can be used within mutate after a group_by", {
     "HEIGHT" = c(174, 174, 174, 174, 201, 201, 201, 201)
   )
 
-  df <- df %>%
-    dplyr::group_by(ID) %>%
+  df <- df |>
+    dplyr::group_by(ID) |>
     dplyr::mutate(
       schwartz_egfr = .egfr_schwartz(HEIGHT, CREAT)
     )
   expect_equal(
-    df$schwartz_egfr %>% round(3),
+    df$schwartz_egfr |> round(3),
     c(71.862, 71.862, 71.862, 71.862, 20.753, 20.753, 20.753, 20.753),
     ignore_attr = TRUE
   )

@@ -60,7 +60,7 @@
 #'   ULNBILI = 1.2
 #' )
 #'
-#' patients %>%
+#' patients |>
 #'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
 #'
 #' @export

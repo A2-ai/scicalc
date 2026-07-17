@@ -1,6 +1,6 @@
 test_that("crcl works for single entries", {
   expect_equal(
-    crcl(TRUE, 30, 10, 70) %>% round(3),
+    crcl(TRUE, 30, 10, 70) |> round(3),
     9.090,
     ignore_attr = TRUE
   )
@@ -30,12 +30,12 @@ test_that("crcl works within mutates", {
     "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
   )
 
-  df <- df %>%
-    dplyr::group_by(ID) %>%
+  df <- df |>
+    dplyr::group_by(ID) |>
     dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
 
   expect_equal(
-    df$CRCL %>% round(3),
+    df$CRCL |> round(3),
     c(95.861, 95.861, 95.861, 95.861, 26.632, 26.632, 26.632, 26.632),
     ignore_attr = TRUE
   )

@@ -48,7 +48,7 @@ test_that("read_file_with_hash can replace '.' with NA", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c(NA, 186, 201, 193)
   )
-  expect_equal(df %>% as.data.frame(), expected_df)
+  expect_equal(df |> as.data.frame(), expected_df)
 })
 
 test_that("read_file_with_hash will not replace '.' by default", {
@@ -61,7 +61,7 @@ test_that("read_file_with_hash will not replace '.' by default", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c('.', 186, 201, 193)
   )
-  expect_equal(df %>% as.data.frame(), expected_df)
+  expect_equal(df |> as.data.frame(), expected_df)
 })
 
 test_that("read_csv_with_hash can hide column types", {

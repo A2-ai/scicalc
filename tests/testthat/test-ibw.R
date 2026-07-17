@@ -45,7 +45,7 @@ test_that("ibw can be used in a mutate", {
     AGE = c(25, 30, 35)
   )
 
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(IBW = ibw(HEIGHT, SEX, AGE))
 
   expect_equal(df$IBW, c(50, 54.7, 73), ignore_attr = TRUE)

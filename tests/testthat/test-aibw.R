@@ -99,7 +99,7 @@ test_that("aibw can be used in a mutate", {
   )
 
   # Add AIBW using dplyr mutate (real-world usage)
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(AIBW = aibw(WEIGHT, HEIGHT, SEX, AGE))
 
   expect_length(df$AIBW, 8)
@@ -110,7 +110,7 @@ test_that("aibw can be used in a mutate", {
   expect_equal(df$AIBW[7], aibw(95, 168, 0, 45), ignore_attr = TRUE) # Overweight case
 
   # Test with both parameter variations in mutate
-  df_conservative <- df %>%
+  df_conservative <- df |>
     dplyr::mutate(
       AIBW_CONSERVATIVE = aibw(
         WEIGHT,

@@ -91,7 +91,7 @@ df <- data.frame(
 )
 
 library(dplyr)
-df <- df \%>\%
+df <- df |>
   mutate(
     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),

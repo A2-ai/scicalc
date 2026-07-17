@@ -15,8 +15,8 @@
 #'   ALB = c(35, 40, 28, 45)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(ALBBL = convert_alb(ALB))
 #' df
 convert_alb <- function(alb) {
@@ -55,8 +55,8 @@ convert_alb <- function(alb) {
 #'   BILI = c(10, 15, 25, 40)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(BILIBL = convert_bili(BILI))
 #' df
 convert_bili <- function(bili) {
@@ -99,8 +99,8 @@ convert_bili <- function(bili) {
 #'   CREAT = c(70, 90, 110, 130)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(CREATBL = convert_creat(CREAT))
 #' df
 convert_creat <- function(creat) {
@@ -133,35 +133,70 @@ convert_creat <- function(creat) {
 #' (e.g. `mg` -> `umol`) and concentrations (e.g. `mg/dL` -> `umol/L`) alike;
 #' the `units` machinery handles the volume dimension.
 #'
-#' @param values numeric or `units` vector interpreted in `mass_units`.
-#' @param mass_units the mass unit of `values` (e.g. `"mg"`, `"mg/dL"`).
-#' @param mol_units the target molar unit (e.g. `"umol"`, `"umol/L"`).
-#' @param mol_weight molecular weight in g/mol.
+#' @param x A numeric, `units`, or `mixed_units` vector.
+#' @param mol_weight Molecular weight as a numeric or `units` vector. Numeric
+#'   values are assumed to be in g/mol with a warning.
+#' @param mol_units Optional target molar unit.
+#' @param ... Arguments passed to a class method.
+#' @param mass_units Source mass unit required by the numeric method.
 #'
-#' @return a `units` vector in `mol_units`.
+#' @return A `units` or `mixed_units` vector.
 #'
 #' @family unit_conversion
 #' @export
 #'
 #' @examples
-#' convert_mass_to_mol(1, "mg/dL", "umol/L", mol_weight = 113.12) # creatinine
-convert_mass_to_mol <- function(values, mass_units, mol_units, mol_weight) {
-  input_name <- deparse1(substitute(values))
+#' mass <- units::set_units(1, "mg/dL", mode = "standard")
+#' mw <- units::set_units(113.12, "g/mol", mode = "standard")
+#' convert_mass_to_mol(mass, mw, mol_units = "umol/L")
+convert_mass_to_mol <- function(x, mol_weight, mol_units = NULL, ...) {
+  UseMethod("convert_mass_to_mol")
+}
+
+#' @rdname convert_mass_to_mol
+#' @export
+convert_mass_to_mol.numeric <- function(
+  x, mol_weight, mol_units = NULL, mass_units, ...
+) {
+  rlang::check_dots_empty()
+  if (missing(mass_units)) {
+    rlang::abort("`mass_units` is required for numeric `x`.")
+  }
   checkmate::assert_string(mass_units)
-  checkmate::assert_string(mol_units)
-  checkmate::assert_number(mol_weight, lower = 0)
-
-  mass <- units::set_units(values, mass_units, mode = "standard")
-  mw <- units::set_units(mol_weight, "g/mol", mode = "standard")
-  result <- units::set_units(mass / mw, mol_units, mode = "standard")
-
-  log_audit_event(
-    "unit", fn = "convert_mass_to_mol", input = input_name,
-    from = mass_units, to = mol_units, transform = "convert",
-    detail = paste0("MW=", mol_weight, " g/mol"),
-    n = sum(!is.na(as.numeric(result)))
+  input_name <- deparse1(substitute(x))
+  x <- units::set_units(x, normalize_unit_string(mass_units), mode = "standard")
+  convert_with_molecular_weight(
+    x, mol_weight, mol_units, "/", "convert_mass_to_mol", input_name
   )
-  result
+}
+
+#' @rdname convert_mass_to_mol
+#' @export
+convert_mass_to_mol.units <- function(x, mol_weight, mol_units = NULL, ...) {
+  rlang::check_dots_empty()
+  convert_with_molecular_weight(
+    x, mol_weight, mol_units, "/", "convert_mass_to_mol",
+    deparse1(substitute(x))
+  )
+}
+
+#' @rdname convert_mass_to_mol
+#' @export
+convert_mass_to_mol.mixed_units <- function(x, mol_weight, mol_units = NULL, ...) {
+  rlang::check_dots_empty()
+  convert_with_molecular_weight(
+    x, mol_weight, mol_units, "/", "convert_mass_to_mol",
+    deparse1(substitute(x))
+  )
+}
+
+#' @rdname convert_mass_to_mol
+#' @export
+convert_mass_to_mol.default <- function(x, mol_weight, mol_units = NULL, ...) {
+  rlang::abort(paste0(
+    "No `convert_mass_to_mol()` method for class <",
+    paste(class(x), collapse = "/"), ">."
+  ))
 }
 
 #' Convert Molar to Mass Amounts or Concentrations
@@ -170,33 +205,132 @@ convert_mass_to_mol <- function(values, mass_units, mol_units, mol_weight) {
 #' quantity or concentration using a molecular weight. Works for plain amounts
 #' (e.g. `umol` -> `mg`) and concentrations (e.g. `umol/L` -> `mg/dL`) alike.
 #'
-#' @param values numeric or `units` vector interpreted in `mol_units`.
-#' @param mass_units the target mass unit (e.g. `"mg"`, `"mg/dL"`).
-#' @param mol_units the molar unit of `values` (e.g. `"umol"`, `"umol/L"`).
-#' @param mol_weight molecular weight in g/mol.
+#' @param x A numeric, `units`, or `mixed_units` vector.
+#' @param mol_weight Molecular weight as a numeric or `units` vector. Numeric
+#'   values are assumed to be in g/mol with a warning.
+#' @param mass_units Optional target mass unit.
+#' @param ... Arguments passed to a class method.
+#' @param mol_units Source molar unit required by the numeric method.
 #'
-#' @return a `units` vector in `mass_units`.
+#' @return A `units` or `mixed_units` vector.
 #'
 #' @family unit_conversion
 #' @export
 #'
 #' @examples
-#' convert_mol_to_mass(88.42, "mg/dL", "umol/L", mol_weight = 113.12) # creatinine
-convert_mol_to_mass <- function(values, mass_units, mol_units, mol_weight) {
-  input_name <- deparse1(substitute(values))
-  checkmate::assert_string(mass_units)
-  checkmate::assert_string(mol_units)
-  checkmate::assert_number(mol_weight, lower = 0)
+#' mol <- units::set_units(88.4017, "umol/L", mode = "standard")
+#' mw <- units::set_units(113.12, "g/mol", mode = "standard")
+#' convert_mol_to_mass(mol, mw, mass_units = "mg/dL")
+convert_mol_to_mass <- function(x, mol_weight, mass_units = NULL, ...) {
+  UseMethod("convert_mol_to_mass")
+}
 
-  mol <- units::set_units(values, mol_units, mode = "standard")
-  mw <- units::set_units(mol_weight, "g/mol", mode = "standard")
-  result <- units::set_units(mol * mw, mass_units, mode = "standard")
+#' @rdname convert_mol_to_mass
+#' @export
+convert_mol_to_mass.numeric <- function(
+  x, mol_weight, mass_units = NULL, mol_units, ...
+) {
+  rlang::check_dots_empty()
+  if (missing(mol_units)) {
+    rlang::abort("`mol_units` is required for numeric `x`.")
+  }
+  checkmate::assert_string(mol_units)
+  input_name <- deparse1(substitute(x))
+  x <- units::set_units(x, normalize_unit_string(mol_units), mode = "standard")
+  convert_with_molecular_weight(
+    x, mol_weight, mass_units, "*", "convert_mol_to_mass", input_name
+  )
+}
+
+#' @rdname convert_mol_to_mass
+#' @export
+convert_mol_to_mass.units <- function(x, mol_weight, mass_units = NULL, ...) {
+  rlang::check_dots_empty()
+  convert_with_molecular_weight(
+    x, mol_weight, mass_units, "*", "convert_mol_to_mass",
+    deparse1(substitute(x))
+  )
+}
+
+#' @rdname convert_mol_to_mass
+#' @export
+convert_mol_to_mass.mixed_units <- function(x, mol_weight, mass_units = NULL, ...) {
+  rlang::check_dots_empty()
+  convert_with_molecular_weight(
+    x, mol_weight, mass_units, "*", "convert_mol_to_mass",
+    deparse1(substitute(x))
+  )
+}
+
+#' @rdname convert_mol_to_mass
+#' @export
+convert_mol_to_mass.default <- function(x, mol_weight, mass_units = NULL, ...) {
+  rlang::abort(paste0(
+    "No `convert_mol_to_mass()` method for class <",
+    paste(class(x), collapse = "/"), ">."
+  ))
+}
+
+# Prepare molecular weight in g/mol.
+#' @noRd
+prepare_molecular_weight <- function(mol_weight, n) {
+  if (inherits(mol_weight, "mixed_units")) {
+    rlang::abort("`mol_weight` must be numeric or a standard `units` vector.")
+  }
+  if (inherits(mol_weight, "units")) {
+    mw <- units::set_units(mol_weight, "g/mol", mode = "standard")
+  } else if (is.numeric(mol_weight)) {
+    rlang::warn(
+      "Numeric `mol_weight` has no units; assuming [g/mol].",
+      class = "scicalc_assumed_molecular_weight_units"
+    )
+    mw <- units::set_units(mol_weight, "g/mol", mode = "standard")
+  } else {
+    rlang::abort("`mol_weight` must be numeric or inherit from `units`.")
+  }
+  if (!length(mw) %in% c(1L, n)) {
+    rlang::abort("`mol_weight` must have length 1 or the same length as `x`.")
+  }
+  if (length(mw) == 1L) {
+    mw <- rep(mw, length.out = n)
+  }
+  if (any(!is.na(mw) & (!is.finite(as.numeric(mw)) | as.numeric(mw) <= 0))) {
+    rlang::abort("Non-missing `mol_weight` values must be finite and greater than zero.")
+  }
+  mw
+}
+
+# Apply molecular weight and optionally convert to one target unit.
+#' @noRd
+convert_with_molecular_weight <- function(
+  x, mol_weight, target, operator, fn, input_name
+) {
+  mw <- prepare_molecular_weight(mol_weight, length(x))
+  operand <- if (inherits(x, "mixed_units")) {
+    units::mixed_units(as.numeric(mw), rep("g/mol", length(mw)))
+  } else {
+    mw
+  }
+  result <- if (operator == "/") x / operand else x * operand
+
+  if (!is.null(target)) {
+    checkmate::assert_string(target)
+    target <- normalize_unit_string(target)
+    result <- units::set_units(result, target, mode = "standard")
+    if (inherits(result, "mixed_units")) {
+      result <- units::set_units(
+        units::drop_units(result), target, mode = "standard"
+      )
+    }
+  }
 
   log_audit_event(
-    "unit", fn = "convert_mol_to_mass", input = input_name,
-    from = mol_units, to = mass_units, transform = "convert",
-    detail = paste0("MW=", mol_weight, " g/mol"),
-    n = sum(!is.na(as.numeric(result)))
+    "unit", fn = fn, input = input_name,
+    from = paste(unique(as.character(units(x))), collapse = ","),
+    to = paste(unique(as.character(units(result))), collapse = ","),
+    transform = "convert",
+    detail = paste0("MW=", paste(unique(signif(as.numeric(mw), 8)), collapse = ","), " g/mol"),
+    n = sum(!is.na(units::drop_units(result)))
   )
   result
 }

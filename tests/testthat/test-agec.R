@@ -61,8 +61,8 @@ test_that("agec works with dplyr operations", {
     SEX = c("M", "F", "M", "F")
   )
 
-  df <- df %>%
-    dplyr::group_by(SEX) %>%
+  df <- df |>
+    dplyr::group_by(SEX) |>
     dplyr::mutate(AGEC = agec(AGE))
 
   expect_equal(df$AGEC, c(5, 5, 4, 6), ignore_attr = TRUE)

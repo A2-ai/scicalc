@@ -37,8 +37,8 @@ df <- data.frame(
   BSA = c(1.60, 1.85, 1.75, 2.00)
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
+df <- df |>
+  dplyr::group_by(ID) |>
   dplyr::mutate(AEGFR = aegfr(EGFR, BSA))
 df
 }

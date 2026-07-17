@@ -25,12 +25,12 @@ get_unique_units_df <- function(params, units) {
   df <- data.frame(
     PARAM = params,
     UNIT = units
-  ) %>%
+  ) |>
     dplyr::distinct()
 
   df$UNIT <- normalize_unit_string(df$UNIT)
 
-  df <- df %>%
+  df <- df |>
     dplyr::distinct()
 
   df

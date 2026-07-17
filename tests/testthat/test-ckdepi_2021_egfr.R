@@ -2,7 +2,7 @@
 METHOD = "CKDEPI 2021"
 test_that("ckdepi_2021_egfr works for numerical input", {
   expect_equal(
-    .egfr_ckdepi_2021_cystatin(sexf = FALSE, age = 24, creat = 1, cystc = 1) %>%
+    .egfr_ckdepi_2021_cystatin(sexf = FALSE, age = 24, creat = 1, cystc = 1) |>
       round(3),
     97.570,
     ignore_attr = TRUE
@@ -16,7 +16,7 @@ test_that("ckdepi_2021_egfr works for vector input", {
       c(24, 24, 23, 24),
       c(1, 1, 2, 1),
       c(0.4, 0.8, 1, 2)
-    ) %>%
+    ) |>
       round(3),
     c(145.193, 97.491, 67.182, 47.793),
     ignore_attr = TRUE
@@ -32,7 +32,7 @@ test_that("ckdepi_2021_egfr works for dataframe columns", {
     "CYSTC" = c(0.4, 0.8, 1, 2)
   )
   expect_equal(
-    .egfr_ckdepi_2021_cystatin(df$SEXN, df$AGE, df$CREAT, df$CYSTC) %>% round(3),
+    .egfr_ckdepi_2021_cystatin(df$SEXN, df$AGE, df$CREAT, df$CYSTC) |> round(3),
     c(145.193, 97.491, 67.182, 47.793),
     ignore_attr = TRUE
   )
@@ -46,13 +46,13 @@ test_that("ckdepi_2021_egfr can be used in a mutate", {
     "CREAT" = c(1, 1, 2, 1),
     "CYSTC" = c(0.4, 0.8, 1, 2)
   )
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       ckdepi_2021_egfr = .egfr_ckdepi_2021_cystatin(SEXN, AGE, CREAT, CYSTC)
     )
 
   expect_equal(
-    df$ckdepi_2021_egfr %>% round(3),
+    df$ckdepi_2021_egfr |> round(3),
     c(145.193, 97.491, 67.182, 47.793),
     ignore_attr = TRUE
   )
@@ -68,13 +68,13 @@ test_that("ckdepi_2021_egfr can be used within mutate after a group_by", {
     "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9)
   )
 
-  df <- df %>%
-    dplyr::group_by(ID) %>%
+  df <- df |>
+    dplyr::group_by(ID) |>
     dplyr::mutate(
       ckdepi_2021_egfr = .egfr_ckdepi_2021_cystatin(SEXN, AGE, CREAT, CYSTC)
     )
   expect_equal(
-    df$ckdepi_2021_egfr %>% round(3),
+    df$ckdepi_2021_egfr |> round(3),
     c(121.954, 121.954, 121.954, 121.954, 50.210, 50.210, 50.210, 50.210),
     ignore_attr = TRUE
   )
@@ -104,8 +104,8 @@ test_that("ckdepi_2021_egfr won't work for character Sex", {
     "CYSTC" = c(0.4, 0.4, 0.4, 0.4, 0.9, 0.9, 0.9, 0.9)
   )
   expect_error(
-    df <- df %>%
-      dplyr::group_by(ID) %>%
+    df <- df |>
+      dplyr::group_by(ID) |>
       dplyr::mutate(
         ckdepi_2021_egfr = .egfr_ckdepi_2021_cystatin(SEX, AGE, CREAT, CYSTC) #error here due to non numerical sex
       )

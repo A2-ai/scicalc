@@ -23,8 +23,8 @@ df <- data.frame(
   CREAT = c(70, 90, 110, 130)
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
+df <- df |>
+  dplyr::group_by(ID) |>
   dplyr::mutate(CREATBL = convert_creat(CREAT))
 df
 }

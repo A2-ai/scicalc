@@ -2,21 +2,36 @@
 % Please edit documentation in R/convert.R
 \name{convert_mol_to_mass}
 \alias{convert_mol_to_mass}
+\alias{convert_mol_to_mass.numeric}
+\alias{convert_mol_to_mass.units}
+\alias{convert_mol_to_mass.mixed_units}
+\alias{convert_mol_to_mass.default}
 \title{Convert Molar to Mass Amounts or Concentrations}
 \usage{
-convert_mol_to_mass(values, mass_units, mol_units, mol_weight)
+convert_mol_to_mass(x, mol_weight, mass_units = NULL, ...)
+
+\method{convert_mol_to_mass}{numeric}(x, mol_weight, mass_units = NULL, mol_units, ...)
+
+\method{convert_mol_to_mass}{units}(x, mol_weight, mass_units = NULL, ...)
+
+\method{convert_mol_to_mass}{mixed_units}(x, mol_weight, mass_units = NULL, ...)
+
+\method{convert_mol_to_mass}{default}(x, mol_weight, mass_units = NULL, ...)
 }
 \arguments{
-\item{values}{numeric or \code{units} vector interpreted in \code{mol_units}.}
+\item{x}{A numeric, \code{units}, or \code{mixed_units} vector.}
 
-\item{mass_units}{the target mass unit (e.g. \code{"mg"}, \code{"mg/dL"}).}
+\item{mol_weight}{Molecular weight as a numeric or \code{units} vector. Numeric
+values are assumed to be in g/mol with a warning.}
 
-\item{mol_units}{the molar unit of \code{values} (e.g. \code{"umol"}, \code{"umol/L"}).}
+\item{mass_units}{Optional target mass unit.}
 
-\item{mol_weight}{molecular weight in g/mol.}
+\item{...}{Arguments passed to a class method.}
+
+\item{mol_units}{Source molar unit required by the numeric method.}
 }
 \value{
-a \code{units} vector in \code{mass_units}.
+A \code{units} or \code{mixed_units} vector.
 }
 \description{
 Converts a molar quantity or molar concentration to the corresponding mass
@@ -24,7 +39,9 @@ quantity or concentration using a molecular weight. Works for plain amounts
 (e.g. \code{umol} -> \code{mg}) and concentrations (e.g. \code{umol/L} -> \code{mg/dL}) alike.
 }
 \examples{
-convert_mol_to_mass(88.42, "mg/dL", "umol/L", mol_weight = 113.12) # creatinine
+mol <- units::set_units(88.4017, "umol/L", mode = "standard")
+mw <- units::set_units(113.12, "g/mol", mode = "standard")
+convert_mol_to_mass(mol, mw, mass_units = "mg/dL")
 }
 \seealso{
 Other unit_conversion: 

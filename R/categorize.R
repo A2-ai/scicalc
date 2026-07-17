@@ -23,9 +23,9 @@ categorize <- function(
   checkmate::assertNumeric(continuous_var)
 
   if (
-    continuous_var %>%
-      stats::na.omit() %>%
-      unique() %>%
+    continuous_var |>
+      stats::na.omit() |>
+      unique() |>
       length() <
       nbins
   ) {
