@@ -14,7 +14,14 @@
   )
 
   tryCatch(
-    units::install_unit("U"),
+    units::remove_unit(symbol = "U", name = "enzyme_unit"),
+    error = function(e) {
+      # `U` may not have been registered in this R session.
+    }
+  )
+
+  tryCatch(
+    units::install_unit("U", "umol/min", "enzyme_unit"),
     error = function(e) {
       # Already registered (e.g. during load_all/test cycling) — safe to ignore
     }
@@ -29,7 +36,7 @@
     error = function(e) NULL
   )
   tryCatch(
-    units::remove_unit(symbol = "U"),
+    units::remove_unit(symbol = "U", name = "enzyme_unit"),
     error = function(e) NULL
   )
 }
@@ -44,7 +51,7 @@ scicalc_options_message <- function() {
   rule <- cli::rule(left = "scicalc options")
   msg <- cli::format_inline("{.alert-success scicalc.missing_value : {getOption('scicalc.missing_value', -999)}}")
   bsa_msg <- cli::format_inline("{.alert-info bsa_ref unit = 1.73 m^2}")
-  u_msg <- cli::format_inline("{.alert-info U unit = enzyme activity (units/L as U/L)}")
+  u_msg <- cli::format_inline("{.alert-info 1 U = 16.67 nkat (enzyme activity)}")
   packageStartupMessage(root_msg)
   packageStartupMessage(rule)
   packageStartupMessage(msg)
