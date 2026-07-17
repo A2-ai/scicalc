@@ -21,6 +21,17 @@ test_that("scicalc_view converts only mixed-units columns in a display copy", {
   expect_s3_class(source$ODV, "mixed_units")
 })
 
+test_that("scicalc_view renders NULL mixed-unit elements as missing", {
+  mixed <- structure(
+    list(units::set_units(0.158, "ng/mL"), NULL),
+    class = c("mixed_units", "list")
+  )
+
+  display <- scicalc_view(tibble::tibble(ODV = mixed))
+
+  expect_equal(display$ODV, c("0.158 [ng/mL]", NA_character_))
+})
+
 test_that("scicalc_view rejects non-data-frame input", {
   expect_error(scicalc_view(1:3), "is.data.frame")
 })

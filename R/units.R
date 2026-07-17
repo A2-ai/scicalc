@@ -170,16 +170,19 @@ Math.mixed_units <- function(x, ...) {
     ))
   }
 
+  input <- mask_missing_computation_input(x, "x")
+  x <- input$value
+
   out <- lapply(
     unclass(x),
     function(value) do.call(.Generic, c(list(value), list(...)))
   )
 
   if (all(vapply(out, inherits, logical(1), "units"))) {
-    return(structure(out, class = class(x)))
+    return(apply_mv_mask(structure(out, class = class(x)), input$mask))
   }
 
-  unlist(out, use.names = TRUE)
+  apply_mv_mask(unlist(out, use.names = TRUE), input$mask)
 }
 
 #' Check for Unique Units per Parameter

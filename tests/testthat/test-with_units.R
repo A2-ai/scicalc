@@ -71,6 +71,15 @@ test_that("log works element-wise on mixed_units", {
   expect_equal(units::drop_units(out10), log10(c(1, 500)))
 })
 
+test_that("Math.mixed_units preserves the missing-value indicator", {
+  mixed <- units::mixed_units(c(-999, 500), c("ug/mL", "ng/mL"))
+
+  out <- suppressWarnings(log(mixed))
+
+  expect_equal(as.numeric(out[[1]]), -999)
+  expect_true(is.finite(as.numeric(out[[2]])))
+})
+
 test_that("supported Math operations work element-wise on mixed_units", {
   mixed <- suppressWarnings(
     with_units(c(-1.234, 500.678), c("ug/mL", "ng/mL"))

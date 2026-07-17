@@ -4,6 +4,29 @@
 format_mixed_fast <- function(x) {
   elements <- unclass(x)
 
+  # A malformed or legacy mixed-units vector can contain NULL for a missing
+  # element. It has no magnitude or unit to display, but the viewer should
+  # still be able to render the rest of the column.
+  has_value <- vapply(elements, length, integer(1)) > 0L
+
+  if (any(!has_value)) {
+    output <- rep(NA_character_, length(elements))
+    present <- elements[has_value]
+    values <- vapply(present, as.numeric, numeric(1))
+    unit_labels <- vapply(
+      present,
+      \(element) as.character(units::units(element)),
+      character(1)
+    )
+
+    output[has_value] <- paste0(
+      format(values, trim = TRUE, drop0trailing = TRUE),
+      " [", unit_labels, "]"
+    )
+
+    return(output)
+  }
+
   # Extract magnitudes without invoking format/drop_units repeatedly.
   values <- vapply(
     elements,
