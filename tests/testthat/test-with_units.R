@@ -56,6 +56,74 @@ test_that("with_units rejects a non-missing mixed value without a unit", {
   )
 })
 
+test_that("log works element-wise on mixed_units", {
+  mixed <- suppressWarnings(
+    with_units(c(1, 500), c("ug/mL", "ng/mL"))
+  )
+
+  out <- log(mixed)
+  expect_s3_class(out, "mixed_units")
+  expect_equal(units::drop_units(out), log(c(1, 500)))
+  expect_equal(out[[1]], log(mixed[[1]]))
+  expect_equal(out[[2]], log(mixed[[2]]))
+
+  out10 <- log(mixed, base = 10)
+  expect_equal(units::drop_units(out10), log10(c(1, 500)))
+})
+
+test_that("supported Math operations work element-wise on mixed_units", {
+  mixed <- suppressWarnings(
+    with_units(c(-1.234, 500.678), c("ug/mL", "ng/mL"))
+  )
+
+  expect_equal(
+    units::drop_units(abs(mixed)),
+    abs(c(-1.234, 500.678))
+  )
+  expect_equal(
+    units::drop_units(round(mixed, digits = 1)),
+    round(c(-1.234, 500.678), digits = 1)
+  )
+  expect_equal(sign(mixed), c(-1, 1))
+
+  positive <- abs(mixed)
+  expect_equal(
+    units::drop_units(log2(positive)),
+    log2(abs(c(-1.234, 500.678)))
+  )
+  expect_equal(
+    units::drop_units(log1p(positive)),
+    log1p(abs(c(-1.234, 500.678)))
+  )
+})
+
+test_that("unsupported Math operations fail clearly on mixed_units", {
+  mixed <- suppressWarnings(
+    with_units(c(1, 500), c("ug/mL", "ng/mL"))
+  )
+
+  expect_error(cumsum(mixed), "not supported for a `mixed_units` vector")
+  expect_error(cos(mixed), "not supported for a `mixed_units` vector")
+})
+
+test_that("log of mixed_units works inside mutate", {
+  df <- tibble::tibble(
+    AVAL = c(1, 500),
+    PCSTRESU = c("ug/mL", "ng/mL")
+  )
+
+  out <- suppressWarnings(
+    dplyr::mutate(
+      df,
+      ODV = with_units(AVAL, PCSTRESU),
+      LDV = log(ODV)
+    )
+  )
+
+  expect_s3_class(out$LDV, "mixed_units")
+  expect_equal(units::drop_units(out$LDV), log(df$AVAL))
+})
+
 test_that("with_units output flows into convert_units_to_spec", {
   df <- data.frame(ID = 1:2)
   df$ODV <- with_units(c(1000, 2000), c("ng/mL", "ng/mL"))

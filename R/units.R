@@ -151,6 +151,37 @@ with_units <- function(values, units) {
   units::set_units(values, distinct_units, mode = "standard")
 }
 
+# Apply supported mathematical operations element by element because
+# `mixed_units` is list-like and the units package does not provide a Math
+# method for it. The actual operation on each element is still handled by the
+# units package, so its dimensional checks and unit propagation remain in
+# force.
+#' @export
+#' @noRd
+Math.mixed_units <- function(x, ...) {
+  supported <- c(
+    "abs", "sign", "sqrt", "floor", "ceiling", "trunc", "round",
+    "signif", "exp", "expm1", "log", "log10", "log2", "log1p"
+  )
+
+  if (!.Generic %in% supported) {
+    rlang::abort(paste0(
+      "`", .Generic, "()` is not supported for a `mixed_units` vector."
+    ))
+  }
+
+  out <- lapply(
+    unclass(x),
+    function(value) do.call(.Generic, c(list(value), list(...)))
+  )
+
+  if (all(vapply(out, inherits, logical(1), "units"))) {
+    return(structure(out, class = class(x)))
+  }
+
+  unlist(out, use.names = TRUE)
+}
+
 #' Check for Unique Units per Parameter
 #'
 #' @param params a column from a dataset with lab parameters
