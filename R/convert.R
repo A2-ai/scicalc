@@ -22,6 +22,8 @@
 convert_alb <- function(alb) {
   input_name <- deparse1(substitute(alb))
   alb <- assert_and_strip_units(alb, "g/L")
+  alb_input <- mask_missing_computation_input(alb, "alb")
+  alb <- alb_input$value
 
   checkmate::assertNumeric(alb)
 
@@ -31,6 +33,7 @@ convert_alb <- function(alb) {
 
   alb_gdl <- alb / 10
   alb_gdl <- units::set_units(alb_gdl, "g/dL", mode = "standard")
+  alb_gdl <- apply_mv_mask(alb_gdl, alb_input$mask)
   log_audit_event(
     "unit", fn = "convert_alb", input = input_name, from = "g/L", to = "g/dL",
     transform = "convert", detail = "x0.1", n = sum(!is.na(alb))
@@ -62,6 +65,8 @@ convert_alb <- function(alb) {
 convert_bili <- function(bili) {
   input_name <- deparse1(substitute(bili))
   bili <- assert_and_strip_units(bili, "umol/L")
+  bili_input <- mask_missing_computation_input(bili, "bili")
+  bili <- bili_input$value
 
   checkmate::assertNumeric(bili)
 
@@ -74,6 +79,7 @@ convert_bili <- function(bili) {
   conversion_factor <- mol_weight_bili / 10^4
   bili_mgdl <- bili * conversion_factor
   bili_mgdl <- units::set_units(bili_mgdl, "mg/dL", mode = "standard")
+  bili_mgdl <- apply_mv_mask(bili_mgdl, bili_input$mask)
   log_audit_event(
     "unit", fn = "convert_bili", input = input_name, from = "umol/L", to = "mg/dL",
     transform = "convert", detail = paste0("x", signif(conversion_factor, 4)),
@@ -106,6 +112,8 @@ convert_bili <- function(bili) {
 convert_creat <- function(creat) {
   input_name <- deparse1(substitute(creat))
   creat <- assert_and_strip_units(creat, "umol/L")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  creat <- creat_input$value
 
   checkmate::assertNumeric(creat)
 
@@ -118,6 +126,7 @@ convert_creat <- function(creat) {
   conversion_factor <- mol_weight_creat / 10^4
   creat_mgdl <- creat * conversion_factor
   creat_mgdl <- units::set_units(creat_mgdl, "mg/dL", mode = "standard")
+  creat_mgdl <- apply_mv_mask(creat_mgdl, creat_input$mask)
   log_audit_event(
     "unit", fn = "convert_creat", input = input_name, from = "umol/L", to = "mg/dL",
     transform = "convert", detail = paste0("x", signif(conversion_factor, 4)),
@@ -164,9 +173,12 @@ convert_mass_to_mol.numeric <- function(
   }
   checkmate::assert_string(mass_units)
   input_name <- deparse1(substitute(x))
+  x_input <- mask_missing_computation_input(x, "x")
+  x <- x_input$value
   x <- units::set_units(x, normalize_unit_string(mass_units), mode = "standard")
   convert_with_molecular_weight(
-    x, mol_weight, mol_units, "/", "convert_mass_to_mol", input_name
+    x, mol_weight, mol_units, "/", "convert_mass_to_mol", input_name,
+    input_mask = x_input$mask
   )
 }
 
@@ -174,9 +186,11 @@ convert_mass_to_mol.numeric <- function(
 #' @export
 convert_mass_to_mol.units <- function(x, mol_weight, mol_units = NULL, ...) {
   rlang::check_dots_empty()
+  x_input <- mask_missing_computation_input(x, "x")
+  x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol",
-    deparse1(substitute(x))
+    deparse1(substitute(x)), input_mask = x_input$mask
   )
 }
 
@@ -184,9 +198,11 @@ convert_mass_to_mol.units <- function(x, mol_weight, mol_units = NULL, ...) {
 #' @export
 convert_mass_to_mol.mixed_units <- function(x, mol_weight, mol_units = NULL, ...) {
   rlang::check_dots_empty()
+  x_input <- mask_missing_computation_input(x, "x")
+  x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol",
-    deparse1(substitute(x))
+    deparse1(substitute(x)), input_mask = x_input$mask
   )
 }
 
@@ -236,9 +252,12 @@ convert_mol_to_mass.numeric <- function(
   }
   checkmate::assert_string(mol_units)
   input_name <- deparse1(substitute(x))
+  x_input <- mask_missing_computation_input(x, "x")
+  x <- x_input$value
   x <- units::set_units(x, normalize_unit_string(mol_units), mode = "standard")
   convert_with_molecular_weight(
-    x, mol_weight, mass_units, "*", "convert_mol_to_mass", input_name
+    x, mol_weight, mass_units, "*", "convert_mol_to_mass", input_name,
+    input_mask = x_input$mask
   )
 }
 
@@ -246,9 +265,11 @@ convert_mol_to_mass.numeric <- function(
 #' @export
 convert_mol_to_mass.units <- function(x, mol_weight, mass_units = NULL, ...) {
   rlang::check_dots_empty()
+  x_input <- mask_missing_computation_input(x, "x")
+  x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass",
-    deparse1(substitute(x))
+    deparse1(substitute(x)), input_mask = x_input$mask
   )
 }
 
@@ -256,9 +277,11 @@ convert_mol_to_mass.units <- function(x, mol_weight, mass_units = NULL, ...) {
 #' @export
 convert_mol_to_mass.mixed_units <- function(x, mol_weight, mass_units = NULL, ...) {
   rlang::check_dots_empty()
+  x_input <- mask_missing_computation_input(x, "x")
+  x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass",
-    deparse1(substitute(x))
+    deparse1(substitute(x)), input_mask = x_input$mask
   )
 }
 
@@ -303,7 +326,7 @@ prepare_molecular_weight <- function(mol_weight, n) {
 # Apply molecular weight and optionally convert to one target unit.
 #' @noRd
 convert_with_molecular_weight <- function(
-  x, mol_weight, target, operator, fn, input_name
+  x, mol_weight, target, operator, fn, input_name, input_mask = NULL
 ) {
   mw <- prepare_molecular_weight(mol_weight, length(x))
   operand <- if (inherits(x, "mixed_units")) {
@@ -323,6 +346,8 @@ convert_with_molecular_weight <- function(
       )
     }
   }
+
+  result <- apply_mv_mask(result, input_mask)
 
   log_audit_event(
     "unit", fn = fn, input = input_name,

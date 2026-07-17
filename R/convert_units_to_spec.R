@@ -69,7 +69,8 @@ convert_units_to_map <- function(data, unit_map) {
   for (col in names(unit_map)) {
     target <- unit_map[[col]]
     tgt_log <- parse_log_spec(target)
-    n_col <- sum(!is.na(as.numeric(data[[col]])))
+    missing_mask <- is_missing_value(data[[col]])
+    n_col <- sum(!is.na(as.numeric(data[[col]])) & !missing_mask)
 
     if (inherits(data[[col]], "units")) {
       current <- as.character(units(data[[col]]))
@@ -82,7 +83,9 @@ convert_units_to_map <- function(data, unit_map) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
           log_unit_conversion(col, current, target, "failed", n_col)
         } else {
-          data[[col]] <- restore_attrs(shifted, data[[col]])
+          data[[col]] <- apply_mv_mask(
+            restore_attrs(shifted, data[[col]]), missing_mask
+          )
           log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col)
         }
       } else {
@@ -94,7 +97,9 @@ convert_units_to_map <- function(data, unit_map) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
           log_unit_conversion(col, current, target, "failed", n_col)
         } else {
-          data[[col]] <- restore_attrs(converted, data[[col]])
+          data[[col]] <- apply_mv_mask(
+            restore_attrs(converted, data[[col]]), missing_mask
+          )
           log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col)
         }
       }
@@ -113,7 +118,9 @@ convert_units_to_map <- function(data, unit_map) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
           log_unit_conversion(col, NA_character_, target, "failed", n_col)
         } else {
-          data[[col]] <- restore_attrs(with_unit, data[[col]])
+          data[[col]] <- apply_mv_mask(
+            restore_attrs(with_unit, data[[col]]), missing_mask
+          )
           attached <- c(attached, paste0(col, " [", target, "]"))
           log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col)
         }
@@ -126,7 +133,9 @@ convert_units_to_map <- function(data, unit_map) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
           log_unit_conversion(col, NA_character_, target, "failed", n_col)
         } else {
-          data[[col]] <- restore_attrs(with_unit, data[[col]])
+          data[[col]] <- apply_mv_mask(
+            restore_attrs(with_unit, data[[col]]), missing_mask
+          )
           attached <- c(attached, paste0(col, " [", target, "]"))
           log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col)
         }

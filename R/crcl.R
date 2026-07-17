@@ -43,6 +43,13 @@ crcl <- function(sexf, age, creat, weight) {
   creat <- assert_and_strip_units(creat, "mg/dL")
   weight <- assert_and_strip_units(weight, "kg")
 
+  age_input <- mask_missing_computation_input(age, "age")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  age <- age_input$value
+  creat <- creat_input$value
+  weight <- weight_input$value
+
   checkmate::assertLogical(sexf)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
@@ -69,5 +76,6 @@ crcl <- function(sexf, age, creat, weight) {
   sex_mult <- ifelse(sexf, 0.85, 1)
   crcl <- (140 - age) * weight / (72 * creat) * sex_mult
   crcl <- units::set_units(crcl, "mL/min", mode = "standard")
+  crcl <- apply_mv_mask(crcl, age_input$mask, creat_input$mask, weight_input$mask)
   return(crcl)
 }

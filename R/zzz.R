@@ -55,12 +55,28 @@ scicalc_options_message <- function() {
 check_mv_computation <- function(x, name) {
   mv <- getOption("scicalc.missing_value", -999)
   if (is.na(mv)) return(rep(FALSE, length(x)))
-  mask <- x == mv
-  mask[is.na(mask)] <- FALSE
+  mask <- is_missing_value(x, mv)
   if (any(mask)) {
     rlang::warn(paste0(name, " contains missing value indicator (", mv, ")"))
   }
   mask
+}
+
+# Replace the configured missing-value indicator with NA before an arithmetic
+# calculation, retaining the row mask so the caller can restore the indicator
+# on its result with apply_mv_mask().
+#' @noRd
+mask_missing_computation_input <- function(x, name) {
+  mask <- check_mv_computation(x, name)
+  if (inherits(x, "mixed_units")) {
+    x[mask] <- lapply(x[mask], function(value) {
+      value[] <- NA_real_
+      value
+    })
+  } else {
+    x[mask] <- NA
+  }
+  list(value = x, mask = mask)
 }
 
 check_mv_reference <- function(x, name) {
@@ -80,6 +96,14 @@ apply_mv_mask <- function(result, ...) {
   masks <- Filter(Negate(is.null), masks)
   if (length(masks) == 0) return(result)
   combined <- Reduce(`|`, masks)
-  result[combined] <- getOption("scicalc.missing_value", -999)
+  missing_value <- getOption("scicalc.missing_value", -999)
+  if (inherits(result, "mixed_units")) {
+    result[combined] <- lapply(result[combined], function(value) {
+      value[] <- missing_value
+      value
+    })
+  } else {
+    result[combined] <- missing_value
+  }
   result
 }

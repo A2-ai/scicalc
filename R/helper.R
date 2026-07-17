@@ -13,6 +13,8 @@
 assert_and_strip_units <- function(x, expected_unit, arg_name = deparse(substitute(x))) {
   if (!inherits(x, "units")) return(x)
 
+  missing_mask <- is_missing_value(x)
+  missing_value <- getOption("scicalc.missing_value", -999)
   supplied_unit <- as.character(units::deparse_unit(x))
   target <- units::as_units(expected_unit)
   result <- tryCatch(
@@ -30,6 +32,10 @@ assert_and_strip_units <- function(x, expected_unit, arg_name = deparse(substitu
       "`", arg_name, "`: converted from [", supplied_unit, "] to [", expected_unit, "]."
     ))
   }
+
+  # The sentinel identifies missing data before unit conversion. Restore it
+  # after conversion so downstream calculation functions can mask it reliably.
+  result[missing_mask] <- missing_value
 
   result
 }

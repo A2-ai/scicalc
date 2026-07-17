@@ -55,13 +55,12 @@ test_that("bmic warns and masks when bmi contains missing value sentinel", {
   expect_equal(result, c(2, -999), ignore_attr = TRUE)
 })
 
-test_that("bmic warns about age sentinel but still categorizes", {
+test_that("bmic propagates an age missing-value sentinel", {
   expect_warning(
     result <- bmic(c(22, 25), c(25, -999)),
-    "age contains missing value indicator.*unreliable"
+    "age contains missing value indicator"
   )
-  # age is reference-only; BMI=25 → category 3 (overweight), unaffected
-  expect_equal(result, c(2, 3), ignore_attr = TRUE)
+  expect_equal(result, c(2, -999), ignore_attr = TRUE)
 })
 
 test_that("bmic handles negative and zero BMI correctly", {

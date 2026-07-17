@@ -76,6 +76,10 @@ egfr <- function(
 .egfr_ckdepi_2009 <- function(sexf, raceb, age, creat) {
   age <- assert_and_strip_units(age, "years")
   creat <- assert_and_strip_units(creat, "mg/dL")
+  age_input <- mask_missing_computation_input(age, "age")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  age <- age_input$value
+  creat <- creat_input$value
 
   checkmate::assert_logical(sexf)
   checkmate::assert_logical(raceb)
@@ -123,6 +127,7 @@ egfr <- function(
     race_mult
 
   egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
+  egfr <- apply_mv_mask(egfr, age_input$mask, creat_input$mask)
   egfr
 }
 
@@ -130,6 +135,10 @@ egfr <- function(
 .egfr_ckdepi_2021 <- function(sexf, age, creat) {
   age <- assert_and_strip_units(age, "years")
   creat <- assert_and_strip_units(creat, "mg/dL")
+  age_input <- mask_missing_computation_input(age, "age")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  age <- age_input$value
+  creat <- creat_input$value
 
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
@@ -171,6 +180,7 @@ egfr <- function(
     sex_mult
 
   egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
+  egfr <- apply_mv_mask(egfr, age_input$mask, creat_input$mask)
   egfr
 }
 
@@ -179,6 +189,12 @@ egfr <- function(
   age <- assert_and_strip_units(age, "years")
   creat <- assert_and_strip_units(creat, "mg/dL")
   cystc <- assert_and_strip_units(cystc, "mg/L")
+  age_input <- mask_missing_computation_input(age, "age")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  cystc_input <- mask_missing_computation_input(cystc, "cystc")
+  age <- age_input$value
+  creat <- creat_input$value
+  cystc <- cystc_input$value
 
   checkmate::assert_logical(sexf)
   checkmate::assertNumeric(age)
@@ -230,6 +246,7 @@ egfr <- function(
     sex_mult
 
   egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
+  egfr <- apply_mv_mask(egfr, age_input$mask, creat_input$mask, cystc_input$mask)
   egfr
 }
 
@@ -237,6 +254,10 @@ egfr <- function(
 .egfr_mdrd <- function(sexf, raceb, age, creat) {
   age <- assert_and_strip_units(age, "years")
   creat <- assert_and_strip_units(creat, "mg/dL")
+  age_input <- mask_missing_computation_input(age, "age")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  age <- age_input$value
+  creat <- creat_input$value
 
   checkmate::assert_logical(sexf)
   checkmate::assert_logical(raceb)
@@ -277,6 +298,7 @@ egfr <- function(
     race_mult
 
   egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
+  egfr <- apply_mv_mask(egfr, age_input$mask, creat_input$mask)
   egfr
 }
 
@@ -284,6 +306,10 @@ egfr <- function(
 .egfr_schwartz <- function(height, creat) {
   height <- assert_and_strip_units(height, "cm")
   creat <- assert_and_strip_units(creat, "mg/dL")
+  height_input <- mask_missing_computation_input(height, "height")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  height <- height_input$value
+  creat <- creat_input$value
 
   checkmate::assertNumeric(height)
   checkmate::assertNumeric(creat)
@@ -303,6 +329,7 @@ egfr <- function(
   egfr <- 0.413 * height / creat
 
   egfr <- units::set_units(egfr, "mL/min/bsa_ref", mode = "standard")
+  egfr <- apply_mv_mask(egfr, height_input$mask, creat_input$mask)
   egfr
 }
 

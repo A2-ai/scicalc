@@ -23,6 +23,10 @@
 cv <- function(x, na.rm = FALSE) {
   checkmate::assertNumeric(x)
 
+  if (any(is_missing_value(x))) {
+    return(getOption("scicalc.missing_value", -999))
+  }
+
   if (any(is.na(x))) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
@@ -56,6 +60,10 @@ cv <- function(x, na.rm = FALSE) {
 geom_mean <- function(x, na.rm = FALSE) {
   checkmate::assertNumeric(x)
 
+  if (any(is_missing_value(x))) {
+    return(getOption("scicalc.missing_value", -999))
+  }
+
   if (any(is.na(x))) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
@@ -88,6 +96,10 @@ geom_mean <- function(x, na.rm = FALSE) {
 geom_sd <- function(x, na.rm = FALSE) {
   checkmate::assertNumeric(x)
 
+  if (any(is_missing_value(x))) {
+    return(getOption("scicalc.missing_value", -999))
+  }
+
   if (any(is.na(x))) {
     if (na.rm) {
       message("Your data contains NA and will be removed.")
@@ -119,6 +131,10 @@ geom_sd <- function(x, na.rm = FALSE) {
 #' geom_cv(c(1, 2, 3, 2, 1))
 geom_cv <- function(x, na.rm = FALSE) {
   checkmate::assertNumeric(x)
+
+  if (any(is_missing_value(x))) {
+    return(getOption("scicalc.missing_value", -999))
+  }
 
   if (any(is.na(x))) {
     if (na.rm) {

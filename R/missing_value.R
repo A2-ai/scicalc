@@ -24,7 +24,7 @@
 #' x <- units::set_units(c(1, -999, 3), "d", mode = "standard")
 #' is_missing_value(x)
 is_missing_value <- function(x, missing_value = getOption("scicalc.missing_value", -999)) {
-  if (inherits(x, "units")) {
+  if (inherits(x, "units") || inherits(x, "mixed_units")) {
     x <- units::drop_units(x)
   }
 

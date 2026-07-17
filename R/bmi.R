@@ -31,6 +31,11 @@ bmi <- function(weight, height) {
   weight <- assert_and_strip_units(weight, "kg")
   height <- assert_and_strip_units(height, "cm")
 
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  height_input <- mask_missing_computation_input(height, "height")
+  weight <- weight_input$value
+  height <- height_input$value
+
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
@@ -50,6 +55,7 @@ bmi <- function(weight, height) {
 
   bmi <- weight / ((height / 100)^2)
   bmi <- units::set_units(bmi, "kg/m^2", mode = "standard")
+  bmi <- apply_mv_mask(bmi, weight_input$mask, height_input$mask)
   return(bmi)
 }
 

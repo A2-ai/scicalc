@@ -61,8 +61,9 @@ bmic <- function(bmi, age) {
 	checkmate::assertNumeric(age)
 
 	mv_bmi <- check_mv_computation(bmi, "bmi")
+	mv_age <- check_mv_computation(age, "age")
 	bmi[mv_bmi] <- NA
-	age <- check_mv_reference(age, "age")
+	age[mv_age] <- NA
 
 	# give message if any NAs in BMI
 	if (any(is.na(bmi))) {
@@ -92,7 +93,7 @@ bmic <- function(bmi, age) {
 		bmi >= 40 ~ 6, # Obese class 3
 		.default = getOption("scicalc.missing_value", -999)
 	)
-	bmic <- apply_mv_mask(bmic, mv_bmi)
+	bmic <- apply_mv_mask(bmic, mv_bmi, mv_age)
 	attr(bmic, "category_standard") <- "WHO"
 	return(bmic)
 }

@@ -22,6 +22,9 @@ categorize <- function(
 ) {
   checkmate::assertNumeric(continuous_var)
 
+  missing_mask <- is_missing_value(continuous_var)
+  continuous_var[missing_mask] <- NA
+
   if (
     continuous_var |>
       stats::na.omit() |>
@@ -81,6 +84,13 @@ categorize <- function(
     ),
     levels = labels
   )
+
+  if (any(missing_mask)) {
+    levels(continuous_quantile) <- c(levels(continuous_quantile), as.character(
+      getOption("scicalc.missing_value", -999)
+    ))
+    continuous_quantile[missing_mask] <- getOption("scicalc.missing_value", -999)
+  }
 
   return(continuous_quantile)
 }

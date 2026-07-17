@@ -60,6 +60,10 @@ aegfr <- function(egfr, bsa) {
   # --- Convert to canonical units and strip before any checks ---
   egfr_val <- assert_and_strip_units(egfr, "mL/min/bsa_ref", "egfr")
   bsa_val <- assert_and_strip_units(bsa, "m^2", "bsa")
+  egfr_input <- mask_missing_computation_input(egfr_val, "egfr")
+  bsa_input <- mask_missing_computation_input(bsa_val, "bsa")
+  egfr_val <- egfr_input$value
+  bsa_val <- bsa_input$value
   checkmate::assertNumeric(egfr_val)
   checkmate::assertNumeric(bsa_val)
 
@@ -68,6 +72,7 @@ aegfr <- function(egfr, bsa) {
 
   aegfr <- convert_rel_to_abs(egfr_val, bsa_val)
   aegfr <- units::set_units(aegfr, "mL/min", mode = "standard")
+  aegfr <- apply_mv_mask(aegfr, egfr_input$mask, bsa_input$mask)
   return(aegfr)
 }
 

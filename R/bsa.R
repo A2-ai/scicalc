@@ -28,6 +28,11 @@ bsa <- function(weight, height, method = "Dubois") {
   weight <- assert_and_strip_units(weight, "kg")
   height <- assert_and_strip_units(height, "cm")
 
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  height_input <- mask_missing_computation_input(height, "height")
+  weight <- weight_input$value
+  height <- height_input$value
+
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
@@ -47,6 +52,7 @@ bsa <- function(weight, height, method = "Dubois") {
 
   bsa <- (weight^0.425) * (height^0.725) * 0.007184
   bsa <- units::set_units(bsa, "m^2", mode = "standard")
+  bsa <- apply_mv_mask(bsa, weight_input$mask, height_input$mask)
   return(bsa)
 }
 
@@ -54,6 +60,11 @@ bsa <- function(weight, height, method = "Dubois") {
 .bsa_mosteller <- function(weight, height) {
   weight <- assert_and_strip_units(weight, "kg")
   height <- assert_and_strip_units(height, "cm")
+
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  height_input <- mask_missing_computation_input(height, "height")
+  weight <- weight_input$value
+  height <- height_input$value
 
   checkmate::assertNumeric(height)
   checkmate::assertNumeric(weight)
@@ -72,6 +83,7 @@ bsa <- function(weight, height, method = "Dubois") {
 
   bsa <- sqrt(height * weight / 3600)
   bsa <- units::set_units(bsa, "m^2", mode = "standard")
+  bsa <- apply_mv_mask(bsa, weight_input$mask, height_input$mask)
   return(bsa)
 }
 
