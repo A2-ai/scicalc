@@ -208,8 +208,7 @@ audit_report_field <- function(events, field) {
 # Make one unit event readable in a single sentence.
 #' @noRd
 audit_report_transformation_text <- function(row) {
-  input <- row$input[[1]]
-  input <- if (is.na(input) || !nzchar(input)) "<unnamed input>" else input
+  input <- audit_report_input_label(row$input[[1]])
   from <- row$from[[1]]
   to <- row$to[[1]]
   detail <- row$detail[[1]]
@@ -236,6 +235,18 @@ audit_report_transformation_text <- function(row) {
     input, ": ", action, via,
     " (", format(n, big.mark = ",", trim = TRUE), " values)"
   )
+}
+
+# Hide serialized values captured by older audit logs. A data object is never a
+# useful reviewer-facing input label; new conversion events retain the caller's
+# expression before their arguments are evaluated.
+#' @noRd
+audit_report_input_label <- function(input) {
+  if (is.na(input) || !nzchar(input)) return("<unnamed input>")
+  if (startsWith(trimws(input), "structure(")) {
+    return("<unlabelled mixed-units input>")
+  }
+  input
 }
 
 #' @noRd

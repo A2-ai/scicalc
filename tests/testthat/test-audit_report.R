@@ -63,6 +63,19 @@ test_that("audit report omits function-specific simple conversion factors", {
   )
 })
 
+test_that("audit report never prints serialized mixed-unit inputs", {
+  row <- tibble::tibble(
+    input = "structure(list(...), class = c('mixed_units', 'list'))",
+    fn = "convert_mass_to_mol", transform = "convert",
+    from = "ng/mL", to = "nmol/L", detail = "MW=743 g/mol", n = 2
+  )
+
+  expect_equal(
+    audit_report_transformation_text(row),
+    "<unlabelled mixed-units input>: ng/mL → nmol/L [MW=743 g/mol] via convert_mass_to_mol() (2 values)"
+  )
+})
+
 test_that("scicalc_audit_report flags missing anchors and failed conversions", {
   log_file <- withr::local_tempfile(fileext = ".log")
   withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))

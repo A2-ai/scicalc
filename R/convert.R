@@ -186,11 +186,12 @@ convert_mass_to_mol.numeric <- function(
 #' @export
 convert_mass_to_mol.units <- function(x, mol_weight, mol_units = NULL, ...) {
   rlang::check_dots_empty()
+  input_name <- deparse1(substitute(x))
   x_input <- mask_missing_computation_input(x, "x")
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol",
-    deparse1(substitute(x)), input_mask = x_input$mask
+    input_name, input_mask = x_input$mask
   )
 }
 
@@ -198,11 +199,12 @@ convert_mass_to_mol.units <- function(x, mol_weight, mol_units = NULL, ...) {
 #' @export
 convert_mass_to_mol.mixed_units <- function(x, mol_weight, mol_units = NULL, ...) {
   rlang::check_dots_empty()
+  input_name <- deparse1(substitute(x))
   x_input <- mask_missing_computation_input(x, "x")
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol",
-    deparse1(substitute(x)), input_mask = x_input$mask
+    input_name, input_mask = x_input$mask
   )
 }
 
@@ -265,11 +267,12 @@ convert_mol_to_mass.numeric <- function(
 #' @export
 convert_mol_to_mass.units <- function(x, mol_weight, mass_units = NULL, ...) {
   rlang::check_dots_empty()
+  input_name <- deparse1(substitute(x))
   x_input <- mask_missing_computation_input(x, "x")
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass",
-    deparse1(substitute(x)), input_mask = x_input$mask
+    input_name, input_mask = x_input$mask
   )
 }
 
@@ -277,11 +280,12 @@ convert_mol_to_mass.units <- function(x, mol_weight, mass_units = NULL, ...) {
 #' @export
 convert_mol_to_mass.mixed_units <- function(x, mol_weight, mass_units = NULL, ...) {
   rlang::check_dots_empty()
+  input_name <- deparse1(substitute(x))
   x_input <- mask_missing_computation_input(x, "x")
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass",
-    deparse1(substitute(x)), input_mask = x_input$mask
+    input_name, input_mask = x_input$mask
   )
 }
 

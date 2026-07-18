@@ -102,6 +102,7 @@ test_that("mixed mass-to-molar conversion is captured as one audit event", {
   expect_setequal(strsplit(event$from, ",", fixed = TRUE)[[1]], c("ug/mL", "ng/mL"))
   expect_equal(event$to, "nmol/L")
   expect_equal(event$n, 2)
+  expect_equal(event$input, "mass")
 })
 
 test_that("convert_units_to_spec logs a spec event with the spec file path", {
