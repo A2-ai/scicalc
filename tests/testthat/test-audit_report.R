@@ -13,6 +13,14 @@ test_that("scicalc_audit_report groups events into a readable report", {
     r_version = "4.5.0"
   )
   log_audit_event(
+    "spec", fn = "convert_units_to_spec", spec_file = "data/pk.yml",
+    spec_hash = "spec-hash"
+  )
+  log_audit_event(
+    "spec", fn = "convert_units_to_spec", spec_file = "data/pk.yml",
+    spec_hash = "spec-hash"
+  )
+  log_audit_event(
     "unit", fn = "with_units", input = "AVAL", from = NA_character_,
     to = "ng/mL", transform = "attach", detail = "PCSTRESU", n = 2
   )
@@ -34,12 +42,25 @@ test_that("scicalc_audit_report groups events into a readable report", {
 
   expect_s3_class(report, "scicalc_audit_report")
   expect_equal(report$overview$status, "evidence captured")
-  expect_equal(nrow(report$files), 2)
+  expect_equal(nrow(report$files), 3)
+  expect_equal(sum(report$files$role == "specification"), 1)
   expect_equal(report$run$phase, "completed")
   expect_equal(nrow(report$transformations), 1)
   expect_equal(report$transformations$n, 5)
   expect_equal(nrow(report$findings), 0)
   expect_error(print(report), NA)
+})
+
+test_that("audit report omits function-specific simple conversion factors", {
+  row <- tibble::tibble(
+    input = "ALB", fn = "convert_alb", transform = "convert",
+    from = "g/L", to = "g/dL", detail = "x0.1", n = 219
+  )
+
+  expect_equal(
+    audit_report_transformation_text(row),
+    "ALB: g/L → g/dL via convert_alb() (219 values)"
+  )
 })
 
 test_that("scicalc_audit_report flags missing anchors and failed conversions", {

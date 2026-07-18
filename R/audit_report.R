@@ -58,8 +58,10 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
 }
 
 #' @export
-print.scicalc_audit_report <- function(x, ..., max_transformations = 20) {
-  checkmate::assert_number(max_transformations, lower = 1, null.ok = FALSE)
+print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
+  if (!is.infinite(max_transformations)) {
+    checkmate::assert_number(max_transformations, lower = 1, null.ok = FALSE)
+  }
 
   overview <- x$overview
   cli::cli_h1("scicalc audit")
@@ -103,7 +105,7 @@ audit_report_files <- function(events) {
   events <- events[keep, , drop = FALSE]
   event_type <- event_type[keep]
 
-  tibble::tibble(
+  dplyr::distinct(tibble::tibble(
     role = c(ingest = "input", spec = "specification", write = "output")[event_type],
     file = ifelse(
       event_type == "spec",
@@ -116,7 +118,7 @@ audit_report_files <- function(events) {
       audit_report_field(events, "hash")
     ),
     algo = audit_report_field(events, "algo")
-  )
+  ))
 }
 
 # Group identical transformation records so grouped mutate() calls stay
@@ -221,11 +223,19 @@ audit_report_transformation_text <- function(row) {
     failed = paste0(from, " → ", to),
     paste0(from, " → ", to)
   )
-  if (!is.na(detail) && row$transform[[1]] != "attach") {
+  show_detail <- row$transform[[1]] == "log-shift" ||
+    row$fn[[1]] %in% c("convert_mass_to_mol", "convert_mol_to_mass")
+  if (!is.na(detail) && show_detail) {
     action <- paste0(action, " [", detail, "]")
   }
 
-  paste0(input, ": ", action, " (", format(n, big.mark = ",", trim = TRUE), " values)")
+  fn <- row$fn[[1]]
+  via <- if (is.na(fn) || !nzchar(fn)) "" else paste0(" via ", fn, "()")
+
+  paste0(
+    input, ": ", action, via,
+    " (", format(n, big.mark = ",", trim = TRUE), " values)"
+  )
 }
 
 #' @noRd
@@ -271,7 +281,11 @@ audit_report_print_transformations <- function(transformations, max_transformati
     return(invisible())
   }
 
-  shown <- utils::head(transformations, max_transformations)
+  shown <- if (is.infinite(max_transformations)) {
+    transformations
+  } else {
+    utils::head(transformations, max_transformations)
+  }
   cli::cli_ul()
   for (i in seq_len(nrow(shown))) {
     cli::cli_li(audit_report_transformation_text(shown[i, , drop = FALSE]))
