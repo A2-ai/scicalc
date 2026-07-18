@@ -7,7 +7,7 @@
 log_audit_event(event_type, ...)
 }
 \arguments{
-\item{event_type}{one of "ingest", "spec", "unit", "write".}
+\item{event_type}{one of "run", "ingest", "spec", "unit", "write".}
 
 \item{...}{structured fields for the event (scalars).}
 }

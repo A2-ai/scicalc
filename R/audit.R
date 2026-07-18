@@ -111,7 +111,7 @@ audit_logger <- function() {
 
 #' Append one event to the audit log (no-op unless a capture is active)
 #'
-#' @param event_type one of "ingest", "spec", "unit", "write".
+#' @param event_type one of "run", "ingest", "spec", "unit", "write".
 #' @param ... structured fields for the event (scalars).
 #' @keywords internal
 log_audit_event <- function(event_type, ...) {
@@ -203,6 +203,8 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwri
     ))
   }
 
+  audit_log_run_event(log_path, name, script, ext, phase = "started")
+
   res <- callr::rscript(
     run_file,
     libpath = .libPaths(),
@@ -217,6 +219,7 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwri
   )
 
   if (!is.null(res$status) && res$status != 0L) {
+    audit_log_run_event(log_path, name, script, ext, phase = "failed")
     detail <- if (!is.null(res$stderr) && nzchar(res$stderr)) {
       paste0("\n", res$stderr)
     } else {
@@ -228,7 +231,33 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwri
     ))
   }
 
+  audit_log_run_event(log_path, name, script, ext, phase = "completed")
+
   invisible(scicalc_audit(log_file = log_path))
+}
+
+# Write a run-manifest event from the parent process. The child process writes
+# the assembly events; these bookends identify the exact audited script and
+# whether that run completed.
+#' @noRd
+audit_log_run_event <- function(log_path, name, script, script_type, phase) {
+  prior_active <- Sys.getenv("SCICALC_AUDITING", unset = "")
+  prior_log <- Sys.getenv("SCICALC_AUDIT_LOG", unset = "")
+  on.exit({
+    Sys.setenv(SCICALC_AUDITING = prior_active, SCICALC_AUDIT_LOG = prior_log)
+  }, add = TRUE)
+
+  Sys.setenv(SCICALC_AUDITING = name, SCICALC_AUDIT_LOG = log_path)
+  log_audit_event(
+    "run",
+    fn = "audit_script",
+    phase = phase,
+    script = audit_rel_path(script),
+    script_hash = digest::digest(file = script, algo = "blake3"),
+    script_type = script_type,
+    scicalc_version = as.character(utils::packageVersion("scicalc")),
+    r_version = paste(R.version$major, R.version$minor, sep = ".")
+  )
 }
 
 #' Read a scicalc Assembly Audit Log
@@ -278,7 +307,8 @@ scicalc_audit <- function(name = NULL, dir = default_audit_dir(), log_file = NUL
   events <- events[, keep, drop = FALSE]
   # sensible column order: what happened, via which function, then details
   preferred <- c(
-    "event_type", "fn", "input", "from", "to", "transform", "n",
+    "event_type", "phase", "fn", "script", "script_hash", "script_type",
+    "scicalc_version", "r_version", "input", "from", "to", "transform", "n",
     "detail", "file", "hash", "algo", "spec_hash", "spec_file"
   )
   ord <- c(intersect(preferred, names(events)), setdiff(names(events), preferred))
