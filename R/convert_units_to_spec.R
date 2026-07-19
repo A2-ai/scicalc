@@ -81,12 +81,12 @@ convert_units_to_map <- function(data, unit_map) {
         shifted <- shift_log_column(data[[col]], src_log, tgt_log)
         if (is.null(shifted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
-          log_unit_conversion(col, current, target, "failed", n_col)
+          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed")
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(shifted, data[[col]]), missing_mask
           )
-          log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col)
+          log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col, "carried-converted", "input column carried units")
         }
       } else {
         converted <- tryCatch(
@@ -95,12 +95,12 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(converted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
-          log_unit_conversion(col, current, target, "failed", n_col)
+          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed")
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(converted, data[[col]]), missing_mask
           )
-          log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col)
+          log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col, "carried-converted", "input column carried units")
         }
       }
     } else if (is.numeric(data[[col]])) {
@@ -116,13 +116,13 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-          log_unit_conversion(col, NA_character_, target, "failed", n_col)
+          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed")
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(with_unit, data[[col]]), missing_mask
           )
           attached <- c(attached, paste0(col, " [", target, "]"))
-          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col)
+          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification")
         }
       } else {
         with_unit <- tryCatch(
@@ -131,13 +131,13 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-          log_unit_conversion(col, NA_character_, target, "failed", n_col)
+          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed")
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(with_unit, data[[col]]), missing_mask
           )
           attached <- c(attached, paste0(col, " [", target, "]"))
-          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col)
+          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification")
         }
       }
     }
@@ -165,7 +165,7 @@ convert_units_to_map <- function(data, unit_map) {
 #' No-op conversions (already in the target unit) are not logged, to keep the
 #' audit focused on columns that actually changed.
 #' @noRd
-log_unit_conversion <- function(col, from, to, transform, n) {
+log_unit_conversion <- function(col, from, to, transform, n, evidence, basis) {
   if (transform == "convert" && !is.na(from) && identical(from, to)) {
     return(invisible())
   }
@@ -177,6 +177,8 @@ log_unit_conversion <- function(col, from, to, transform, n) {
     to = to,
     transform = transform,
     detail = NA_character_,
+    evidence = evidence,
+    basis = basis,
     n = n
   )
 }

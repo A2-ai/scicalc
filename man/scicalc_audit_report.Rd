@@ -15,7 +15,8 @@ scicalc_audit_report(name = NULL, dir = default_audit_dir(), log_file = NULL)
 }
 \value{
 An object of class \code{scicalc_audit_report} with \code{overview}, \code{files},
-\code{transformations}, \code{findings}, and the original \code{events} tibble.
+\code{evidence}, \code{transformations}, \code{findings}, and the original \code{events}
+tibble.
 }
 \description{
 Builds a reviewer-oriented view over the immutable event log returned by

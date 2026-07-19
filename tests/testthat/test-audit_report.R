@@ -47,6 +47,8 @@ test_that("scicalc_audit_report groups events into a readable report", {
   expect_equal(report$run$phase, "completed")
   expect_equal(nrow(report$transformations), 1)
   expect_equal(report$transformations$n, 5)
+  expect_equal(report$transformations$evidence, "source-recorded")
+  expect_equal(report$evidence$values, 5)
   expect_equal(nrow(report$findings), 0)
   expect_error(print(report), NA)
 })

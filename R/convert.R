@@ -21,6 +21,12 @@
 #' df
 convert_alb <- function(alb) {
   input_name <- deparse1(substitute(alb))
+  evidence <- if (inherits(alb, "units")) "carried-converted" else "assumed"
+  basis <- if (inherits(alb, "units")) {
+    "input carried units"
+  } else {
+    "unitless numeric interpreted as g/L by convert_alb()"
+  }
   alb <- assert_and_strip_units(alb, "g/L")
   alb_input <- mask_missing_computation_input(alb, "alb")
   alb <- alb_input$value
@@ -36,7 +42,8 @@ convert_alb <- function(alb) {
   alb_gdl <- apply_mv_mask(alb_gdl, alb_input$mask)
   log_audit_event(
     "unit", fn = "convert_alb", input = input_name, from = "g/L", to = "g/dL",
-    transform = "convert", detail = "x0.1", n = sum(!is.na(alb))
+    transform = "convert", detail = "x0.1", evidence = evidence, basis = basis,
+    n = sum(!is.na(alb))
   )
   return(alb_gdl)
 }
@@ -64,6 +71,12 @@ convert_alb <- function(alb) {
 #' df
 convert_bili <- function(bili) {
   input_name <- deparse1(substitute(bili))
+  evidence <- if (inherits(bili, "units")) "carried-converted" else "assumed"
+  basis <- if (inherits(bili, "units")) {
+    "input carried units"
+  } else {
+    "unitless numeric interpreted as umol/L by convert_bili()"
+  }
   bili <- assert_and_strip_units(bili, "umol/L")
   bili_input <- mask_missing_computation_input(bili, "bili")
   bili <- bili_input$value
@@ -82,7 +95,7 @@ convert_bili <- function(bili) {
   bili_mgdl <- apply_mv_mask(bili_mgdl, bili_input$mask)
   log_audit_event(
     "unit", fn = "convert_bili", input = input_name, from = "umol/L", to = "mg/dL",
-    transform = "convert", detail = paste0("x", signif(conversion_factor, 4)),
+    transform = "convert", detail = paste0("x", signif(conversion_factor, 4)), evidence = evidence, basis = basis,
     n = sum(!is.na(bili))
   )
   return(bili_mgdl)
@@ -111,6 +124,12 @@ convert_bili <- function(bili) {
 #' df
 convert_creat <- function(creat) {
   input_name <- deparse1(substitute(creat))
+  evidence <- if (inherits(creat, "units")) "carried-converted" else "assumed"
+  basis <- if (inherits(creat, "units")) {
+    "input carried units"
+  } else {
+    "unitless numeric interpreted as umol/L by convert_creat()"
+  }
   creat <- assert_and_strip_units(creat, "umol/L")
   creat_input <- mask_missing_computation_input(creat, "creat")
   creat <- creat_input$value
@@ -129,7 +148,7 @@ convert_creat <- function(creat) {
   creat_mgdl <- apply_mv_mask(creat_mgdl, creat_input$mask)
   log_audit_event(
     "unit", fn = "convert_creat", input = input_name, from = "umol/L", to = "mg/dL",
-    transform = "convert", detail = paste0("x", signif(conversion_factor, 4)),
+    transform = "convert", detail = paste0("x", signif(conversion_factor, 4)), evidence = evidence, basis = basis,
     n = sum(!is.na(creat))
   )
   return(creat_mgdl)
@@ -178,7 +197,8 @@ convert_mass_to_mol.numeric <- function(
   x <- units::set_units(x, normalize_unit_string(mass_units), mode = "standard")
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol", input_name,
-    input_mask = x_input$mask
+    input_mask = x_input$mask, evidence = "analyst-declared",
+    basis = paste0("unitless input declared as ", mass_units, " by caller")
   )
 }
 
@@ -191,7 +211,8 @@ convert_mass_to_mol.units <- function(x, mol_weight, mol_units = NULL, ...) {
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol",
-    input_name, input_mask = x_input$mask
+    input_name, input_mask = x_input$mask, evidence = "carried-converted",
+    basis = "input carried units"
   )
 }
 
@@ -204,7 +225,8 @@ convert_mass_to_mol.mixed_units <- function(x, mol_weight, mol_units = NULL, ...
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mol_units, "/", "convert_mass_to_mol",
-    input_name, input_mask = x_input$mask
+    input_name, input_mask = x_input$mask, evidence = "carried-converted",
+    basis = "input carried row-level units"
   )
 }
 
@@ -259,7 +281,8 @@ convert_mol_to_mass.numeric <- function(
   x <- units::set_units(x, normalize_unit_string(mol_units), mode = "standard")
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass", input_name,
-    input_mask = x_input$mask
+    input_mask = x_input$mask, evidence = "analyst-declared",
+    basis = paste0("unitless input declared as ", mol_units, " by caller")
   )
 }
 
@@ -272,7 +295,8 @@ convert_mol_to_mass.units <- function(x, mol_weight, mass_units = NULL, ...) {
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass",
-    input_name, input_mask = x_input$mask
+    input_name, input_mask = x_input$mask, evidence = "carried-converted",
+    basis = "input carried units"
   )
 }
 
@@ -285,7 +309,8 @@ convert_mol_to_mass.mixed_units <- function(x, mol_weight, mass_units = NULL, ..
   x <- x_input$value
   convert_with_molecular_weight(
     x, mol_weight, mass_units, "*", "convert_mol_to_mass",
-    input_name, input_mask = x_input$mask
+    input_name, input_mask = x_input$mask, evidence = "carried-converted",
+    basis = "input carried row-level units"
   )
 }
 
@@ -330,8 +355,13 @@ prepare_molecular_weight <- function(mol_weight, n) {
 # Apply molecular weight and optionally convert to one target unit.
 #' @noRd
 convert_with_molecular_weight <- function(
-  x, mol_weight, target, operator, fn, input_name, input_mask = NULL
+  x, mol_weight, target, operator, fn, input_name, input_mask = NULL,
+  evidence, basis
 ) {
+  if (is.numeric(mol_weight) && !inherits(mol_weight, "units")) {
+    evidence <- "assumed"
+    basis <- paste0(basis, "; molecular weight interpreted as g/mol")
+  }
   mw <- prepare_molecular_weight(mol_weight, length(x))
   operand <- if (inherits(x, "mixed_units")) {
     units::mixed_units(as.numeric(mw), rep("g/mol", length(mw)))
@@ -359,6 +389,8 @@ convert_with_molecular_weight <- function(
     to = paste(unique(as.character(units(result))), collapse = ","),
     transform = "convert",
     detail = paste0("MW=", paste(unique(signif(as.numeric(mw), 8)), collapse = ","), " g/mol"),
+    evidence = evidence,
+    basis = basis,
     n = sum(!is.na(units::drop_units(result)))
   )
   result

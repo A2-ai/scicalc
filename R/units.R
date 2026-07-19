@@ -126,6 +126,8 @@ with_units <- function(values, units) {
         to = unit,
         transform = "attach",
         detail = units_name,
+        evidence = "source-recorded",
+        basis = paste0("row-level unit column: ", units_name),
         n = sum(!missing_mask & norm == unit)
       )
     }
@@ -145,6 +147,8 @@ with_units <- function(values, units) {
     to = distinct_units,
     transform = "attach",
     detail = units_name,
+    evidence = "source-recorded",
+    basis = paste0("unit column: ", units_name),
     n = sum(!missing_mask)
   )
 

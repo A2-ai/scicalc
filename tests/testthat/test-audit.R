@@ -87,6 +87,7 @@ test_that("with_units logs each unit in a mixed_units vector", {
   expect_setequal(attached$to, c("ug/mL", "ng/mL"))
   expect_equal(attached$n[attached$to == "ug/mL"], 1)
   expect_equal(attached$n[attached$to == "ng/mL"], 2)
+  expect_true(all(attached$evidence == "source-recorded"))
 })
 
 test_that("mixed mass-to-molar conversion is captured as one audit event", {
@@ -103,6 +104,7 @@ test_that("mixed mass-to-molar conversion is captured as one audit event", {
   expect_equal(event$to, "nmol/L")
   expect_equal(event$n, 2)
   expect_equal(event$input, "mass")
+  expect_equal(event$evidence, "carried-converted")
 })
 
 test_that("convert_units_to_spec logs a spec event with the spec file path", {

@@ -14,7 +14,8 @@
 #' @param log_file Explicit audit log path, overriding `name` and `dir`.
 #'
 #' @return An object of class `scicalc_audit_report` with `overview`, `files`,
-#'   `transformations`, `findings`, and the original `events` tibble.
+#'   `evidence`, `transformations`, `findings`, and the original `events`
+#'   tibble.
 #' @export
 #'
 #' @examples
@@ -28,6 +29,7 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
   run <- audit_report_run(events)
   files <- audit_report_files(events)
   transformations <- audit_report_transformations(events)
+  evidence <- audit_report_evidence(transformations)
   findings <- audit_report_findings(events, files, transformations)
 
   status <- if (any(findings$severity == "error")) {
@@ -49,6 +51,7 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
       ),
       run = run,
       files = files,
+      evidence = evidence,
       transformations = transformations,
       findings = findings,
       events = events
@@ -69,7 +72,7 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
 
   audit_report_print_run(x$run)
   audit_report_print_files(x$files)
-  audit_report_print_transformations(x$transformations, max_transformations)
+  audit_report_print_evidence(x$transformations, max_transformations)
   audit_report_print_findings(x$findings)
 
   invisible(x)
@@ -131,7 +134,8 @@ audit_report_transformations <- function(events) {
   if (nrow(events) == 0) {
     return(tibble::tibble(
       input = character(), fn = character(), transform = character(),
-      from = character(), to = character(), detail = character(), n = numeric()
+      from = character(), to = character(), detail = character(), evidence = character(),
+      basis = character(), n = numeric()
     ))
   }
 
@@ -142,6 +146,8 @@ audit_report_transformations <- function(events) {
     from = audit_report_field(events, "from"),
     to = audit_report_field(events, "to"),
     detail = audit_report_field(events, "detail"),
+    evidence = audit_report_event_evidence(events),
+    basis = audit_report_field(events, "basis"),
     n = suppressWarnings(as.numeric(audit_report_field(events, "n")))
   )
   transformations$n[is.na(transformations$n)] <- 0
@@ -150,10 +156,40 @@ audit_report_transformations <- function(events) {
     dplyr::group_by(
       transformations,
       .data$input, .data$fn, .data$transform, .data$from, .data$to,
-      .data$detail,
+      .data$detail, .data$evidence, .data$basis,
       .drop = FALSE
     ),
     n = sum(.data$n),
+    .groups = "drop"
+  )
+}
+
+# Derive a cautious label for old logs that predate explicit evidence fields.
+#' @noRd
+audit_report_event_evidence <- function(events) {
+  explicit <- audit_report_field(events, "evidence")
+  missing <- is.na(explicit) | !nzchar(explicit)
+  fn <- audit_report_field(events, "fn")
+  transform <- audit_report_field(events, "transform")
+
+  explicit[missing & fn == "with_units"] <- "source-recorded"
+  explicit[missing & fn == "convert_units_to_spec" & transform == "attach"] <- "assumed"
+  explicit[missing & fn == "convert_units_to_spec" & transform %in% c("convert", "log-shift")] <- "carried-converted"
+  explicit[missing & transform == "failed"] <- "failed"
+  explicit[is.na(explicit) | !nzchar(explicit)] <- "unclassified"
+  explicit
+}
+
+# Compact counts for use in tables and programmatic review.
+#' @noRd
+audit_report_evidence <- function(transformations) {
+  if (nrow(transformations) == 0) {
+    return(tibble::tibble(evidence = character(), transformations = integer(), values = numeric()))
+  }
+  dplyr::summarise(
+    dplyr::group_by(transformations, .data$evidence),
+    transformations = dplyr::n(),
+    values = sum(.data$n),
     .groups = "drop"
   )
 }
@@ -285,28 +321,47 @@ audit_report_print_run <- function(run) {
 }
 
 #' @noRd
-audit_report_print_transformations <- function(transformations, max_transformations) {
-  cli::cli_h2("Transformations")
+audit_report_print_evidence <- function(transformations, max_transformations) {
+  cli::cli_h2("Unit evidence")
   if (nrow(transformations) == 0) {
     cli::cli_text("No unit transformations were recorded.")
     return(invisible())
   }
 
-  shown <- if (is.infinite(max_transformations)) {
-    transformations
-  } else {
-    utils::head(transformations, max_transformations)
-  }
-  cli::cli_ul()
-  for (i in seq_len(nrow(shown))) {
-    cli::cli_li(audit_report_transformation_text(shown[i, , drop = FALSE]))
-  }
-  cli::cli_end()
+  order <- c("source-recorded", "carried-converted", "analyst-declared", "assumed", "unclassified", "failed")
+  levels <- c(intersect(order, unique(transformations$evidence)), setdiff(unique(transformations$evidence), order))
 
-  if (nrow(transformations) > nrow(shown)) {
-    cli::cli_text("{.comment {nrow(transformations) - nrow(shown)} more transformation(s); inspect `$transformations` for all rows.}")
+  for (evidence in levels) {
+    rows <- transformations[transformations$evidence == evidence, , drop = FALSE]
+    cli::cli_h3(audit_report_evidence_label(evidence))
+    shown <- if (is.infinite(max_transformations)) rows else utils::head(rows, max_transformations)
+    cli::cli_ul()
+    for (i in seq_len(nrow(shown))) {
+      text <- audit_report_transformation_text(shown[i, , drop = FALSE])
+      basis <- shown$basis[[i]]
+      if (!is.na(basis) && nzchar(basis)) text <- paste0(text, " — ", basis)
+      cli::cli_li(text)
+    }
+    cli::cli_end()
+    if (nrow(rows) > nrow(shown)) {
+      cli::cli_text("{.comment {nrow(rows) - nrow(shown)} more transformation(s) in this evidence class.}")
+    }
   }
   invisible()
+}
+
+#' @noRd
+audit_report_evidence_label <- function(evidence) {
+  switch(
+    evidence,
+    `source-recorded` = "Source-recorded",
+    `carried-converted` = "Carried / converted",
+    `analyst-declared` = "Analyst-declared",
+    assumed = "Assumed — review",
+    unclassified = "Unclassified — legacy evidence",
+    failed = "Failed",
+    tools::toTitleCase(gsub("-", " ", evidence, fixed = TRUE))
+  )
 }
 
 #' @noRd
