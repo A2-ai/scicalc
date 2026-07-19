@@ -34,15 +34,19 @@ convert_units_to_spec <- function(data, spec, ...) {
 #' @export
 convert_units_to_spec.yspec <- function(data, spec, ...) {
   rlang::check_installed("yspec")
+  # the caller's data expression: lets the audit report tie this invocation to
+  # the assignment (if any) whose result it produced
+  context <- deparse1(substitute(data))
   spec_file <- attr(spec, "meta")$spec_file
   log_audit_event(
     "spec",
     fn = "convert_units_to_spec",
     spec_hash = digest::digest(spec, algo = "blake3"),
-    spec_file = audit_rel_path(spec_file)
+    spec_file = audit_rel_path(spec_file),
+    context = context
   )
   unit_map <- unlist(yspec::ys_get_unit(spec))
-  convert_units_to_map(data, unit_map)
+  convert_units_to_map(data, unit_map, context = context)
 }
 
 #' @rdname convert_units_to_spec
@@ -56,7 +60,7 @@ convert_units_to_spec.default <- function(data, spec, ...) {
 }
 
 #' @noRd
-convert_units_to_map <- function(data, unit_map) {
+convert_units_to_map <- function(data, unit_map, context = NA_character_) {
   checkmate::assert_data_frame(data)
   checkmate::assert_character(unit_map, names = "named")
 
@@ -81,12 +85,12 @@ convert_units_to_map <- function(data, unit_map) {
         shifted <- shift_log_column(data[[col]], src_log, tgt_log)
         if (is.null(shifted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
-          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed")
+          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed", context)
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(shifted, data[[col]]), missing_mask
           )
-          log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col, "carried-converted", "input column carried units")
+          log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col, "carried-converted", "input column carried units", context)
         }
       } else {
         converted <- tryCatch(
@@ -95,12 +99,12 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(converted)) {
           failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
-          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed")
+          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed", context)
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(converted, data[[col]]), missing_mask
           )
-          log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col, "carried-converted", "input column carried units")
+          log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col, "carried-converted", "input column carried units", context)
         }
       }
     } else if (is.numeric(data[[col]])) {
@@ -116,13 +120,13 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed")
+          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed", context)
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(with_unit, data[[col]]), missing_mask
           )
           attached <- c(attached, paste0(col, " [", target, "]"))
-          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification")
+          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification", context)
         }
       } else {
         with_unit <- tryCatch(
@@ -131,13 +135,13 @@ convert_units_to_map <- function(data, unit_map) {
         )
         if (is.null(with_unit)) {
           failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed")
+          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed", context)
         } else {
           data[[col]] <- apply_mv_mask(
             restore_attrs(with_unit, data[[col]]), missing_mask
           )
           attached <- c(attached, paste0(col, " [", target, "]"))
-          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification")
+          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification", context)
         }
       }
     }
@@ -165,7 +169,7 @@ convert_units_to_map <- function(data, unit_map) {
 #' No-op conversions (already in the target unit) are not logged, to keep the
 #' audit focused on columns that actually changed.
 #' @noRd
-log_unit_conversion <- function(col, from, to, transform, n, evidence, basis) {
+log_unit_conversion <- function(col, from, to, transform, n, evidence, basis, context = NA_character_) {
   if (transform == "convert" && !is.na(from) && identical(from, to)) {
     return(invisible())
   }
@@ -179,7 +183,8 @@ log_unit_conversion <- function(col, from, to, transform, n, evidence, basis) {
     detail = NA_character_,
     evidence = evidence,
     basis = basis,
-    n = n
+    n = n,
+    context = context
   )
 }
 

@@ -100,6 +100,12 @@ test_that("unit events are attributed to the final columns whose tags ran them",
     detail = NA_character_, source_object = NA_character_, source_column = NA_character_,
     path = NA_character_, depth = "0", order = as.character(1:5)
   )
+  lineage <- dplyr::bind_rows(lineage, tibble::tibble(
+    target = NA_character_, relation = "callsite", object = "final",
+    symbol = NA_character_, expression = "convert_units_to_spec(o1, spec)",
+    detail = "o1", source_object = NA_character_, source_column = NA_character_,
+    path = NA_character_, depth = NA_character_, order = NA_character_
+  ))
   events <- tibble::tibble(
     event_type = "unit",
     fn = c("with_units", "with_units", "with_units", "convert_units_to_spec", "with_units"),
@@ -109,6 +115,7 @@ test_that("unit events are attributed to the final columns whose tags ran them",
     transform = "attach",
     detail = c("PARAMU", "EXDOSU", "\"days\"", NA, NA),
     evidence = c("source-recorded", "source-recorded", "source-recorded", "assumed", "source-recorded"),
+    context = c(NA, NA, NA, "o1", NA),
     n = c(189, 874, 874, 5241, 1)
   )
   files <- tibble::tibble(role = "specification", file = "pk.yml", hash = "h", algo = "blake3")
@@ -131,9 +138,9 @@ test_that("unit events are attributed to the final columns whose tags ran them",
 
   atfd <- units$stories[units$stories$target == "ATFD", , drop = FALSE]
   expect_equal(atfd$kind, "spec")
-  expect_match(atfd$line, "spec pk.yml")
+  expect_match(atfd$line, "convert_units_to_spec\\(spec\\) in final")
   expect_match(atfd$line, "attached d to unitless numeric")
-  expect_match(atfd$line, "ASSUMED, review")
+  expect_match(atfd$line, "from pk.yml")
 
   expect_length(units$residual, 1)
   expect_match(units$residual, "helper_internal")
@@ -173,6 +180,78 @@ test_that("identical call texts attribute to occurrences in execution order", {
   expect_match(a$line, "attached mg")
   expect_match(b$line, "in second")
   expect_match(b$line, "attached kg")
+})
+
+test_that("spec calls whose result was not assigned are excluded from column evidence", {
+  columns <- tibble::tibble(
+    target = "NTFD", data_type = "units", has_units = TRUE, unit = "d"
+  )
+  lineage <- tibble::tibble(
+    target = c("NTFD", NA),
+    relation = c("definition", "callsite"),
+    object = c("pct", "final"),
+    symbol = NA_character_,
+    expression = c("(CYCLEN - 1) * 3 * 7", "convert_units_to_spec(o2, spec)"),
+    detail = c(NA, "o2"),
+    source_object = NA_character_, source_column = NA_character_,
+    path = NA_character_, depth = c("0", NA), order = c("1", NA)
+  )
+  events <- tibble::tibble(
+    event_type = "unit",
+    fn = "convert_units_to_spec",
+    input = "NTFD",
+    from = NA_character_,
+    to = "d",
+    transform = "attach",
+    detail = NA_character_,
+    evidence = "assumed",
+    context = c("pct", "o2"),
+    n = c(4128, 5002)
+  )
+  files <- tibble::tibble(role = "specification", file = "pk.yml", hash = "h", algo = "blake3")
+
+  units <- audit_report_units(events, columns, lineage, files)
+
+  ntfd <- units$stories[units$stories$target == "NTFD", , drop = FALSE]
+  expect_equal(nrow(ntfd), 1)
+  expect_match(ntfd$line, "in final")
+  expect_match(ntfd$line, "5,002 values")
+  expect_length(units$residual, 1)
+  expect_match(units$residual, "whose result was not assigned")
+  expect_match(units$residual, "pct")
+})
+
+test_that("a spec attach suppresses the derived-by-arithmetic line", {
+  columns <- tibble::tibble(
+    target = c("NTFD", "NTLD"), data_type = "units", has_units = TRUE, unit = "d"
+  )
+  lineage <- tibble::tibble(
+    target = c("NTFD", "NTLD"),
+    relation = "definition",
+    object = "pct",
+    symbol = NA_character_,
+    expression = c("case_when(NTLD != -999 ~ (CYCLEN - 1) * 3 * 7 + NTLD, .default = -999)", "0"),
+    detail = NA_character_, source_object = NA_character_, source_column = NA_character_,
+    path = NA_character_, depth = "0", order = c("1", "2")
+  )
+  events <- tibble::tibble(
+    event_type = "unit",
+    fn = "convert_units_to_spec",
+    input = c("NTFD", "NTLD"),
+    from = NA_character_,
+    to = "d",
+    transform = "attach",
+    detail = NA_character_,
+    evidence = "assumed",
+    n = c(9130, 9130)
+  )
+  files <- tibble::tibble(role = "specification", file = "pk.yml", hash = "h", algo = "blake3")
+
+  units <- audit_report_units(events, columns, lineage, files)
+
+  ntfd <- units$stories[units$stories$target == "NTFD", , drop = FALSE]
+  expect_false(any(ntfd$kind == "derived"))
+  expect_equal(ntfd$kind, "spec")
 })
 
 test_that("scicalc_audit_report flags missing anchors and failed conversions", {

@@ -142,6 +142,21 @@ audit_static_lineage <- function(script, targets, target_object) {
     invisible()
   }
 
+  # Call sites of convert_units_to_spec() inside assignments. The report joins
+  # each runtime invocation (via its captured data expression) to the object it
+  # produced; invocations matching no assignment had their result discarded.
+  for (object in names(graph$objects)) {
+    callsites <- audit_ast_matching_calls(
+      audit_ast_deparse(graph$objects[[object]]), "convert_units_to_spec"
+    )
+    for (callsite in callsites) {
+      add_row(
+        relation = "callsite", object = object, expression = callsite$text,
+        detail = if (length(callsite$args) > 0L) callsite$args[[1]] else NA_character_
+      )
+    }
+  }
+
   for (target in targets) {
     expanded <- character()
     definitions <- find_definition(target, target_object)

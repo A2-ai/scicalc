@@ -158,6 +158,7 @@ audit_report_units <- function(events, columns, lineage, files) {
     detail = audit_report_field(raw, "detail"),
     evidence = audit_report_event_evidence(raw),
     basis = audit_report_field(raw, "basis"),
+    context = audit_report_field(raw, "context"),
     n = suppressWarnings(as.numeric(audit_report_field(raw, "n")))
   )
   unit_events$n[is.na(unit_events$n)] <- 0
@@ -169,10 +170,10 @@ audit_report_units <- function(events, columns, lineage, files) {
   }
 
   spec_file <- files$file[files$role == "specification"]
-  spec_label <- if (length(spec_file) == 0L || is.na(spec_file[[1]]) || !nzchar(spec_file[[1]])) {
-    "spec"
+  spec_file <- if (length(spec_file) == 0L || is.na(spec_file[[1]]) || !nzchar(spec_file[[1]])) {
+    "specification"
   } else {
-    paste0("spec ", spec_file[[1]])
+    spec_file[[1]]
   }
 
   is_spec <- unit_events$fn %in% "convert_units_to_spec"
@@ -265,21 +266,48 @@ audit_report_units <- function(events, columns, lineage, files) {
     }
   }
 
+  # A spec invocation is located by matching its captured data expression to a
+  # convert_units_to_spec() call inside an assignment. An invocation matching
+  # no assignment (e.g. piped into a view) changed data that was then
+  # discarded, so its events are excluded from column evidence.
+  callsites <- lineage[lineage$relation == "callsite", , drop = FALSE]
   for (index in seq_len(nrow(spec_events))) {
     event <- spec_events[index, , drop = FALSE]
+    context <- event$context[[1]]
+    site <- callsites[!is.na(callsites$detail) & callsites$detail %in% context, , drop = FALSE]
+    if (!is.na(context) && nrow(callsites) > 0L && nrow(site) == 0L) {
+      residual <- c(residual, paste0(
+        audit_report_residual_line(event),
+        " — from convert_units_to_spec() on `", context,
+        "`, whose result was not assigned"
+      ))
+      next
+    }
+    object <- if (nrow(site) > 0L) site$object[[1]] else NA_character_
+    call_label <- if (nrow(site) > 0L) {
+      audit_report_spec_call_label(site$expression[[1]])
+    } else {
+      "convert_units_to_spec()"
+    }
     if (event$input[[1]] %in% columns$target) {
-      add_story(event$input[[1]], "spec", audit_report_unit_spec_line(event, spec_label))
+      add_story(
+        event$input[[1]], "spec",
+        audit_report_unit_spec_line(event, spec_file, object, call_label)
+      )
     } else {
       residual <- c(residual, audit_report_residual_line(event))
     }
   }
 
-  # a unit column created without its own unit call inherits units from its
-  # unit-bearing operands
+  # A unit column created without its own unit call inherits units from its
+  # unit-bearing operands — unless a spec attach event exists for it, which
+  # proves the column reached the spec unitless.
   bound <- if (length(stories) == 0L) empty_stories else dplyr::bind_rows(stories)
+  spec_attached <- unique(spec_events$input[spec_events$transform %in% "attach"])
   unit_columns <- columns$target[columns$has_units]
   for (target in unit_columns) {
     if (any(bound$target == target & bound$kind == "call")) next
+    if (target %in% spec_attached) next
     definitions <- lineage[lineage$target == target & lineage$relation == "definition", , drop = FALSE]
     for (index in seq_len(nrow(definitions))) {
       expression <- tryCatch(str2lang(definitions$expression[[index]]), error = function(e) NULL)
@@ -312,9 +340,17 @@ audit_report_unit_call_line <- function(candidate, object, event) {
   } else {
     paste0(fn, "(", audit_report_input_label(event$input[[1]]), ")")
   }
+  evidence <- event$evidence[[1]]
+  basis <- event$basis[[1]]
+  suffix <- if (identical(evidence, "assumed") && !is.na(basis) && nzchar(basis)) {
+    # e.g. "unitless numeric interpreted as umol/L by convert_bili()"
+    basis
+  } else {
+    audit_report_evidence_short(evidence)
+  }
   paste0(
     label, " in ", object, " — ", audit_report_unit_action(event),
-    " — ", audit_report_evidence_short(event$evidence[[1]]),
+    " — ", suffix,
     " (", format(event$n[[1]], big.mark = ",", trim = TRUE), " values)"
   )
 }
@@ -339,16 +375,31 @@ audit_report_unit_action <- function(event) {
 }
 
 #' @noRd
-audit_report_unit_spec_line <- function(event, spec_label) {
-  action <- if (identical(event$transform[[1]], "attach")) {
+audit_report_unit_spec_line <- function(event, spec_file, object = NA_character_,
+                                        call_label = "convert_units_to_spec()") {
+  transform <- event$transform[[1]]
+  action <- if (identical(transform, "attach")) {
     paste0("attached ", event$to[[1]], " to unitless numeric")
   } else {
     audit_report_unit_action(event)
   }
+  if (identical(transform, "failed")) action <- paste0(action, " failed")
+  location <- if (is.na(object) || !nzchar(object)) "" else paste0(" in ", object)
   paste0(
-    spec_label, " — ", action, " — ", audit_report_evidence_short(event$evidence[[1]]),
+    call_label, location, " — ", action, " — from ", spec_file,
     " (", format(event$n[[1]], big.mark = ",", trim = TRUE), " values)"
   )
+}
+
+# The convert_units_to_spec() call as the analyst wrote it, minus the piped
+# data argument.
+#' @noRd
+audit_report_spec_call_label <- function(text) {
+  node <- tryCatch(str2lang(text), error = function(e) NULL)
+  if (is.null(node) || !is.call(node) || length(node) < 2L) {
+    return("convert_units_to_spec()")
+  }
+  paste(deparse(as.call(as.list(node)[-2L]), width.cutoff = 500L), collapse = " ")
 }
 
 #' @noRd
@@ -371,8 +422,6 @@ audit_report_evidence_short <- function(evidence) {
     `source-recorded` = "source-recorded",
     `carried-converted` = "carried",
     `analyst-declared` = "analyst-declared",
-    assumed = "ASSUMED, review",
-    failed = "FAILED",
     evidence
   )
 }
@@ -636,7 +685,7 @@ audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
       lines <- stories[stories$target == target, , drop = FALSE]
       lines <- lines[order(match(lines$kind, c("derived", "call", "spec"))), , drop = FALSE]
       if (nrow(lines) == 0L) {
-        cli::cli_verbatim("  no unit evidence linked to this column — review")
+        cli::cli_verbatim("  no unit evidence captured for this column")
       }
       for (line in lines$line) cli::cli_verbatim(paste0("  ", line))
       cli::cli_text("")
@@ -644,7 +693,7 @@ audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
   }
 
   audit_report_print_column_definitions(
-    "Unitless numeric columns — review", numeric_columns, lineage, " [no units]"
+    "Unitless numeric columns", numeric_columns, lineage, " [no units]"
   )
   if (identical(trace, "all")) {
     audit_report_print_column_definitions("Other final columns", other_columns, lineage, NULL)
@@ -725,8 +774,8 @@ audit_report_evidence_label <- function(evidence) {
     `source-recorded` = "Source-recorded",
     `carried-converted` = "Carried / converted",
     `analyst-declared` = "Analyst-declared",
-    assumed = "Assumed — review",
-    unclassified = "Unclassified — legacy evidence",
+    assumed = "Assumed",
+    unclassified = "Unclassified",
     failed = "Failed",
     tools::toTitleCase(gsub("-", " ", evidence, fixed = TRUE))
   )
