@@ -119,7 +119,7 @@ audit_static_lineage <- function(script, targets, target_object) {
       add_row(
         target = target, relation = "step", symbol = symbol, object = definition_object,
         expression = audit_ast_deparse(definition$expression[[1]]),
-        path = paths[[definition_object]], depth = depth
+        path = paths[[definition_object]], depth = depth, order = definition$order[[1]]
       )
       trace_expression(
         definition$expression[[1]], definition_object, target, depth + 1L,
@@ -160,7 +160,7 @@ audit_static_lineage <- function(script, targets, target_object) {
       add_row(
         target = target, relation = "definition", object = definition_object,
         expression = audit_ast_deparse(expression),
-        path = paths[[definition_object]], depth = 0L
+        path = paths[[definition_object]], depth = 0L, order = definition$order[[1]]
       )
       trace_expression(
         expression, definition_object, target, 1L, definition$order[[1]],
@@ -178,7 +178,7 @@ audit_empty_lineage <- function() {
     target = character(), relation = character(), object = character(),
     symbol = character(), expression = character(), detail = character(),
     source_object = character(), source_column = character(), path = character(),
-    depth = character()
+    depth = character(), order = character()
   )
 }
 
@@ -308,6 +308,28 @@ audit_ast_terminal_calls <- function(expression) {
   }
   walk(expression)
   unique(terminals)
+}
+
+# Calls to any of `fns` inside a deparsed expression, with each argument's
+# deparse, for joining runtime unit events back to the tag that ran them.
+#' @noRd
+audit_ast_matching_calls <- function(text, fns) {
+  expression <- tryCatch(str2lang(text), error = function(e) NULL)
+  calls <- list()
+  walk <- function(node) {
+    if (!is.call(node)) return(invisible())
+    if (audit_ast_call_name(node) %in% fns) {
+      calls[[length(calls) + 1L]] <<- list(
+        fn = audit_ast_call_name(node),
+        text = audit_ast_deparse(node),
+        args = vapply(audit_ast_arguments(node), audit_ast_deparse, character(1))
+      )
+    }
+    for (argument in audit_ast_arguments(node)) walk(argument)
+    invisible()
+  }
+  if (!is.null(expression)) walk(expression)
+  calls
 }
 
 #' @noRd

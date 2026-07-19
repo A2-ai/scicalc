@@ -78,6 +78,103 @@ test_that("audit report never prints serialized mixed-unit inputs", {
   )
 })
 
+test_that("unit events are attributed to the final columns whose tags ran them", {
+  columns <- tibble::tibble(
+    target = c("TUM", "AMT", "DUR", "RATE", "ATFD"),
+    data_type = "units",
+    has_units = TRUE,
+    unit = c("mm", "mg", "d", "mg d-1", "d")
+  )
+  lineage <- tibble::tibble(
+    target = c("TUM", "AMT", "DUR", "RATE", "ATFD"),
+    relation = "definition",
+    object = c("trKey", "ext", "ext", "ext", "o1"),
+    symbol = NA_character_,
+    expression = c(
+      "with_units(AVAL, PARAMU)",
+      "with_units(EXDOSE, EXDOSU)",
+      "with_units(round(DIFF, 3), \"days\")",
+      "AMT/DUR",
+      "round(as.numeric(difftime(DTIM, FDOSE, units = \"days\")), 3)"
+    ),
+    detail = NA_character_, source_object = NA_character_, source_column = NA_character_,
+    path = NA_character_, depth = "0", order = as.character(1:5)
+  )
+  events <- tibble::tibble(
+    event_type = "unit",
+    fn = c("with_units", "with_units", "with_units", "convert_units_to_spec", "with_units"),
+    input = c("AVAL", "EXDOSE", "round(DIFF, 3)", "ATFD", "helper_internal"),
+    from = NA_character_,
+    to = c("mm", "mg", "days", "d", "kg"),
+    transform = "attach",
+    detail = c("PARAMU", "EXDOSU", "\"days\"", NA, NA),
+    evidence = c("source-recorded", "source-recorded", "source-recorded", "assumed", "source-recorded"),
+    n = c(189, 874, 874, 5241, 1)
+  )
+  files <- tibble::tibble(role = "specification", file = "pk.yml", hash = "h", algo = "blake3")
+
+  units <- audit_report_units(events, columns, lineage, files)
+
+  tum <- units$stories[units$stories$target == "TUM", , drop = FALSE]
+  expect_equal(tum$kind, "call")
+  expect_match(tum$line, "with_units\\(AVAL, PARAMU\\) in trKey")
+  expect_match(tum$line, "attached mm from unit column PARAMU")
+  expect_match(tum$line, "source-recorded \\(189 values\\)")
+
+  dur <- units$stories[units$stories$target == "DUR", , drop = FALSE]
+  expect_match(dur$line, "attached days from literal \"days\"")
+
+  rate <- units$stories[units$stories$target == "RATE", , drop = FALSE]
+  expect_equal(rate$kind, "derived")
+  expect_match(rate$line, "AMT/DUR in ext")
+  expect_match(rate$line, "AMT \\[mg\\] and DUR \\[d\\]")
+
+  atfd <- units$stories[units$stories$target == "ATFD", , drop = FALSE]
+  expect_equal(atfd$kind, "spec")
+  expect_match(atfd$line, "spec pk.yml")
+  expect_match(atfd$line, "attached d to unitless numeric")
+  expect_match(atfd$line, "ASSUMED, review")
+
+  expect_length(units$residual, 1)
+  expect_match(units$residual, "helper_internal")
+})
+
+test_that("identical call texts attribute to occurrences in execution order", {
+  columns <- tibble::tibble(
+    target = c("A", "B"), data_type = "units", has_units = TRUE, unit = c("mg", "kg")
+  )
+  lineage <- tibble::tibble(
+    target = c("A", "B"),
+    relation = "definition",
+    object = c("first", "second"),
+    symbol = NA_character_,
+    expression = "with_units(X, U)",
+    detail = NA_character_, source_object = NA_character_, source_column = NA_character_,
+    path = NA_character_, depth = "0", order = c("1", "2")
+  )
+  events <- tibble::tibble(
+    event_type = "unit",
+    fn = "with_units",
+    input = "X",
+    from = NA_character_,
+    to = c("mg", "kg"),
+    transform = "attach",
+    detail = "U",
+    evidence = "source-recorded",
+    n = c(10, 20)
+  )
+  files <- tibble::tibble(role = character(), file = character(), hash = character(), algo = character())
+
+  units <- audit_report_units(events, columns, lineage, files)
+
+  a <- units$stories[units$stories$target == "A", , drop = FALSE]
+  b <- units$stories[units$stories$target == "B", , drop = FALSE]
+  expect_match(a$line, "in first")
+  expect_match(a$line, "attached mg")
+  expect_match(b$line, "in second")
+  expect_match(b$line, "attached kg")
+})
+
 test_that("scicalc_audit_report flags missing anchors and failed conversions", {
   log_file <- withr::local_tempfile(fileext = ".log")
   withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))

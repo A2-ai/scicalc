@@ -18,25 +18,25 @@ scicalc_audit_report(
 
 \item{log_file}{Explicit audit log path, overriding \code{name} and \code{dir}.}
 
-\item{trace}{Columns to include in the printed lineage: final unit-bearing
-and unitless numeric columns (\code{"units"}, the default), or every final
-column (\code{"all"}).}
+\item{trace}{Columns to include in the printed column sections: final
+unit-bearing and unitless numeric columns (\code{"units"}, the default), or
+every final column (\code{"all"}).}
 }
 \value{
 An object of class \code{scicalc_audit_report} with \code{overview}, \code{files},
-final-column \code{columns} and AST \code{lineage}, runtime \code{evidence} and
-\code{transformations}, \code{findings}, and the original \code{events} tibble.
+final-column \code{columns}, AST \code{lineage}, per-column \code{units} (unit stories
+and unattributed residual), runtime \code{evidence} and \code{transformations},
+\code{findings}, and the original \code{events} tibble.
 }
 \description{
 Builds a reviewer-oriented view over the immutable event log returned by
-\code{\link[=scicalc_audit]{scicalc_audit()}}. The report groups repeated transformations, separates
-input/specification/output hash anchors, and states any findings that need
-review. The original events remain available as \code{report$events}.
-}
-\details{
-This first report layer describes captured evidence. It does not yet claim
-that every unit-bearing output column has been reconciled; that terminal
-completeness check is added during audit capture in a later step.
+\code{\link[=scicalc_audit]{scicalc_audit()}}. For each unit-bearing final column the report states its
+unit story — which call attached or converted its units, from what evidence
+(source unit column, conversion, arithmetic on unit-bearing columns, or a
+spec attach flagged for review) — by joining runtime unit events to the
+tagged expressions captured by \code{\link[=audit_script]{audit_script()}}. Runtime events that match
+no tagged call are listed as unattributed rather than dropped. The original
+events remain available as \code{report$events}.
 }
 \examples{
 \dontrun{

@@ -1,24 +1,25 @@
 #' Build a Human-Readable Assembly Audit Report
 #'
 #' Builds a reviewer-oriented view over the immutable event log returned by
-#' [scicalc_audit()]. The report groups repeated transformations, separates
-#' input/specification/output hash anchors, and states any findings that need
-#' review. The original events remain available as `report$events`.
-#'
-#' This first report layer describes captured evidence. It does not yet claim
-#' that every unit-bearing output column has been reconciled; that terminal
-#' completeness check is added during audit capture in a later step.
+#' [scicalc_audit()]. For each unit-bearing final column the report states its
+#' unit story — which call attached or converted its units, from what evidence
+#' (source unit column, conversion, arithmetic on unit-bearing columns, or a
+#' spec attach flagged for review) — by joining runtime unit events to the
+#' tagged expressions captured by [audit_script()]. Runtime events that match
+#' no tagged call are listed as unattributed rather than dropped. The original
+#' events remain available as `report$events`.
 #'
 #' @param name Audit name; reads `<dir>/<name>.audit.log`.
 #' @param dir Directory holding named audit logs.
 #' @param log_file Explicit audit log path, overriding `name` and `dir`.
-#' @param trace Columns to include in the printed lineage: final unit-bearing
-#'   and unitless numeric columns (`"units"`, the default), or every final
-#'   column (`"all"`).
+#' @param trace Columns to include in the printed column sections: final
+#'   unit-bearing and unitless numeric columns (`"units"`, the default), or
+#'   every final column (`"all"`).
 #'
 #' @return An object of class `scicalc_audit_report` with `overview`, `files`,
-#'   final-column `columns` and AST `lineage`, runtime `evidence` and
-#'   `transformations`, `findings`, and the original `events` tibble.
+#'   final-column `columns`, AST `lineage`, per-column `units` (unit stories
+#'   and unattributed residual), runtime `evidence` and `transformations`,
+#'   `findings`, and the original `events` tibble.
 #' @export
 #'
 #' @examples
@@ -34,6 +35,7 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
   files <- audit_report_files(events)
   columns <- audit_report_columns(events)
   lineage <- audit_report_lineage(events)
+  units <- audit_report_units(events, columns, lineage, files)
   transformations <- audit_report_transformations(events)
   evidence <- audit_report_evidence(transformations)
   findings <- audit_report_findings(events, files, transformations)
@@ -59,6 +61,7 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
       files = files,
       columns = columns,
       lineage = lineage,
+      units = units,
       trace = trace,
       evidence = evidence,
       transformations = transformations,
@@ -81,8 +84,14 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
 
   audit_report_print_run(x$run)
   audit_report_print_files(x$files)
-  audit_report_print_output_lineage(x$columns, x$lineage, x$trace)
-  audit_report_print_evidence(x$transformations, max_transformations)
+  if (nrow(x$columns) > 0L) {
+    audit_report_print_unit_stories(x$columns, x$lineage, x$units$stories, x$trace)
+    audit_report_print_residual(x$units$residual)
+  } else {
+    # no final schema (audit_script() ran without data=): fall back to the
+    # grouped runtime evidence view
+    audit_report_print_evidence(x$transformations, max_transformations)
+  }
   audit_report_print_findings(x$findings)
 
   invisible(x)
@@ -120,7 +129,251 @@ audit_report_lineage <- function(events) {
     source_object = audit_report_field(rows, "source_object"),
     source_column = audit_report_field(rows, "source_column"),
     path = audit_report_field(rows, "path"),
-    depth = audit_report_field(rows, "depth")
+    depth = audit_report_field(rows, "depth"),
+    order = audit_report_field(rows, "order")
+  )
+}
+
+# ---------------------------------------------------------------------------
+# Unit provenance: join runtime unit events to the static tags that created
+# each final column. Events are logged in execution order and a top-to-bottom
+# assembly script runs its tagged calls in textual (AST `order`) order, so the
+# k-th event group with an identical (fn, input) expression belongs to the k-th
+# textual occurrence of that call. Events matching no tagged call (e.g. fired
+# inside a sourced helper) are reported as unattributed rather than shifting
+# other matches.
+#' @noRd
+audit_report_units <- function(events, columns, lineage, files) {
+  empty_stories <- tibble::tibble(target = character(), kind = character(), line = character())
+  result <- list(stories = empty_stories, residual = character())
+  raw <- events[audit_report_field(events, "event_type") == "unit", , drop = FALSE]
+  if (nrow(raw) == 0L || nrow(columns) == 0L) return(result)
+
+  unit_events <- tibble::tibble(
+    fn = audit_report_field(raw, "fn"),
+    input = audit_report_field(raw, "input"),
+    from = audit_report_field(raw, "from"),
+    to = audit_report_field(raw, "to"),
+    transform = audit_report_field(raw, "transform"),
+    detail = audit_report_field(raw, "detail"),
+    evidence = audit_report_event_evidence(raw),
+    basis = audit_report_field(raw, "basis"),
+    n = suppressWarnings(as.numeric(audit_report_field(raw, "n")))
+  )
+  unit_events$n[is.na(unit_events$n)] <- 0
+
+  stories <- list()
+  residual <- character()
+  add_story <- function(target, kind, line) {
+    stories[[length(stories) + 1L]] <<- tibble::tibble(target = target, kind = kind, line = line)
+  }
+
+  spec_file <- files$file[files$role == "specification"]
+  spec_label <- if (length(spec_file) == 0L || is.na(spec_file[[1]]) || !nzchar(spec_file[[1]])) {
+    "spec"
+  } else {
+    paste0("spec ", spec_file[[1]])
+  }
+
+  is_spec <- unit_events$fn %in% "convert_units_to_spec"
+  spec_events <- unit_events[is_spec, , drop = FALSE]
+  call_events <- unit_events[!is_spec, , drop = FALSE]
+
+  # every textual occurrence of a tagged expression, in script order
+  tags <- lineage[lineage$relation %in% c("definition", "step"), , drop = FALSE]
+  tag_column <- ifelse(tags$relation == "definition", tags$target, tags$symbol)
+  tag_order <- suppressWarnings(as.integer(tags$order))
+  keep <- !duplicated(paste(tags$object, tag_column, tag_order))
+  occurrences <- tibble::tibble(
+    object = tags$object[keep], tag = tag_column[keep],
+    expression = tags$expression[keep], order = tag_order[keep]
+  )
+  occurrences <- occurrences[order(occurrences$order, na.last = TRUE), , drop = FALSE]
+
+  calls <- list()
+  if (nrow(call_events) > 0L) {
+    event_fns <- unique(call_events$fn)
+    for (index in seq_len(nrow(occurrences))) {
+      for (found in audit_ast_matching_calls(occurrences$expression[[index]], event_fns)) {
+        calls[[length(calls) + 1L]] <- c(found, list(occurrence = index))
+      }
+    }
+  }
+
+  # A mixed-units call emits one event per distinct unit, marked by a
+  # "row-level" basis; only those consecutive same-(fn, input) events are one
+  # call. Identical single-unit calls each stay their own group.
+  if (nrow(call_events) > 0L) {
+    row_level <- grepl("^row-level", call_events$basis)
+    group_id <- integer(nrow(call_events))
+    current <- 0L
+    last_key <- NULL
+    seen_units <- character()
+    for (row in seq_len(nrow(call_events))) {
+      key <- paste(call_events$fn[[row]], call_events$input[[row]])
+      continues <- !is.null(last_key) && key == last_key &&
+        isTRUE(row_level[[row]]) && isTRUE(row_level[[row - 1L]]) &&
+        !(call_events$to[[row]] %in% seen_units)
+      if (!continues) {
+        current <- current + 1L
+        seen_units <- character()
+      }
+      last_key <- key
+      seen_units <- c(seen_units, call_events$to[[row]])
+      group_id[[row]] <- current
+    }
+
+    occurrence_taken <- integer()
+    for (id in unique(group_id)) {
+      group <- call_events[group_id == id, , drop = FALSE]
+      merged <- group[1L, , drop = FALSE]
+      merged$from <- paste(unique(stats::na.omit(group$from)), collapse = ", ")
+      merged$to <- paste(unique(stats::na.omit(group$to)), collapse = ", ")
+      merged$n <- sum(group$n)
+      group_key <- paste(merged$fn, merged$input)
+      k <- if (group_key %in% names(occurrence_taken)) occurrence_taken[[group_key]] + 1L else 1L
+      occurrence_taken[[group_key]] <- k
+
+      candidates <- Filter(
+        function(call) call$fn == merged$fn[[1]] && merged$input[[1]] %in% call$args,
+        calls
+      )
+      if (length(candidates) == 0L) {
+        residual <- c(residual, audit_report_residual_line(merged))
+        next
+      }
+      candidate <- candidates[[min(k, length(candidates))]]
+      occurrence <- occurrences[candidate$occurrence, , drop = FALSE]
+      line <- audit_report_unit_call_line(candidate, occurrence$object[[1]], merged)
+      if (occurrence$tag[[1]] %in% columns$target) {
+        add_story(occurrence$tag[[1]], "call", line)
+        next
+      }
+      hosts <- unique(lineage$target[
+        lineage$relation == "step" &
+          lineage$object %in% occurrence$object[[1]] &
+          lineage$symbol %in% occurrence$tag[[1]]
+      ])
+      hosts <- intersect(hosts, columns$target)
+      if (length(hosts) == 0L) {
+        residual <- c(residual, audit_report_residual_line(merged))
+      } else {
+        for (host in hosts) {
+          add_story(host, "call", paste0("via ", occurrence$tag[[1]], ": ", line))
+        }
+      }
+    }
+  }
+
+  for (index in seq_len(nrow(spec_events))) {
+    event <- spec_events[index, , drop = FALSE]
+    if (event$input[[1]] %in% columns$target) {
+      add_story(event$input[[1]], "spec", audit_report_unit_spec_line(event, spec_label))
+    } else {
+      residual <- c(residual, audit_report_residual_line(event))
+    }
+  }
+
+  # a unit column created without its own unit call inherits units from its
+  # unit-bearing operands
+  bound <- if (length(stories) == 0L) empty_stories else dplyr::bind_rows(stories)
+  unit_columns <- columns$target[columns$has_units]
+  for (target in unit_columns) {
+    if (any(bound$target == target & bound$kind == "call")) next
+    definitions <- lineage[lineage$target == target & lineage$relation == "definition", , drop = FALSE]
+    for (index in seq_len(nrow(definitions))) {
+      expression <- tryCatch(str2lang(definitions$expression[[index]]), error = function(e) NULL)
+      if (is.null(expression)) next
+      operands <- intersect(audit_ast_symbols(expression), setdiff(unit_columns, target))
+      if (length(operands) == 0L) next
+      labels <- vapply(operands, function(operand) {
+        unit <- columns$unit[columns$target == operand][[1]]
+        if (is.na(unit) || !nzchar(unit)) operand else paste0(operand, " [", unit, "]")
+      }, character(1))
+      add_story(target, "derived", paste0(
+        definitions$expression[[index]], " in ", definitions$object[[index]],
+        " — units derived by arithmetic from ", paste(labels, collapse = " and ")
+      ))
+    }
+  }
+
+  stories <- if (length(stories) == 0L) empty_stories else dplyr::bind_rows(stories)
+  list(stories = stories, residual = residual)
+}
+
+#' @noRd
+audit_report_unit_call_line <- function(candidate, object, event) {
+  fn <- event$fn[[1]]
+  detail <- event$detail[[1]]
+  label <- if (identical(fn, "with_units")) {
+    candidate$text
+  } else if (fn %in% c("convert_mass_to_mol", "convert_mol_to_mass") && !is.na(detail) && nzchar(detail)) {
+    paste0(fn, "(", audit_report_input_label(event$input[[1]]), ", ", detail, ")")
+  } else {
+    paste0(fn, "(", audit_report_input_label(event$input[[1]]), ")")
+  }
+  paste0(
+    label, " in ", object, " — ", audit_report_unit_action(event),
+    " — ", audit_report_evidence_short(event$evidence[[1]]),
+    " (", format(event$n[[1]], big.mark = ",", trim = TRUE), " values)"
+  )
+}
+
+#' @noRd
+audit_report_unit_action <- function(event) {
+  transform <- event$transform[[1]]
+  detail <- event$detail[[1]]
+  if (identical(transform, "attach")) {
+    source <- if (is.na(detail) || !nzchar(detail)) {
+      ""
+    } else if (startsWith(detail, "\"")) {
+      paste0(" from literal ", detail)
+    } else {
+      paste0(" from unit column ", detail)
+    }
+    return(paste0("attached ", event$to[[1]], source))
+  }
+  text <- paste0(event$from[[1]], " → ", event$to[[1]])
+  if (identical(transform, "log-shift")) text <- paste0(text, " (log reference shift)")
+  text
+}
+
+#' @noRd
+audit_report_unit_spec_line <- function(event, spec_label) {
+  action <- if (identical(event$transform[[1]], "attach")) {
+    paste0("attached ", event$to[[1]], " to unitless numeric")
+  } else {
+    audit_report_unit_action(event)
+  }
+  paste0(
+    spec_label, " — ", action, " — ", audit_report_evidence_short(event$evidence[[1]]),
+    " (", format(event$n[[1]], big.mark = ",", trim = TRUE), " values)"
+  )
+}
+
+#' @noRd
+audit_report_residual_line <- function(event) {
+  row <- tibble::tibble(
+    input = event$input[[1]], fn = event$fn[[1]], transform = event$transform[[1]],
+    from = event$from[[1]], to = event$to[[1]], detail = event$detail[[1]],
+    n = event$n[[1]]
+  )
+  paste0(
+    audit_report_transformation_text(row), " — ",
+    audit_report_evidence_short(event$evidence[[1]])
+  )
+}
+
+#' @noRd
+audit_report_evidence_short <- function(evidence) {
+  switch(
+    evidence,
+    `source-recorded` = "source-recorded",
+    `carried-converted` = "carried",
+    `analyst-declared` = "analyst-declared",
+    assumed = "ASSUMED, review",
+    failed = "FAILED",
+    evidence
   )
 }
 
@@ -366,104 +619,73 @@ audit_report_print_run <- function(run) {
   invisible()
 }
 
-# Print final-column lineage from the static graph. Runtime transformations are
-# printed separately below; this section is the authoritative answer to where
-# a final column and its source symbols came from.
+# Per-column unit provenance: the section a reviewer reads to see where each
+# final column's units came from.
 #' @noRd
-audit_report_print_output_lineage <- function(columns, lineage, trace) {
-  if (nrow(columns) == 0L) return(invisible())
-
+audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
   unit_columns <- columns[columns$has_units, , drop = FALSE]
   numeric_columns <- columns[!columns$has_units & columns$data_type == "numeric", , drop = FALSE]
   other_columns <- columns[!columns$has_units & columns$data_type != "numeric", , drop = FALSE]
 
-  audit_report_print_lineage_group("Unit columns", unit_columns, lineage, unit = TRUE)
-  audit_report_print_lineage_group("Unitless numeric columns — review", numeric_columns, lineage, unit = FALSE)
+  if (nrow(unit_columns) > 0L) {
+    cli::cli_h2("Unit columns")
+    for (index in seq_len(nrow(unit_columns))) {
+      target <- unit_columns$target[[index]]
+      label <- paste0(target, " [", unit_columns$unit[[index]], "]")
+      cli::cli_text("{.strong {label}}")
+      lines <- stories[stories$target == target, , drop = FALSE]
+      lines <- lines[order(match(lines$kind, c("derived", "call", "spec"))), , drop = FALSE]
+      if (nrow(lines) == 0L) {
+        cli::cli_verbatim("  no unit evidence linked to this column — review")
+      }
+      for (line in lines$line) cli::cli_verbatim(paste0("  ", line))
+      cli::cli_text("")
+    }
+  }
+
+  audit_report_print_column_definitions(
+    "Unitless numeric columns — review", numeric_columns, lineage, " [no units]"
+  )
   if (identical(trace, "all")) {
-    audit_report_print_lineage_group("Other final columns", other_columns, lineage, unit = FALSE)
+    audit_report_print_column_definitions("Other final columns", other_columns, lineage, NULL)
   }
   invisible()
 }
 
 #' @noRd
-audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
+audit_report_print_column_definitions <- function(title, columns, lineage, suffix) {
   if (nrow(columns) == 0L) return(invisible())
   cli::cli_h2(title)
   for (index in seq_len(nrow(columns))) {
-    column <- columns[index, , drop = FALSE]
-    label <- column$target[[1]]
-    if (unit) {
-      label <- paste0(label, " [", column$unit[[1]], "]")
-    } else if (column$data_type[[1]] == "numeric") {
-      label <- paste0(label, " [no units]")
-    }
+    target <- columns$target[[index]]
+    label <- if (is.null(suffix)) target else paste0(target, suffix)
     cli::cli_text("{.strong {label}}")
-
-    rows <- lineage[lineage$target == column$target[[1]], , drop = FALSE]
-    if (nrow(rows) == 0L) {
-      cli::cli_text("  No static lineage was captured for this column.")
-      cli::cli_text("")
-      next
+    definitions <- lineage[lineage$target == target & lineage$relation == "definition", , drop = FALSE]
+    sources <- lineage[lineage$target == target & lineage$relation == "source", , drop = FALSE]
+    if (nrow(definitions) > 0L) {
+      for (row in seq_len(nrow(definitions))) {
+        cli::cli_verbatim(paste0(
+          "  ", definitions$expression[[row]], " (in ", definitions$object[[row]], ")"
+        ))
+      }
+    } else if (nrow(sources) > 0L) {
+      cli::cli_verbatim(paste0("  ", sources$source_object[[1]], "$", sources$source_column[[1]]))
+    } else {
+      cli::cli_verbatim("  no static lineage captured")
     }
-
-    # Rows are in depth-first trace order; depth gives the indentation, so the
-    # printed block is the dependency tree of the column.
-    for (i in seq_len(nrow(rows))) {
-      row <- rows[i, , drop = FALSE]
-      cli::cli_verbatim(paste0(
-        strrep("  ", audit_report_lineage_depth(row) + 1L),
-        audit_report_lineage_text(row)
-      ))
-    }
-
-    flows <- rows$path[rows$relation == "source"]
-    flows <- unique(flows[!is.na(flows) & nzchar(flows)])
-    if (length(flows) == 0L) {
-      flows <- rows$path[rows$relation == "definition"]
-      flows <- unique(flows[!is.na(flows) & nzchar(flows)])
-    }
-    if (length(flows) == 0L) {
-      flows <- utils::head(unique(rows$path[!is.na(rows$path) & nzchar(rows$path)]), 1L)
-    }
-    for (flow in flows) cli::cli_verbatim(paste0("  flow: ", audit_report_forward_path(flow)))
     cli::cli_text("")
   }
   invisible()
 }
 
+# Unit events that matched no tagged call or final column. Shown so the
+# attribution join can never silently hide evidence.
 #' @noRd
-audit_report_lineage_depth <- function(row) {
-  depth <- suppressWarnings(as.integer(row$depth[[1]]))
-  if (is.na(depth)) 0L else depth
-}
-
-# One printed line per lineage row, indented by trace depth.
-#' @noRd
-audit_report_lineage_text <- function(row) {
-  switch(
-    row$relation[[1]],
-    definition = paste0("defined as: ", row$expression[[1]], " (in ", row$object[[1]], ")"),
-    step = if (identical(row$detail[[1]], "traced above")) {
-      paste0(row$symbol[[1]], " = … (in ", row$object[[1]], ", traced above)")
-    } else {
-      paste0(row$symbol[[1]], " = ", row$expression[[1]], " (in ", row$object[[1]], ")")
-    },
-    source = paste0(row$symbol[[1]], " <- ", row$source_object[[1]], "$", row$source_column[[1]]),
-    terminal = {
-      text <- paste0("terminal: ", row$expression[[1]])
-      if (!is.na(row$detail[[1]])) text <- paste0(text, " — ", row$detail[[1]])
-      text
-    },
-    paste0(row$relation[[1]], ": ", row$expression[[1]])
-  )
-}
-
-# Static traversal starts at `final` and walks upstream. Readers need the
-# opposite direction: creation source flowing into the submitted data frame.
-#' @noRd
-audit_report_forward_path <- function(path) {
-  pieces <- strsplit(path, " -> ", fixed = TRUE)[[1]]
-  paste(rev(pieces), collapse = " -> ")
+audit_report_print_residual <- function(residual) {
+  if (length(residual) == 0L) return(invisible())
+  cli::cli_h2("Unattributed unit operations")
+  for (line in residual) cli::cli_verbatim(paste0("• ", line))
+  invisible()
 }
 
 #' @noRd
