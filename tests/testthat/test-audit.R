@@ -134,6 +134,37 @@ test_that("convert_units_to_spec logs conversions but skips no-ops", {
   expect_false(any(a$input == "AMT", na.rm = TRUE))
 })
 
+test_that("audit_script purls a qmd even when its chunk labels are already registered", {
+  skip_if_not_installed("callr")
+  skip_if_not_installed("knitr")
+
+  dir <- withr::local_tempdir()
+  script <- file.path(dir, "doc.qmd")
+  writeLines(c(
+    "---", "title: t", "---",
+    "```{r rv}", "1 + 1", "```",
+    "```{r load}", "df <- data.frame(x = 1)", "```"
+  ), script)
+
+  # simulate the failing scenario: this document is mid-knit, so its chunk
+  # labels are live in the current process's knitr registry
+  knitr::knit_code$set(rv = "1 + 1", load = "df <- data.frame(x = 1)")
+  withr::defer(knitr::knit_code$restore())
+
+  # a same-process purl would abort with "Duplicate chunk label"; audit_script
+  # purls in a subprocess, so the purl step must get past that. The run may
+  # still fail later (child cannot load scicalc under load_all), but not on the
+  # duplicate label.
+  err <- tryCatch(
+    {
+      suppressWarnings(audit_script(script, name = "doc", dir = dir, quiet = TRUE))
+      NA_character_
+    },
+    error = function(e) conditionMessage(e)
+  )
+  if (!is.na(err)) expect_no_match(err, "Duplicate chunk label", fixed = TRUE)
+})
+
 test_that("audit_script is a no-op inside an active capture (re-entrancy guard)", {
   local_capture()
   expect_invisible(res <- audit_script("does-not-exist.R"))

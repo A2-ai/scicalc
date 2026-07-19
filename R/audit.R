@@ -207,7 +207,15 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = 
     rlang::check_installed("knitr")
     run_file <- tempfile(fileext = ".R")
     on.exit(unlink(run_file), add = TRUE)
-    knitr::purl(script, output = run_file, quiet = TRUE)
+    # purl in a fresh process: when audit_script() runs from inside a chunk of
+    # the very document being audited, knitr's chunk-label registry for the
+    # live knit is still populated, and re-parsing the file here would abort on
+    # "Duplicate chunk label". A subprocess starts with an empty registry.
+    callr::r(
+      function(input, output) knitr::purl(input, output = output, quiet = TRUE),
+      args = list(input = normalizePath(script), output = run_file),
+      libpath = .libPaths()
+    )
   } else if (ext != "r") {
     rlang::abort(paste0(
       "Unsupported script type '.", ext, "'. Expected .R, .qmd, or .Rmd."
