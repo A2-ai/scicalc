@@ -19,8 +19,13 @@ test_that("static lineage follows final columns to their input terminals", {
   expect_equal(aval$source_column, "AVAL")
 
   paramu <- lineage[!is.na(lineage$symbol) & lineage$symbol == "PARAMU", , drop = FALSE]
-  expect_equal(paramu$source_object, "adtr_parquet")
-  expect_equal(paramu$source_column, "PARAM")
+  expect_equal(paramu$relation, "step")
+  expect_equal(paramu$expression, "PARAM")
+  expect_equal(paramu$object, "trKey")
+
+  param <- lineage[!is.na(lineage$symbol) & lineage$symbol == "PARAM", , drop = FALSE]
+  expect_equal(param$source_object, "adtr_parquet")
+  expect_equal(param$source_column, "PARAM")
 })
 
 test_that("static lineage reports every equal-depth sibling definition", {
@@ -48,6 +53,45 @@ test_that("static lineage reports every equal-depth sibling definition", {
   tpt <- lineage[!is.na(lineage$symbol) & lineage$symbol == "tpt", , drop = FALSE]
   expect_equal(tpt$source_object, "adpc")
   expect_equal(tpt$source_column, "tpt")
+})
+
+test_that("sequential redefinitions resolve by order instead of flagging ambiguity", {
+  script <- withr::local_tempfile(fileext = ".R")
+  writeLines(c(
+    "df <- raw %>% mutate(X = A + 1) %>% mutate(X = X * 2)",
+    "final <- df %>% select(X)"
+  ), script)
+
+  lineage <- audit_static_lineage(script, targets = "X", target_object = "final")
+
+  definitions <- lineage[lineage$relation == "definition", , drop = FALSE]
+  expect_equal(definitions$expression, "X * 2")
+
+  steps <- lineage[lineage$relation == "step", , drop = FALSE]
+  expect_equal(steps$symbol, "X")
+  expect_equal(steps$expression, "A + 1")
+
+  a <- lineage[!is.na(lineage$symbol) & lineage$symbol == "A", , drop = FALSE]
+  expect_equal(a$source_object, "raw")
+
+  expect_false(any(lineage$relation == "terminal"))
+})
+
+test_that("references only resolve through objects actually upstream", {
+  script <- withr::local_tempfile(fileext = ".R")
+  writeLines(c(
+    "left <- raw_left %>% mutate(Y = parse_number(V))",
+    "right <- raw_right %>% mutate(V = fix(V))",
+    "both <- left %>% bind_rows(right)",
+    "final <- both %>% select(Y)"
+  ), script)
+
+  lineage <- audit_static_lineage(script, targets = "Y", target_object = "final")
+
+  v <- lineage[!is.na(lineage$symbol) & lineage$symbol == "V", , drop = FALSE]
+  expect_equal(v$relation, "source")
+  expect_equal(v$source_object, "raw_left")
+  expect_false(any(lineage$relation == "step"))
 })
 
 test_that("a closer redefinition still shadows upstream definitions", {

@@ -31,105 +31,140 @@ audit_static_lineage <- function(script, targets, target_object) {
     return(audit_lineage_rows(rows))
   }
 
-  # Nearest definitions by true path depth. Sibling objects at the same depth
-  # (e.g. two frames later combined with bind_rows()) all define the column, so
-  # equal-depth definitions tie and are all returned.
-  find_definition <- function(symbol, object = NULL) {
-    definitions <- graph$columns[graph$columns$column == symbol, , drop = FALSE]
-    if (!is.null(object)) {
-      local <- definitions[definitions$object == object, , drop = FALSE]
-      if (nrow(local) > 0L) return(utils::tail(local, 1L))
+  # Objects reachable upstream of `object` (through symbol references in
+  # object expressions) and their hop counts, memoized per object.
+  upstream_cache <- new.env(parent = emptyenv())
+  upstream_depths <- function(object) {
+    cached <- upstream_cache[[object]]
+    if (!is.null(cached)) return(cached)
+    depths <- stats::setNames(0L, object)
+    queue <- object
+    while (length(queue) > 0L) {
+      current <- queue[[1]]
+      queue <- queue[-1]
+      references <- intersect(audit_ast_symbols(graph$objects[[current]]), names(graph$objects))
+      for (reference in setdiff(references, names(depths))) {
+        depths[[reference]] <- depths[[current]] + 1L
+        queue <- c(queue, reference)
+      }
     }
-    definitions <- definitions[definitions$object %in% names(paths), , drop = FALSE]
-    if (nrow(definitions) == 0L) return(definitions)
-    definitions$distance <- vapply(
-      strsplit(unlist(paths[definitions$object]), " -> ", fixed = TRUE),
-      length, integer(1)
-    )
-    definitions <- definitions[definitions$distance == min(definitions$distance), , drop = FALSE]
-    definitions[order(definitions$order, decreasing = TRUE), , drop = FALSE]
+    upstream_cache[[object]] <- depths
+    depths
+  }
+
+  # Resolve a reference to `symbol` made in `object` before definition order
+  # `before`, with sequential semantics: the reference sees the latest earlier
+  # definition in the same object, otherwise the final (last) definition in the
+  # nearest object(s) actually upstream of `object`. Sibling objects at the
+  # same depth (e.g. frames later combined with bind_rows()) all define the
+  # column, so each contributes one definition.
+  find_definition <- function(symbol, object, before = Inf) {
+    definitions <- graph$columns[graph$columns$column == symbol, , drop = FALSE]
+    local <- definitions[definitions$object == object & definitions$order < before, , drop = FALSE]
+    if (nrow(local) > 0L) {
+      return(local[which.max(local$order), , drop = FALSE])
+    }
+    depths <- upstream_depths(object)
+    candidates <- definitions[definitions$object %in% setdiff(names(depths), object), , drop = FALSE]
+    if (nrow(candidates) == 0L) return(candidates)
+    candidates$distance <- depths[candidates$object]
+    candidates <- candidates[candidates$distance == min(candidates$distance), , drop = FALSE]
+    candidates <- candidates[order(candidates$order, decreasing = TRUE), , drop = FALSE]
+    candidates[!duplicated(candidates$object), , drop = FALSE]
   }
 
   source_object <- function(object) audit_ast_terminal_input(graph, object)
 
+  # Depth-first trace. Every intermediate definition a symbol resolves to is
+  # emitted as a "step" row with its depth, so the report can render the full
+  # dependency tree. A subtree already expanded for this target is not repeated:
+  # its step row carries detail = "traced above". Definitions are identified by
+  # object, column, and order, so a redefinition and the definition it shadows
+  # are distinct nodes.
+  expanded <- character()
+
   trace_expression <- NULL
-  trace_symbol <- function(symbol, object, target, reference, seen) {
-    definitions <- find_definition(symbol, object)
+  trace_symbol <- function(symbol, object, target, depth, before, seen) {
+    definitions <- find_definition(symbol, object, before)
     if (nrow(definitions) == 0L) {
       add_row(
-        target = target, relation = "source", symbol = reference,
+        target = target, relation = "source", symbol = symbol,
         source_object = source_object(object), source_column = symbol,
-        path = paths[[object]]
+        path = paths[[object]], depth = depth
       )
       return(invisible())
     }
-    for (definition_object in unique(definitions$object)) {
-      definition <- definitions[definitions$object == definition_object, , drop = FALSE]
-      if (nrow(definition) > 1L) {
-        add_row(
-          target = target, relation = "terminal", symbol = reference,
-          expression = symbol, detail = paste0("Multiple definitions for `", symbol, "`."),
-          path = paths[[definition_object]]
-        )
-        next
-      }
-      key <- paste(definition_object, definition$column[[1]], sep = "$")
+    for (index in seq_len(nrow(definitions))) {
+      definition <- definitions[index, , drop = FALSE]
+      definition_object <- definition$object[[1]]
+      key <- paste(definition_object, symbol, definition$order[[1]], sep = "$")
       if (key %in% seen) {
         add_row(
-          target = target, relation = "terminal", symbol = reference,
-          expression = key, detail = "Cyclic column dependency.", path = paths[[object]]
+          target = target, relation = "terminal", symbol = symbol,
+          expression = paste(definition_object, symbol, sep = "$"),
+          detail = "Cyclic column dependency.",
+          path = paths[[object]], depth = depth
         )
         next
       }
+      if (key %in% expanded) {
+        add_row(
+          target = target, relation = "step", symbol = symbol, object = definition_object,
+          expression = audit_ast_deparse(definition$expression[[1]]),
+          detail = "traced above", path = paths[[definition_object]], depth = depth
+        )
+        next
+      }
+      expanded <<- c(expanded, key)
+      add_row(
+        target = target, relation = "step", symbol = symbol, object = definition_object,
+        expression = audit_ast_deparse(definition$expression[[1]]),
+        path = paths[[definition_object]], depth = depth
+      )
       trace_expression(
-        definition$expression[[1]], definition_object, target, reference,
-        c(seen, key)
+        definition$expression[[1]], definition_object, target, depth + 1L,
+        definition$order[[1]], c(seen, key)
       )
     }
     invisible()
   }
 
-  trace_expression <- function(expression, object, target, reference, seen) {
+  trace_expression <- function(expression, object, target, depth, before, seen) {
     for (symbol in audit_ast_symbols(expression)) {
-      origin <- if (identical(reference, target)) symbol else reference
-      trace_symbol(symbol, object, target, origin, seen)
+      trace_symbol(symbol, object, target, depth, before, seen)
     }
     for (terminal in audit_ast_terminal_calls(expression)) {
       add_row(
-        target = target, relation = "terminal", symbol = reference,
-        expression = terminal, path = paths[[object]]
+        target = target, relation = "terminal", expression = terminal,
+        path = paths[[object]], depth = depth
       )
     }
     invisible()
   }
 
   for (target in targets) {
-    definitions <- find_definition(target)
+    expanded <- character()
+    definitions <- find_definition(target, target_object)
     if (nrow(definitions) == 0L) {
       add_row(
         target = target, relation = "source", symbol = target,
         source_object = source_object(target_object), source_column = target,
-        path = paths[[target_object]]
+        path = paths[[target_object]], depth = 0L
       )
       next
     }
-    for (definition_object in unique(definitions$object)) {
-      definition <- definitions[definitions$object == definition_object, , drop = FALSE]
-      if (nrow(definition) > 1L) {
-        add_row(
-          target = target, relation = "terminal", expression = target,
-          detail = paste0("Multiple definitions for `", target, "`."), path = paths[[definition_object]]
-        )
-        next
-      }
+    for (index in seq_len(nrow(definitions))) {
+      definition <- definitions[index, , drop = FALSE]
+      definition_object <- definition$object[[1]]
       expression <- definition$expression[[1]]
       add_row(
         target = target, relation = "definition", object = definition_object,
-        expression = audit_ast_deparse(expression), path = paths[[definition_object]]
+        expression = audit_ast_deparse(expression),
+        path = paths[[definition_object]], depth = 0L
       )
       trace_expression(
-        expression, definition_object, target, target,
-        paste(definition_object, target, sep = "$")
+        expression, definition_object, target, 1L, definition$order[[1]],
+        paste(definition_object, target, definition$order[[1]], sep = "$")
       )
     }
   }
@@ -142,7 +177,8 @@ audit_empty_lineage <- function() {
   tibble::tibble(
     target = character(), relation = character(), object = character(),
     symbol = character(), expression = character(), detail = character(),
-    source_object = character(), source_column = character(), path = character()
+    source_object = character(), source_column = character(), path = character(),
+    depth = character()
   )
 }
 

@@ -276,7 +276,7 @@ audit_log_static_lineage <- function(log_path, name, lineage, schema) {
       target = row$target[[1]], relation = row$relation[[1]], object = row$object[[1]],
       symbol = row$symbol[[1]], expression = row$expression[[1]], detail = row$detail[[1]],
       source_object = row$source_object[[1]], source_column = row$source_column[[1]],
-      path = row$path[[1]]
+      path = row$path[[1]], depth = row$depth[[1]]
     )
   }
   for (index in seq_len(nrow(schema))) {
@@ -390,7 +390,7 @@ scicalc_audit <- function(name = NULL, dir = default_audit_dir(), log_file = NUL
   preferred <- c(
     "event_type", "phase", "fn", "script", "script_hash", "script_type",
     "scicalc_version", "r_version", "target", "relation", "object", "symbol",
-    "expression", "source_object", "source_column", "path", "data_type",
+    "expression", "source_object", "source_column", "path", "depth", "data_type",
     "has_units", "unit", "input", "from", "to", "transform", "n", "detail",
     "file", "hash", "algo", "spec_hash", "spec_file"
   )

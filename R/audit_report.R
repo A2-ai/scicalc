@@ -119,7 +119,8 @@ audit_report_lineage <- function(events) {
     detail = audit_report_field(rows, "detail"),
     source_object = audit_report_field(rows, "source_object"),
     source_column = audit_report_field(rows, "source_column"),
-    path = audit_report_field(rows, "path")
+    path = audit_report_field(rows, "path"),
+    depth = audit_report_field(rows, "depth")
   )
 }
 
@@ -399,37 +400,62 @@ audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
     cli::cli_text("{.strong {label}}")
 
     rows <- lineage[lineage$target == column$target[[1]], , drop = FALSE]
-    definitions <- rows[rows$relation == "definition", , drop = FALSE]
-    sources <- rows[rows$relation == "source", , drop = FALSE]
-    terminals <- rows[rows$relation == "terminal", , drop = FALSE]
+    if (nrow(rows) == 0L) {
+      cli::cli_text("  No static lineage was captured for this column.")
+      cli::cli_text("")
+      next
+    }
 
-    for (definition in seq_len(nrow(definitions))) {
-      text <- paste0("  defined as: ", definitions$expression[[definition]])
-      if (nrow(definitions) > 1L) {
-        text <- paste0(text, " (in ", definitions$object[[definition]], ")")
-      }
-      cli::cli_text(text)
+    # Rows are in depth-first trace order; depth gives the indentation, so the
+    # printed block is the dependency tree of the column.
+    for (i in seq_len(nrow(rows))) {
+      row <- rows[i, , drop = FALSE]
+      cli::cli_verbatim(paste0(
+        strrep("  ", audit_report_lineage_depth(row) + 1L),
+        audit_report_lineage_text(row)
+      ))
     }
-    for (source in seq_len(nrow(sources))) {
-      symbol <- sources$symbol[[source]]
-      source_text <- paste0(sources$source_object[[source]], "$", sources$source_column[[source]])
-      cli::cli_text(paste0("  ", symbol, " <- ", source_text))
-    }
-    for (terminal in seq_len(nrow(terminals))) {
-      text <- terminals$expression[[terminal]]
-      if (!is.na(terminals$detail[[terminal]])) text <- paste0(text, " — ", terminals$detail[[terminal]])
-      cli::cli_text(paste0("  terminal: ", text))
-    }
-    flows <- unique(definitions$path[!is.na(definitions$path) & nzchar(definitions$path)])
+
+    flows <- rows$path[rows$relation == "source"]
+    flows <- unique(flows[!is.na(flows) & nzchar(flows)])
     if (length(flows) == 0L) {
-      path <- c(sources$path, terminals$path)
-      flows <- utils::head(unique(path[!is.na(path) & nzchar(path)]), 1L)
+      flows <- rows$path[rows$relation == "definition"]
+      flows <- unique(flows[!is.na(flows) & nzchar(flows)])
     }
-    for (flow in flows) cli::cli_text(paste0("  flow: ", audit_report_forward_path(flow)))
-    if (nrow(rows) == 0L) cli::cli_text("  No static lineage was captured for this column.")
+    if (length(flows) == 0L) {
+      flows <- utils::head(unique(rows$path[!is.na(rows$path) & nzchar(rows$path)]), 1L)
+    }
+    for (flow in flows) cli::cli_verbatim(paste0("  flow: ", audit_report_forward_path(flow)))
     cli::cli_text("")
   }
   invisible()
+}
+
+#' @noRd
+audit_report_lineage_depth <- function(row) {
+  depth <- suppressWarnings(as.integer(row$depth[[1]]))
+  if (is.na(depth)) 0L else depth
+}
+
+# One printed line per lineage row, indented by trace depth.
+#' @noRd
+audit_report_lineage_text <- function(row) {
+  switch(
+    row$relation[[1]],
+    definition = paste0("defined as: ", row$expression[[1]], " (in ", row$object[[1]], ")"),
+    step = if (identical(row$detail[[1]], "traced above")) {
+      paste0(row$symbol[[1]], " = … (in ", row$object[[1]], ", traced above)")
+    } else {
+      paste0(row$symbol[[1]], " = ", row$expression[[1]], " (in ", row$object[[1]], ")")
+    },
+    source = paste0(row$symbol[[1]], " <- ", row$source_object[[1]], "$", row$source_column[[1]]),
+    terminal = {
+      text <- paste0("terminal: ", row$expression[[1]])
+      if (!is.na(row$detail[[1]])) text <- paste0(text, " — ", row$detail[[1]])
+      text
+    },
+    paste0(row$relation[[1]], ": ", row$expression[[1]])
+  )
 }
 
 # Static traversal starts at `final` and walks upstream. Readers need the
