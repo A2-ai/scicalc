@@ -147,7 +147,7 @@ audit_ast_graph <- function(expressions) {
 
   collect_tagged_expressions <- function(expression, object) {
     if (!is.call(expression)) return(invisible())
-    arguments <- as.list(expression)[-1]
+    arguments <- audit_ast_arguments(expression)
     tags <- names(arguments)
     if (!is.null(tags)) {
       for (index in which(nzchar(tags))) {
@@ -238,7 +238,7 @@ audit_ast_symbols <- function(expression) {
     }
     if (!is.call(node)) return(character())
     if (audit_ast_call_name(node) %in% c("<-", "=")) return(walk(node[[3]]))
-    unlist(lapply(as.list(node)[-1], walk), use.names = FALSE)
+    unlist(lapply(audit_ast_arguments(node), walk), use.names = FALSE)
   }
   unique(walk(expression))
 }
@@ -254,7 +254,7 @@ audit_ast_terminal_calls <- function(expression) {
     if (!fun %in% c("<-", "=") && length(audit_ast_symbols(node)) == 0L) {
       terminals <<- c(terminals, audit_ast_deparse(node))
     }
-    for (argument in as.list(node)[-1]) walk(argument)
+    for (argument in audit_ast_arguments(node)) walk(argument)
     invisible()
   }
   walk(expression)
@@ -268,6 +268,15 @@ audit_ast_call_name <- function(expression) {
   if (is.symbol(fun)) return(as.character(fun))
   if (is.call(fun) && identical(as.character(fun[[1]]), "::")) return(as.character(fun[[3]]))
   audit_ast_deparse(fun)
+}
+
+# Missing call arguments are valid R syntax (for example `f(, x)`) and occur
+# in generated/knitted scripts. They carry no dependency edge, so skip them.
+#' @noRd
+audit_ast_arguments <- function(expression) {
+  arguments <- as.list(expression)[-1]
+  if (length(arguments) == 0L) return(arguments)
+  arguments[!vapply(arguments, rlang::is_missing, logical(1))]
 }
 
 #' @noRd
