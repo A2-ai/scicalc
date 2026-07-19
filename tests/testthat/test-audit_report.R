@@ -78,6 +78,33 @@ test_that("audit report never prints serialized mixed-unit inputs", {
   )
 })
 
+test_that("knit_print reuses the console rendering as a verbatim block", {
+  skip_if_not_installed("knitr")
+  log_file <- withr::local_tempfile(fileext = ".log")
+  withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))
+  scicalc_audit_reset(log_file = log_file)
+
+  log_audit_event(
+    "run", fn = "audit_script", phase = "completed", script = "analysis/pk.R",
+    script_hash = "script-hash", script_type = "r", scicalc_version = "0.0.0",
+    r_version = "4.5.0"
+  )
+  log_audit_event(
+    "unit", fn = "with_units", input = "AVAL", from = NA_character_,
+    to = "ng/mL", transform = "attach", detail = "PCSTRESU", n = 2
+  )
+
+  report <- scicalc_audit_report(log_file = log_file)
+  out <- knitr::knit_print(report)
+
+  expect_s3_class(out, "knit_asis")
+  text <- paste(as.character(out), collapse = "\n")
+  expect_match(text, "scicalc audit")
+  # emitted as a fenced verbatim block, stripped of ANSI styling
+  expect_match(text, "```", fixed = TRUE)
+  expect_no_match(text, "\033", fixed = TRUE)
+})
+
 test_that("unit events are attributed to the final columns whose tags ran them", {
   columns <- tibble::tibble(
     target = c("TUM", "AMT", "DUR", "RATE", "ATFD"),
