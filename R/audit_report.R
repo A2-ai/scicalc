@@ -388,7 +388,6 @@ audit_report_print_output_lineage <- function(columns, lineage, trace) {
 audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
   if (nrow(columns) == 0L) return(invisible())
   cli::cli_h2(title)
-  cli::cli_ul()
   for (index in seq_len(nrow(columns))) {
     column <- columns[index, , drop = FALSE]
     label <- column$target[[1]]
@@ -397,35 +396,41 @@ audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
     } else if (column$data_type[[1]] == "numeric") {
       label <- paste0(label, " [no units]")
     }
-    cli::cli_li(label)
+    cli::cli_text("{.strong {label}}")
 
     rows <- lineage[lineage$target == column$target[[1]], , drop = FALSE]
     definitions <- rows[rows$relation == "definition", , drop = FALSE]
     sources <- rows[rows$relation == "source", , drop = FALSE]
     terminals <- rows[rows$relation == "terminal", , drop = FALSE]
 
-    cli::cli_ul()
     for (definition in seq_len(nrow(definitions))) {
-      cli::cli_li(paste0("defined as: ", definitions$expression[[definition]]))
+      cli::cli_text(paste0("  defined as: ", definitions$expression[[definition]]))
     }
     for (source in seq_len(nrow(sources))) {
       symbol <- sources$symbol[[source]]
       source_text <- paste0(sources$source_object[[source]], "$", sources$source_column[[source]])
-      cli::cli_li(paste0(symbol, " ← ", source_text))
+      cli::cli_text(paste0("  ", symbol, " <- ", source_text))
     }
     for (terminal in seq_len(nrow(terminals))) {
       text <- terminals$expression[[terminal]]
       if (!is.na(terminals$detail[[terminal]])) text <- paste0(text, " — ", terminals$detail[[terminal]])
-      cli::cli_li(paste0("terminal: ", text))
+      cli::cli_text(paste0("  terminal: ", text))
     }
     path <- c(definitions$path, sources$path, terminals$path)
     path <- unique(path[!is.na(path) & nzchar(path)])
-    if (length(path) > 0L) cli::cli_li(paste0("path: ", path[[1]]))
-    if (nrow(rows) == 0L) cli::cli_li("No static lineage was captured for this column.")
-    cli::cli_end()
+    if (length(path) > 0L) cli::cli_text(paste0("  flow: ", audit_report_forward_path(path[[1]])))
+    if (nrow(rows) == 0L) cli::cli_text("  No static lineage was captured for this column.")
+    cli::cli_text("")
   }
-  cli::cli_end()
   invisible()
+}
+
+# Static traversal starts at `final` and walks upstream. Readers need the
+# opposite direction: creation source flowing into the submitted data frame.
+#' @noRd
+audit_report_forward_path <- function(path) {
+  pieces <- strsplit(path, " -> ", fixed = TRUE)[[1]]
+  paste(rev(pieces), collapse = " -> ")
 }
 
 #' @noRd
