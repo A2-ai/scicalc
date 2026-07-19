@@ -8,6 +8,7 @@ audit_script(
   script,
   name = NULL,
   dir = default_audit_dir(),
+  data = NULL,
   overwrite = FALSE,
   quiet = FALSE
 )
@@ -19,6 +20,10 @@ audit_script(
 Defaults to the script's base name.}
 
 \item{dir}{directory for the named audit log (default: \code{.scicalc-logs} at the project root).}
+
+\item{data}{named final data frame being audited. Its column names seed
+static lineage capture in the calling session; the data itself is not sent
+to the fresh audit process. Omit to capture runtime evidence only.}
 
 \item{overwrite}{if \code{FALSE} (default), error rather than replace an existing
 audit log of the same name. Pass \code{TRUE} to re-run and replace it.}

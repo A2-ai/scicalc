@@ -12,10 +12,13 @@
 #' @param name Audit name; reads `<dir>/<name>.audit.log`.
 #' @param dir Directory holding named audit logs.
 #' @param log_file Explicit audit log path, overriding `name` and `dir`.
+#' @param trace Columns to include in the printed lineage: final unit-bearing
+#'   and unitless numeric columns (`"units"`, the default), or every final
+#'   column (`"all"`).
 #'
 #' @return An object of class `scicalc_audit_report` with `overview`, `files`,
-#'   `evidence`, `transformations`, `findings`, and the original `events`
-#'   tibble.
+#'   final-column `columns` and AST `lineage`, runtime `evidence` and
+#'   `transformations`, `findings`, and the original `events` tibble.
 #' @export
 #'
 #' @examples
@@ -24,10 +27,13 @@
 #' report
 #' report$transformations
 #' }
-scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_file = NULL) {
+scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_file = NULL, trace = c("units", "all")) {
+  trace <- match.arg(trace)
   events <- scicalc_audit(name = name, dir = dir, log_file = log_file)
   run <- audit_report_run(events)
   files <- audit_report_files(events)
+  columns <- audit_report_columns(events)
+  lineage <- audit_report_lineage(events)
   transformations <- audit_report_transformations(events)
   evidence <- audit_report_evidence(transformations)
   findings <- audit_report_findings(events, files, transformations)
@@ -51,6 +57,9 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
       ),
       run = run,
       files = files,
+      columns = columns,
+      lineage = lineage,
+      trace = trace,
       evidence = evidence,
       transformations = transformations,
       findings = findings,
@@ -72,10 +81,46 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
 
   audit_report_print_run(x$run)
   audit_report_print_files(x$files)
+  audit_report_print_output_lineage(x$columns, x$lineage, x$trace)
   audit_report_print_evidence(x$transformations, max_transformations)
   audit_report_print_findings(x$findings)
 
   invisible(x)
+}
+
+# Final schema supplied to audit_script(data = final).
+#' @noRd
+audit_report_columns <- function(events) {
+  keep <- audit_report_field(events, "event_type") == "schema"
+  if (!any(keep)) {
+    return(tibble::tibble(target = character(), data_type = character(), has_units = logical(), unit = character()))
+  }
+  rows <- events[keep, , drop = FALSE]
+  dplyr::distinct(tibble::tibble(
+    target = audit_report_field(rows, "target"),
+    data_type = audit_report_field(rows, "data_type"),
+    has_units = audit_report_field(rows, "has_units") == "TRUE",
+    unit = audit_report_field(rows, "unit")
+  ))
+}
+
+# AST-derived final-column lineage captured by audit_script(data = final).
+#' @noRd
+audit_report_lineage <- function(events) {
+  keep <- audit_report_field(events, "event_type") == "lineage"
+  if (!any(keep)) return(audit_empty_lineage())
+  rows <- events[keep, , drop = FALSE]
+  tibble::tibble(
+    target = audit_report_field(rows, "target"),
+    relation = audit_report_field(rows, "relation"),
+    object = audit_report_field(rows, "object"),
+    symbol = audit_report_field(rows, "symbol"),
+    expression = audit_report_field(rows, "expression"),
+    detail = audit_report_field(rows, "detail"),
+    source_object = audit_report_field(rows, "source_object"),
+    source_column = audit_report_field(rows, "source_column"),
+    path = audit_report_field(rows, "path")
+  )
 }
 
 # Build the run manifest from the first/last run bookend currently available.
@@ -320,9 +365,72 @@ audit_report_print_run <- function(run) {
   invisible()
 }
 
+# Print final-column lineage from the static graph. Runtime transformations are
+# printed separately below; this section is the authoritative answer to where
+# a final column and its source symbols came from.
+#' @noRd
+audit_report_print_output_lineage <- function(columns, lineage, trace) {
+  if (nrow(columns) == 0L) return(invisible())
+
+  unit_columns <- columns[columns$has_units, , drop = FALSE]
+  numeric_columns <- columns[!columns$has_units & columns$data_type == "numeric", , drop = FALSE]
+  other_columns <- columns[!columns$has_units & columns$data_type != "numeric", , drop = FALSE]
+
+  audit_report_print_lineage_group("Unit columns", unit_columns, lineage, unit = TRUE)
+  audit_report_print_lineage_group("Unitless numeric columns — review", numeric_columns, lineage, unit = FALSE)
+  if (identical(trace, "all")) {
+    audit_report_print_lineage_group("Other final columns", other_columns, lineage, unit = FALSE)
+  }
+  invisible()
+}
+
+#' @noRd
+audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
+  if (nrow(columns) == 0L) return(invisible())
+  cli::cli_h2(title)
+  cli::cli_ul()
+  for (index in seq_len(nrow(columns))) {
+    column <- columns[index, , drop = FALSE]
+    label <- column$target[[1]]
+    if (unit) {
+      label <- paste0(label, " [", column$unit[[1]], "]")
+    } else if (column$data_type[[1]] == "numeric") {
+      label <- paste0(label, " [no units]")
+    }
+    cli::cli_li(label)
+
+    rows <- lineage[lineage$target == column$target[[1]], , drop = FALSE]
+    definitions <- rows[rows$relation == "definition", , drop = FALSE]
+    sources <- rows[rows$relation == "source", , drop = FALSE]
+    terminals <- rows[rows$relation == "terminal", , drop = FALSE]
+
+    cli::cli_ul()
+    for (definition in seq_len(nrow(definitions))) {
+      cli::cli_li(paste0("defined as: ", definitions$expression[[definition]]))
+    }
+    for (source in seq_len(nrow(sources))) {
+      symbol <- sources$symbol[[source]]
+      source_text <- paste0(sources$source_object[[source]], "$", sources$source_column[[source]])
+      cli::cli_li(paste0(symbol, " ← ", source_text))
+    }
+    for (terminal in seq_len(nrow(terminals))) {
+      text <- terminals$expression[[terminal]]
+      if (!is.na(terminals$detail[[terminal]])) text <- paste0(text, " — ", terminals$detail[[terminal]])
+      cli::cli_li(paste0("terminal: ", text))
+    }
+    path <- c(definitions$path, sources$path, terminals$path)
+    path <- unique(path[!is.na(path) & nzchar(path)])
+    if (length(path) > 0L) cli::cli_li(paste0("path: ", path[[1]]))
+    if (nrow(rows) == 0L) cli::cli_li("No static lineage was captured for this column.")
+    cli::cli_end()
+  }
+  cli::cli_end()
+  invisible()
+}
+
 #' @noRd
 audit_report_print_evidence <- function(transformations, max_transformations) {
-  cli::cli_h2("Unit evidence")
+  cli::cli_h2("Runtime unit operations")
   if (nrow(transformations) == 0) {
     cli::cli_text("No unit transformations were recorded.")
     return(invisible())

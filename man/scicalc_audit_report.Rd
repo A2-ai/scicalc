@@ -4,7 +4,12 @@
 \alias{scicalc_audit_report}
 \title{Build a Human-Readable Assembly Audit Report}
 \usage{
-scicalc_audit_report(name = NULL, dir = default_audit_dir(), log_file = NULL)
+scicalc_audit_report(
+  name = NULL,
+  dir = default_audit_dir(),
+  log_file = NULL,
+  trace = c("units", "all")
+)
 }
 \arguments{
 \item{name}{Audit name; reads \verb{<dir>/<name>.audit.log}.}
@@ -12,11 +17,15 @@ scicalc_audit_report(name = NULL, dir = default_audit_dir(), log_file = NULL)
 \item{dir}{Directory holding named audit logs.}
 
 \item{log_file}{Explicit audit log path, overriding \code{name} and \code{dir}.}
+
+\item{trace}{Columns to include in the printed lineage: final unit-bearing
+and unitless numeric columns (\code{"units"}, the default), or every final
+column (\code{"all"}).}
 }
 \value{
 An object of class \code{scicalc_audit_report} with \code{overview}, \code{files},
-\code{evidence}, \code{transformations}, \code{findings}, and the original \code{events}
-tibble.
+final-column \code{columns} and AST \code{lineage}, runtime \code{evidence} and
+\code{transformations}, \code{findings}, and the original \code{events} tibble.
 }
 \description{
 Builds a reviewer-oriented view over the immutable event log returned by

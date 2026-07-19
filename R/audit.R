@@ -111,7 +111,8 @@ audit_logger <- function() {
 
 #' Append one event to the audit log (no-op unless a capture is active)
 #'
-#' @param event_type one of "run", "ingest", "spec", "unit", "write".
+#' @param event_type one of "run", "ingest", "spec", "unit", "write",
+#'   "lineage", or "schema".
 #' @param ... structured fields for the event (scalars).
 #' @keywords internal
 log_audit_event <- function(event_type, ...) {
@@ -146,6 +147,9 @@ log_audit_event <- function(event_type, ...) {
 #' @param name audit name; the log is written to `<dir>/<name>.audit.log`.
 #'   Defaults to the script's base name.
 #' @param dir directory for the named audit log (default: `.scicalc-logs` at the project root).
+#' @param data named final data frame being audited. Its column names seed
+#'   static lineage capture in the calling session; the data itself is not sent
+#'   to the fresh audit process. Omit to capture runtime evidence only.
 #' @param overwrite if `FALSE` (default), error rather than replace an existing
 #'   audit log of the same name. Pass `TRUE` to re-run and replace it.
 #' @param quiet if `TRUE`, suppress the assembly script's console output. The
@@ -160,14 +164,21 @@ log_audit_event <- function(event_type, ...) {
 #' audit_script("assembly.qmd", name = "pk")
 #' scicalc_audit("pk")
 #' }
-audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwrite = FALSE, quiet = FALSE) {
+audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = NULL, overwrite = FALSE, quiet = FALSE) {
   # re-entrancy guard: if we are already inside an audit run, do nothing
   if (audit_active()) {
     return(invisible(NULL))
   }
+  data_expression <- substitute(data)
   checkmate::assert_file_exists(script, access = "r")
   checkmate::assert_flag(overwrite)
   checkmate::assert_flag(quiet)
+  if (!is.null(data)) {
+    checkmate::assert_data_frame(data)
+    if (!is.symbol(data_expression)) {
+      rlang::abort("`data` must be a named data frame object, e.g. `data = final`.")
+    }
+  }
   rlang::check_installed("callr")
 
   if (is.null(name)) {
@@ -231,9 +242,79 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), overwri
     ))
   }
 
+  if (!is.null(data)) {
+    lineage <- tryCatch(
+      audit_static_lineage(
+        run_file, targets = names(data), target_object = as.character(data_expression)
+      ),
+      error = function(error) {
+        rlang::warn(paste0("Static audit lineage was not captured: ", conditionMessage(error)))
+        audit_empty_lineage()
+      }
+    )
+    audit_log_static_lineage(log_path, name, lineage, audit_data_schema(data))
+  }
+
   audit_log_run_event(log_path, name, script, ext, phase = "completed")
 
   invisible(scicalc_audit(log_file = log_path))
+}
+
+#' @noRd
+audit_log_static_lineage <- function(log_path, name, lineage, schema) {
+  prior_active <- Sys.getenv("SCICALC_AUDITING", unset = "")
+  prior_log <- Sys.getenv("SCICALC_AUDIT_LOG", unset = "")
+  on.exit({
+    Sys.setenv(SCICALC_AUDITING = prior_active, SCICALC_AUDIT_LOG = prior_log)
+  }, add = TRUE)
+  Sys.setenv(SCICALC_AUDITING = name, SCICALC_AUDIT_LOG = log_path)
+
+  for (index in seq_len(nrow(lineage))) {
+    row <- lineage[index, , drop = FALSE]
+    log_audit_event(
+      "lineage",
+      target = row$target[[1]], relation = row$relation[[1]], object = row$object[[1]],
+      symbol = row$symbol[[1]], expression = row$expression[[1]], detail = row$detail[[1]],
+      source_object = row$source_object[[1]], source_column = row$source_column[[1]],
+      path = row$path[[1]]
+    )
+  }
+  for (index in seq_len(nrow(schema))) {
+    row <- schema[index, , drop = FALSE]
+    log_audit_event(
+      "schema", target = row$target[[1]], data_type = row$data_type[[1]],
+      has_units = row$has_units[[1]], unit = row$unit[[1]]
+    )
+  }
+  invisible()
+}
+
+#' @noRd
+audit_data_schema <- function(data) {
+  tibble::tibble(
+    target = names(data),
+    data_type = vapply(data, function(column) {
+      if (inherits(column, "mixed_units")) return("mixed_units")
+      if (inherits(column, "units")) return("units")
+      if (is.numeric(column)) return("numeric")
+      class(column)[[1]]
+    }, character(1)),
+    has_units = vapply(data, function(column) {
+      inherits(column, "units") || inherits(column, "mixed_units")
+    }, logical(1)),
+    unit = vapply(data, audit_data_unit_label, character(1))
+  )
+}
+
+#' @noRd
+audit_data_unit_label <- function(column) {
+  if (inherits(column, "units")) return(units::deparse_unit(column))
+  if (!inherits(column, "mixed_units")) return(NA_character_)
+  labels <- vapply(unclass(column), function(element) {
+    if (is.null(element)) return(NA_character_)
+    units::deparse_unit(element)
+  }, character(1))
+  paste(unique(stats::na.omit(labels)), collapse = ", ")
 }
 
 # Write a run-manifest event from the parent process. The child process writes
@@ -308,8 +389,10 @@ scicalc_audit <- function(name = NULL, dir = default_audit_dir(), log_file = NUL
   # sensible column order: what happened, via which function, then details
   preferred <- c(
     "event_type", "phase", "fn", "script", "script_hash", "script_type",
-    "scicalc_version", "r_version", "input", "from", "to", "transform", "n",
-    "detail", "file", "hash", "algo", "spec_hash", "spec_file"
+    "scicalc_version", "r_version", "target", "relation", "object", "symbol",
+    "expression", "source_object", "source_column", "path", "data_type",
+    "has_units", "unit", "input", "from", "to", "transform", "n", "detail",
+    "file", "hash", "algo", "spec_hash", "spec_file"
   )
   ord <- c(intersect(preferred, names(events)), setdiff(names(events), preferred))
   events[, ord, drop = FALSE]
