@@ -166,11 +166,11 @@ convert_units_to_map <- function(data, unit_map, context = NA_character_) {
 
 #' Log one `convert_units_to_spec()` per-column conversion event
 #'
-#' No-op conversions (already in the target unit) are not logged, to keep the
-#' audit focused on columns that actually changed.
+#' No-op conversions and log reference shifts (already in the target unit) are
+#' not logged, to keep the audit focused on columns that actually changed.
 #' @noRd
 log_unit_conversion <- function(col, from, to, transform, n, evidence, basis, context = NA_character_) {
-  if (transform == "convert" && !is.na(from) && identical(from, to)) {
+  if (transform %in% c("convert", "log-shift") && !is.na(from) && identical(from, to)) {
     return(invisible())
   }
   log_audit_event(

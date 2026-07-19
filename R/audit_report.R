@@ -144,7 +144,9 @@ audit_report_lineage <- function(events) {
 # other matches.
 #' @noRd
 audit_report_units <- function(events, columns, lineage, files) {
-  empty_stories <- tibble::tibble(target = character(), kind = character(), line = character())
+  empty_stories <- tibble::tibble(
+    target = character(), kind = character(), line = character(), refs = character()
+  )
   result <- list(stories = empty_stories, residual = character())
   raw <- events[audit_report_field(events, "event_type") == "unit", , drop = FALSE]
   if (nrow(raw) == 0L || nrow(columns) == 0L) return(result)
@@ -165,8 +167,10 @@ audit_report_units <- function(events, columns, lineage, files) {
 
   stories <- list()
   residual <- character()
-  add_story <- function(target, kind, line) {
-    stories[[length(stories) + 1L]] <<- tibble::tibble(target = target, kind = kind, line = line)
+  add_story <- function(target, kind, line, refs = NA_character_) {
+    stories[[length(stories) + 1L]] <<- tibble::tibble(
+      target = target, kind = kind, line = line, refs = refs
+    )
   }
 
   spec_file <- files$file[files$role == "specification"]
@@ -318,10 +322,14 @@ audit_report_units <- function(events, columns, lineage, files) {
         unit <- columns$unit[columns$target == operand][[1]]
         if (is.na(unit) || !nzchar(unit)) operand else paste0(operand, " [", unit, "]")
       }, character(1))
-      add_story(target, "derived", paste0(
-        definitions$expression[[index]], " in ", definitions$object[[index]],
-        " — units derived by arithmetic from ", paste(labels, collapse = " and ")
-      ))
+      add_story(
+        target, "derived",
+        paste0(
+          definitions$expression[[index]], " in ", definitions$object[[index]],
+          " — units derived by arithmetic from ", paste(labels, collapse = " and ")
+        ),
+        refs = paste(operands, collapse = ",")
+      )
     }
   }
 
@@ -345,6 +353,13 @@ audit_report_unit_call_line <- function(candidate, object, event) {
   suffix <- if (identical(evidence, "assumed") && !is.na(basis) && nzchar(basis)) {
     # e.g. "unitless numeric interpreted as umol/L by convert_bili()"
     basis
+  } else if (identical(evidence, "carried-converted")) {
+    from <- event$from[[1]]
+    if (is.na(from) || !nzchar(from)) {
+      "input already carried units"
+    } else {
+      paste0("input already carried ", from)
+    }
   } else {
     audit_report_evidence_short(evidence)
   }
@@ -682,12 +697,7 @@ audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
       target <- unit_columns$target[[index]]
       label <- paste0(target, " [", unit_columns$unit[[index]], "]")
       cli::cli_text("{.strong {label}}")
-      lines <- stories[stories$target == target, , drop = FALSE]
-      lines <- lines[order(match(lines$kind, c("derived", "call", "spec"))), , drop = FALSE]
-      if (nrow(lines) == 0L) {
-        cli::cli_verbatim("  no unit evidence captured for this column")
-      }
-      for (line in lines$line) cli::cli_verbatim(paste0("  ", line))
+      audit_report_print_story_lines(target, stories, indent = 1L, seen = target)
       cli::cli_text("")
     }
   }
@@ -723,6 +733,33 @@ audit_report_print_column_definitions <- function(title, columns, lineage, suffi
       cli::cli_verbatim("  no static lineage captured")
     }
     cli::cli_text("")
+  }
+  invisible()
+}
+
+# One column's unit story. A derived line is followed by the story of each
+# column it inherits units from, indented, so the chain reads in place; `seen`
+# stops cycles.
+#' @noRd
+audit_report_print_story_lines <- function(target, stories, indent, seen) {
+  prefix <- if (indent > 1L) paste0(target, ": ") else ""
+  lines <- stories[stories$target == target, , drop = FALSE]
+  lines <- lines[order(match(lines$kind, c("derived", "call", "spec"))), , drop = FALSE]
+  if (nrow(lines) == 0L) {
+    cli::cli_verbatim(paste0(
+      strrep("  ", indent), prefix, "no unit evidence captured for this column"
+    ))
+    return(invisible())
+  }
+  for (index in seq_len(nrow(lines))) {
+    cli::cli_verbatim(paste0(strrep("  ", indent), prefix, lines$line[[index]]))
+    if (!identical(lines$kind[[index]], "derived")) next
+    refs <- lines$refs[[index]]
+    if (is.na(refs) || !nzchar(refs)) next
+    for (ref in strsplit(refs, ",", fixed = TRUE)[[1]]) {
+      if (ref %in% seen) next
+      audit_report_print_story_lines(ref, stories, indent + 1L, c(seen, ref))
+    }
   }
   invisible()
 }

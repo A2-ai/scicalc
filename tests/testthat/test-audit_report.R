@@ -135,6 +135,7 @@ test_that("unit events are attributed to the final columns whose tags ran them",
   expect_equal(rate$kind, "derived")
   expect_match(rate$line, "AMT/DUR in ext")
   expect_match(rate$line, "AMT \\[mg\\] and DUR \\[d\\]")
+  expect_equal(rate$refs, "AMT,DUR")
 
   atfd <- units$stories[units$stories$target == "ATFD", , drop = FALSE]
   expect_equal(atfd$kind, "spec")
@@ -219,6 +220,24 @@ test_that("spec calls whose result was not assigned are excluded from column evi
   expect_length(units$residual, 1)
   expect_match(units$residual, "whose result was not assigned")
   expect_match(units$residual, "pct")
+})
+
+test_that("no-op log reference shifts are not logged", {
+  log_file <- withr::local_tempfile(fileext = ".log")
+  withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))
+  scicalc_audit_reset(log_file = log_file)
+
+  log_unit_conversion(
+    "LDVML", "ln(re 1e-06 m-3.mol)", "ln(re 1e-06 m-3.mol)", "log-shift",
+    5, "carried-converted", "input column carried units"
+  )
+  expect_false(file.exists(log_file))
+
+  log_unit_conversion(
+    "LDVML", "ln(re 0.001 m-3.kg)", "ln(re 1e-06 m-3.mol)", "log-shift",
+    5, "carried-converted", "input column carried units"
+  )
+  expect_true(file.exists(log_file))
 })
 
 test_that("a spec attach suppresses the derived-by-arithmetic line", {
