@@ -23,6 +23,48 @@ test_that("static lineage follows final columns to their input terminals", {
   expect_equal(paramu$source_column, "PARAM")
 })
 
+test_that("static lineage reports every equal-depth sibling definition", {
+  script <- withr::local_tempfile(fileext = ".R")
+  writeLines(c(
+    "ext <- adex %>% mutate(NTLD = 0)",
+    "pct <- adpc %>% mutate(NTLD = case_when(ATPT == \"Pre-dose\" ~ 0, .default = tpt))",
+    "o1 <- ext %>% bind_rows(pct)",
+    "final <- o1 %>% select(NTLD)"
+  ), script)
+
+  lineage <- audit_static_lineage(script, targets = "NTLD", target_object = "final")
+
+  definitions <- lineage[lineage$relation == "definition", , drop = FALSE]
+  expect_setequal(definitions$object, c("ext", "pct"))
+  expect_setequal(
+    definitions$expression,
+    c("0", "case_when(ATPT == \"Pre-dose\" ~ 0, .default = tpt)")
+  )
+  expect_setequal(
+    definitions$path,
+    c("final -> o1 -> ext", "final -> o1 -> pct")
+  )
+
+  tpt <- lineage[!is.na(lineage$symbol) & lineage$symbol == "tpt", , drop = FALSE]
+  expect_equal(tpt$source_object, "adpc")
+  expect_equal(tpt$source_column, "tpt")
+})
+
+test_that("a closer redefinition still shadows upstream definitions", {
+  script <- withr::local_tempfile(fileext = ".R")
+  writeLines(c(
+    "ext <- adex %>% mutate(NTLD = 0)",
+    "o1 <- ext %>% mutate(NTLD = tpt / 24)",
+    "final <- o1 %>% select(NTLD)"
+  ), script)
+
+  lineage <- audit_static_lineage(script, targets = "NTLD", target_object = "final")
+
+  definitions <- lineage[lineage$relation == "definition", , drop = FALSE]
+  expect_equal(definitions$object, "o1")
+  expect_equal(definitions$expression, "tpt/24")
+})
+
 test_that("static lineage records dynamic source expressions as terminals", {
   script <- withr::local_tempfile(fileext = ".R")
   writeLines(c(

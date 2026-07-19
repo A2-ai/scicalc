@@ -404,7 +404,11 @@ audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
     terminals <- rows[rows$relation == "terminal", , drop = FALSE]
 
     for (definition in seq_len(nrow(definitions))) {
-      cli::cli_text(paste0("  defined as: ", definitions$expression[[definition]]))
+      text <- paste0("  defined as: ", definitions$expression[[definition]])
+      if (nrow(definitions) > 1L) {
+        text <- paste0(text, " (in ", definitions$object[[definition]], ")")
+      }
+      cli::cli_text(text)
     }
     for (source in seq_len(nrow(sources))) {
       symbol <- sources$symbol[[source]]
@@ -416,9 +420,12 @@ audit_report_print_lineage_group <- function(title, columns, lineage, unit) {
       if (!is.na(terminals$detail[[terminal]])) text <- paste0(text, " — ", terminals$detail[[terminal]])
       cli::cli_text(paste0("  terminal: ", text))
     }
-    path <- c(definitions$path, sources$path, terminals$path)
-    path <- unique(path[!is.na(path) & nzchar(path)])
-    if (length(path) > 0L) cli::cli_text(paste0("  flow: ", audit_report_forward_path(path[[1]])))
+    flows <- unique(definitions$path[!is.na(definitions$path) & nzchar(definitions$path)])
+    if (length(flows) == 0L) {
+      path <- c(sources$path, terminals$path)
+      flows <- utils::head(unique(path[!is.na(path) & nzchar(path)]), 1L)
+    }
+    for (flow in flows) cli::cli_text(paste0("  flow: ", audit_report_forward_path(flow)))
     if (nrow(rows) == 0L) cli::cli_text("  No static lineage was captured for this column.")
     cli::cli_text("")
   }

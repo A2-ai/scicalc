@@ -31,6 +31,9 @@ audit_static_lineage <- function(script, targets, target_object) {
     return(audit_lineage_rows(rows))
   }
 
+  # Nearest definitions by true path depth. Sibling objects at the same depth
+  # (e.g. two frames later combined with bind_rows()) all define the column, so
+  # equal-depth definitions tie and are all returned.
   find_definition <- function(symbol, object = NULL) {
     definitions <- graph$columns[graph$columns$column == symbol, , drop = FALSE]
     if (!is.null(object)) {
@@ -39,7 +42,10 @@ audit_static_lineage <- function(script, targets, target_object) {
     }
     definitions <- definitions[definitions$object %in% names(paths), , drop = FALSE]
     if (nrow(definitions) == 0L) return(definitions)
-    definitions$distance <- match(definitions$object, names(paths))
+    definitions$distance <- vapply(
+      strsplit(unlist(paths[definitions$object]), " -> ", fixed = TRUE),
+      length, integer(1)
+    )
     definitions <- definitions[definitions$distance == min(definitions$distance), , drop = FALSE]
     definitions[order(definitions$order, decreasing = TRUE), , drop = FALSE]
   }
@@ -48,8 +54,8 @@ audit_static_lineage <- function(script, targets, target_object) {
 
   trace_expression <- NULL
   trace_symbol <- function(symbol, object, target, reference, seen) {
-    definition <- find_definition(symbol, object)
-    if (nrow(definition) == 0L) {
+    definitions <- find_definition(symbol, object)
+    if (nrow(definitions) == 0L) {
       add_row(
         target = target, relation = "source", symbol = reference,
         source_object = source_object(object), source_column = symbol,
@@ -57,26 +63,30 @@ audit_static_lineage <- function(script, targets, target_object) {
       )
       return(invisible())
     }
-    if (nrow(definition) > 1L) {
-      add_row(
-        target = target, relation = "terminal", symbol = reference,
-        expression = symbol, detail = paste0("Multiple definitions for `", symbol, "`."),
-        path = paths[[object]]
+    for (definition_object in unique(definitions$object)) {
+      definition <- definitions[definitions$object == definition_object, , drop = FALSE]
+      if (nrow(definition) > 1L) {
+        add_row(
+          target = target, relation = "terminal", symbol = reference,
+          expression = symbol, detail = paste0("Multiple definitions for `", symbol, "`."),
+          path = paths[[definition_object]]
+        )
+        next
+      }
+      key <- paste(definition_object, definition$column[[1]], sep = "$")
+      if (key %in% seen) {
+        add_row(
+          target = target, relation = "terminal", symbol = reference,
+          expression = key, detail = "Cyclic column dependency.", path = paths[[object]]
+        )
+        next
+      }
+      trace_expression(
+        definition$expression[[1]], definition_object, target, reference,
+        c(seen, key)
       )
-      return(invisible())
     }
-    key <- paste(definition$object[[1]], definition$column[[1]], sep = "$")
-    if (key %in% seen) {
-      add_row(
-        target = target, relation = "terminal", symbol = reference,
-        expression = key, detail = "Cyclic column dependency.", path = paths[[object]]
-      )
-      return(invisible())
-    }
-    trace_expression(
-      definition$expression[[1]], definition$object[[1]], target, reference,
-      c(seen, key)
-    )
+    invisible()
   }
 
   trace_expression <- function(expression, object, target, reference, seen) {
@@ -94,8 +104,8 @@ audit_static_lineage <- function(script, targets, target_object) {
   }
 
   for (target in targets) {
-    definition <- find_definition(target)
-    if (nrow(definition) == 0L) {
+    definitions <- find_definition(target)
+    if (nrow(definitions) == 0L) {
       add_row(
         target = target, relation = "source", symbol = target,
         source_object = source_object(target_object), source_column = target,
@@ -103,22 +113,25 @@ audit_static_lineage <- function(script, targets, target_object) {
       )
       next
     }
-    if (nrow(definition) > 1L) {
+    for (definition_object in unique(definitions$object)) {
+      definition <- definitions[definitions$object == definition_object, , drop = FALSE]
+      if (nrow(definition) > 1L) {
+        add_row(
+          target = target, relation = "terminal", expression = target,
+          detail = paste0("Multiple definitions for `", target, "`."), path = paths[[definition_object]]
+        )
+        next
+      }
+      expression <- definition$expression[[1]]
       add_row(
-        target = target, relation = "terminal", expression = target,
-        detail = paste0("Multiple definitions for `", target, "`."), path = paths[[target_object]]
+        target = target, relation = "definition", object = definition_object,
+        expression = audit_ast_deparse(expression), path = paths[[definition_object]]
       )
-      next
+      trace_expression(
+        expression, definition_object, target, target,
+        paste(definition_object, target, sep = "$")
+      )
     }
-    expression <- definition$expression[[1]]
-    add_row(
-      target = target, relation = "definition", object = definition$object[[1]],
-      expression = audit_ast_deparse(expression), path = paths[[definition$object[[1]]]]
-    )
-    trace_expression(
-      expression, definition$object[[1]], target, target,
-      paste(definition$object[[1]], target, sep = "$")
-    )
   }
 
   audit_lineage_rows(rows)
