@@ -78,7 +78,7 @@ test_that("audit report never prints serialized mixed-unit inputs", {
   )
 })
 
-test_that("knit_print reuses the console rendering as a verbatim block", {
+test_that("knit_print renders the report as HTML reusing the report data", {
   skip_if_not_installed("knitr")
   log_file <- withr::local_tempfile(fileext = ".log")
   withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))
@@ -99,10 +99,41 @@ test_that("knit_print reuses the console rendering as a verbatim block", {
 
   expect_s3_class(out, "knit_asis")
   text <- paste(as.character(out), collapse = "\n")
-  expect_match(text, "scicalc audit")
-  # emitted as a fenced verbatim block, stripped of ANSI styling
-  expect_match(text, "```", fixed = TRUE)
+  expect_match(text, "<strong>scicalc audit</strong>", fixed = TRUE)
+  expect_match(text, "<strong>Status:</strong>", fixed = TRUE)
+  expect_match(text, "<pre>", fixed = TRUE)
+  # not a captured console dump: no ANSI, no code fence
   expect_no_match(text, "\033", fixed = TRUE)
+  expect_no_match(text, "```", fixed = TRUE)
+})
+
+test_that("knit_print HTML-escapes unit expressions containing angle brackets", {
+  skip_if_not_installed("knitr")
+  report <- structure(
+    list(
+      overview = tibble::tibble(status = "evidence captured"),
+      run = tibble::tibble(phase = NA_character_),
+      files = tibble::tibble(role = character(), file = character(), hash = character(), algo = character()),
+      columns = tibble::tibble(target = "ODV", data_type = "units", has_units = TRUE, unit = "ng mL-1"),
+      lineage = audit_empty_lineage(),
+      units = list(
+        stories = tibble::tibble(
+          target = "ODV", kind = "call",
+          line = "with_units(case_when(AVALC == \">12.5\" ~ 12.5)) in pct — attached ng/mL",
+          refs = NA_character_
+        ),
+        residual = character()
+      ),
+      trace = "units",
+      transformations = tibble::tibble(),
+      findings = tibble::tibble(severity = character(), finding = character(), detail = character())
+    ),
+    class = "scicalc_audit_report"
+  )
+
+  text <- paste(as.character(knitr::knit_print(report)), collapse = "\n")
+  expect_match(text, "&gt;12.5", fixed = TRUE)
+  expect_no_match(text, "\">12.5", fixed = TRUE)
 })
 
 test_that("unit events are attributed to the final columns whose tags ran them", {

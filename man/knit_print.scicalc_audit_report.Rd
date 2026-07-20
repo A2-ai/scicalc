@@ -9,16 +9,16 @@
 \arguments{
 \item{x}{A \code{scicalc_audit_report}.}
 
-\item{...}{Passed to \code{\link[=print.scicalc_audit_report]{print.scicalc_audit_report()}} (e.g.
-\code{max_transformations}).}
+\item{...}{Unused.}
 }
 \value{
-A \code{knitr::asis_output} block (invisibly used by knitr).
+A \code{knitr::asis_output} HTML block.
 }
 \description{
-Reuses the console \link[=print.scicalc_audit_report]{print} rendering — the report
-object is already built (its log file read, its events transformed) by
-\code{\link[=scicalc_audit_report]{scicalc_audit_report()}}, so this only captures that same output as text and
-emits it as a verbatim block. The knitted report reads the same as it does at
-the console.
+Emits the report as HTML rather than console text. It reads the same
+already-built report object as \link[=print.scicalc_audit_report]{print} (its log
+file read and events transformed by \code{\link[=scicalc_audit_report]{scicalc_audit_report()}}) and reuses the
+same content builders — \code{\link[=audit_report_story_lines]{audit_report_story_lines()}} and
+\code{\link[=audit_report_column_definition_lines]{audit_report_column_definition_lines()}} — so the knitted and console reports
+carry identical information, differently styled.
 }
