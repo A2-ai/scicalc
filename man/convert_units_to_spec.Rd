@@ -22,14 +22,19 @@ convert_units_to_spec(data, spec, ...)
 \value{
 \code{data} with columns converted (values rescaled) or assigned units
 per the spec. Columns not in the spec, or with no unit in the spec, are
-returned untouched.
+returned untouched. Errors if any spec conversion fails.
 }
 \description{
 Converts each unit-carrying column of \code{data} to the unit declared for it in
 a data specification. Columns that are plain numeric get the spec unit
 attached (assuming the values are already in that unit) with a warning.
-Columns whose current units cannot be converted to the spec unit are left
-untouched and reported together in a warning.
+
+Every column is attempted, then, if any column's current units could not be
+converted to its spec unit, the function aborts and lists all offenders. A
+failed conversion would leave a column carrying the wrong units in the
+written dataset, so it stops the assembly rather than warning; the per-column
+failures are still recorded in the audit log for a run captured by
+\code{\link[=audit_script]{audit_script()}}.
 
 Pairs with \code{\link[=pivot_with_units]{pivot_with_units()}}: pivot attaches source units, then
 \code{convert_units_to_spec()} harmonizes them to the specification.

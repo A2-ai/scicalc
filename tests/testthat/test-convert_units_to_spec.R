@@ -19,20 +19,31 @@ test_that("worker attaches units to plain numeric columns with a warning", {
   expect_equal(as.numeric(out$WT), c(70, 80))
 })
 
-test_that("worker warns with offenders and leaves failed conversions untouched", {
+test_that("worker aborts listing every failed conversion", {
   df <- data.frame(CREAT = c(1.1, 0.9), WT = c(70000, 80000))
   df$CREAT <- units::set_units(df$CREAT, "mg/dL", mode = "standard")
   df$WT <- units::set_units(df$WT, "g", mode = "standard")
 
-  expect_warning(
-    out <- convert_units_to_map(df, c(CREAT = "hours", WT = "kg")),
-    "Could not convert column\\(s\\) to spec units: CREAT \\[mg/dL\\] -> \\[hours\\]"
+  expect_error(
+    convert_units_to_map(df, c(CREAT = "hours", WT = "kg")),
+    "Could not convert column\\(s\\) to spec units:\\s+CREAT \\[mg/dL\\] -> \\[hours\\]"
   )
-  # failed column untouched
-  expect_equal(as.character(units(out$CREAT)), "mg/dL")
-  expect_equal(as.numeric(out$CREAT), c(1.1, 0.9))
-  # other column still converted
-  expect_equal(as.character(units(out$WT)), "kg")
+})
+
+test_that("worker logs a failed event for each offender before aborting", {
+  lf <- withr::local_tempfile(fileext = ".log")
+  withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = lf))
+  scicalc_audit_reset(log_file = lf)
+
+  df <- data.frame(CREAT = c(1.1, 0.9), BILI = c(0.5, 0.6))
+  df$CREAT <- units::set_units(df$CREAT, "mg/dL", mode = "standard")
+  df$BILI <- units::set_units(df$BILI, "mg/dL", mode = "standard")
+
+  expect_error(convert_units_to_map(df, c(CREAT = "hours", BILI = "days")))
+
+  a <- scicalc_audit(log_file = lf)
+  failed <- a[a$transform == "failed", , drop = FALSE]
+  expect_setequal(failed$input, c("CREAT", "BILI"))
 })
 
 test_that("worker leaves columns not in the map and non-numeric columns untouched", {
@@ -100,13 +111,10 @@ test_that("worker reports a log column against a mismatched base as an offender"
   df <- data.frame(row = 1:2)
   df$LDV <- log(odv) # natural log
 
-  before <- df$LDV
-  expect_warning(
-    out <- convert_units_to_map(df, c(LDV = "log10(ug/mL)")),
+  expect_error(
+    convert_units_to_map(df, c(LDV = "log10(ug/mL)")),
     "Could not convert"
   )
-  # left untouched
-  expect_equal(as.numeric(out$LDV), as.numeric(before))
 })
 
 test_that("worker reports a log column against a non-log spec as an offender", {
@@ -114,11 +122,10 @@ test_that("worker reports a log column against a non-log spec as an offender", {
   df <- data.frame(row = 1:2)
   df$LDV <- log(odv)
 
-  expect_warning(
-    out <- convert_units_to_map(df, c(LDV = "ug/mL")),
+  expect_error(
+    convert_units_to_map(df, c(LDV = "ug/mL")),
     "Could not convert"
   )
-  expect_true(inherits(out$LDV, "units"))
 })
 
 test_that("worker attaches a log unit to an already-logged plain numeric column", {

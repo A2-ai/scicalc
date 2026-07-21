@@ -4,8 +4,13 @@
 #' Converts each unit-carrying column of `data` to the unit declared for it in
 #' a data specification. Columns that are plain numeric get the spec unit
 #' attached (assuming the values are already in that unit) with a warning.
-#' Columns whose current units cannot be converted to the spec unit are left
-#' untouched and reported together in a warning.
+#'
+#' Every column is attempted, then, if any column's current units could not be
+#' converted to its spec unit, the function aborts and lists all offenders. A
+#' failed conversion would leave a column carrying the wrong units in the
+#' written dataset, so it stops the assembly rather than warning; the per-column
+#' failures are still recorded in the audit log for a run captured by
+#' [audit_script()].
 #'
 #' Pairs with [pivot_with_units()]: pivot attaches source units, then
 #' `convert_units_to_spec()` harmonizes them to the specification.
@@ -16,7 +21,7 @@
 #'
 #' @return `data` with columns converted (values rescaled) or assigned units
 #'   per the spec. Columns not in the spec, or with no unit in the spec, are
-#'   returned untouched.
+#'   returned untouched. Errors if any spec conversion fails.
 #'
 #' @family unit_checking
 #' @export
@@ -154,10 +159,15 @@ convert_units_to_map <- function(data, unit_map, context = NA_character_) {
     ))
   }
 
+  # A failed spec conversion means a column would keep the wrong units in the
+  # written dataset. Abort rather than warn so the assembly stops here; the
+  # per-column "failed" events were already logged above, so an audit of the
+  # aborted run still shows which columns failed. Every column is attempted
+  # first, so the message lists all offenders at once.
   if (length(failed) > 0) {
-    rlang::warn(paste0(
-      "Could not convert column(s) to spec units: ",
-      paste(failed, collapse = ", ")
+    rlang::abort(paste0(
+      "Could not convert column(s) to spec units:\n",
+      paste0("  ", failed, collapse = "\n")
     ))
   }
 
