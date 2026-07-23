@@ -69,8 +69,7 @@ scicalc_config_messages <- function() {
 
   racen <- getOption("scicalc.racen_config", NULL)
   if (!is.null(racen)) {
-    text <- paste0("scicalc.racen_config: ", format_racen_config(racen))
-    lines <- c(lines, cli::format_inline("{.alert-info {text}}"))
+    lines <- c(lines, cli::format_inline("{.alert-info scicalc.racen_config:}"), paste0("    ", format_racen_config(racen)))
   }
 
   bands <- list(scicalc.agec_config = "age", scicalc.bmic_config = "bmi")
@@ -87,12 +86,13 @@ scicalc_config_messages <- function() {
   c(cli::rule(left = "Categorical Configurations"), lines)
 }
 
+# The full resolved racen mapping, one `label -> code` line per category.
 format_racen_config <- function(config) {
-  if (is.numeric(config) && !is.null(names(config))) {
-    paste(paste0(names(config), "=", config), collapse = ", ")
-  } else {
-    "set"
+  resolved <- tryCatch(resolve_racen_codes(config), error = function(e) NULL)
+  if (is.null(resolved)) {
+    return("set")
   }
+  paste0(names(resolved), " -> ", unname(resolved))
 }
 
 # One string per band: `min <= <var> < next-min -> label, [code]`, top band

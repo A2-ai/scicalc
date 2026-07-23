@@ -68,14 +68,7 @@ racen <- function(racec) {
     config <- stats::setNames(numeric(0), character(0))
   }
 
-  codes <- c(
-    "white" = 1,
-    "black" = 2,
-    "asian" = 3,
-    "american native" = 4,
-    "pacific islander" = 5,
-    "other" = 6
-  )
+  codes <- racen_default_codes()
   overrides <- config[names(config) %in% names(codes)]
   codes[names(overrides)] <- overrides
 
@@ -117,6 +110,31 @@ validate_racen_config <- function(config) {
   }
 
   config
+}
+
+racen_default_codes <- function() {
+  c(
+    "white" = 1,
+    "black" = 2,
+    "asian" = 3,
+    "american native" = 4,
+    "pacific islander" = 5,
+    "other" = 6
+  )
+}
+
+# The full racen mapping with a config applied: defaults, overrides, then any
+# novel categories appended.
+resolve_racen_codes <- function(config) {
+  codes <- racen_default_codes()
+  config <- validate_racen_config(config)
+  if (is.null(config)) {
+    return(codes)
+  }
+  overrides <- config[names(config) %in% names(codes)]
+  codes[names(overrides)] <- overrides
+  novel <- config[!(names(config) %in% names(codes))]
+  c(codes, novel)
 }
 
 #' Convert Ethnicity to Numeric Code
