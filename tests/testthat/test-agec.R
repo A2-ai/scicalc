@@ -105,3 +105,28 @@ test_that("agec accepts a units object for age", {
   age <- units::set_units(c(24, 70), "years", mode = "standard")
   expect_equal(agec(age), c(5, 6), ignore_attr = TRUE)
 })
+
+test_that("agec uses a custom band config when scicalc.agec_config is set", {
+  withr::local_options(scicalc.agec_config = data.frame(
+    label = c("child", "adult", "senior"),
+    min = c(0, 18, 65),
+    code = c(1, 2, 3)
+  ))
+  result <- agec(c(5, 30, 70))
+  expect_equal(as.numeric(result), c(1, 2, 3))
+  expect_equal(attr(result, "category_standard"), "custom")
+})
+
+test_that("agec custom config: values below the lowest band are the missing value", {
+  withr::local_options(scicalc.agec_config = data.frame(
+    label = "adult", min = 18, code = 2
+  ))
+  expect_equal(as.numeric(agec(10)), getOption("scicalc.missing_value", -999))
+})
+
+test_that("agec rejects a malformed band config", {
+  withr::local_options(scicalc.agec_config = data.frame(
+    label = "x", min = "a", code = 1
+  ))
+  expect_error(agec(30), "scicalc.agec_config\\$min")
+})

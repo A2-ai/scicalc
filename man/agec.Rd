@@ -29,6 +29,17 @@ drug development studies.
 \item 6: Elderly Adult: ≥65 years
 }
 }
+\section{Custom bands}{
+
+Set \code{options(scicalc.agec_config = )} to a data frame of custom bands
+with columns \code{label}, \code{min} (lower bound), and \code{code} to
+replace the FDA bands entirely. Bands are half-open \code{[min, next min)}
+with the top band open-ended; ages below the lowest \code{min} return the
+missing value. The \code{category_standard} attribute is then "custom". For
+example, \code{data.frame(label = c("child", "adult", "senior"),
+min = c(0, 18, 65), code = c(1, 2, 3))}.
+}
+
 \examples{
 age_cat <- agec(24)
 

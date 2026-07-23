@@ -29,6 +29,13 @@
 #'   \code{getOption("scicalc.missing_value")} (default \code{-999}) for
 #'   missing BMI values.
 #'
+#' @section Custom bands:
+#' Set \code{options(scicalc.bmic_config = )} to a data frame of custom bands
+#' with columns \code{label}, \code{min} (lower bound), and \code{code} to
+#' replace the WHO bands entirely. Bands are half-open \code{[min, next min)}
+#' with the top band open-ended; BMI values below the lowest \code{min} return
+#' the missing value. The \code{category_standard} attribute is then "custom".
+#'
 #' @references
 #' World Health Organization.
 #' https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
@@ -75,6 +82,14 @@ bmic <- function(bmi, age) {
 
 	if (any(is.na(age))) {
 		rlang::inform("age contains missing values")
+	}
+
+	config <- validate_band_config(getOption("scicalc.bmic_config", NULL), "scicalc.bmic_config")
+	if (!is.null(config)) {
+		bmic <- apply_band_config(bmi, config)
+		bmic <- apply_mv_mask(bmic, mv_bmi, mv_age)
+		attr(bmic, "category_standard") <- "custom"
+		return(bmic)
 	}
 
 	if (any(age < 18, na.rm = TRUE)) {

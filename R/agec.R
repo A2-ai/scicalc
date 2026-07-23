@@ -20,6 +20,15 @@
 #'   \code{getOption("scicalc.missing_value")} (default \code{-999}) for
 #'   missing values. Includes a \code{category_standard} attribute set to "FDA".
 #'
+#' @section Custom bands:
+#' Set \code{options(scicalc.agec_config = )} to a data frame of custom bands
+#' with columns \code{label}, \code{min} (lower bound), and \code{code} to
+#' replace the FDA bands entirely. Bands are half-open \code{[min, next min)}
+#' with the top band open-ended; ages below the lowest \code{min} return the
+#' missing value. The \code{category_standard} attribute is then "custom". For
+#' example, \code{data.frame(label = c("child", "adult", "senior"),
+#' min = c(0, 18, 65), code = c(1, 2, 3))}.
+#'
 #' @family categorization
 #'
 #' @references
@@ -49,6 +58,14 @@ agec <- function(age) {
   # give message if any NAs
   if (any(is.na(age))) {
     rlang::inform("age contains missing values")
+  }
+
+  config <- validate_band_config(getOption("scicalc.agec_config", NULL), "scicalc.agec_config")
+  if (!is.null(config)) {
+    agec <- apply_band_config(age, config)
+    agec <- apply_mv_mask(agec, mv_age)
+    attr(agec, "category_standard") <- "custom"
+    return(agec)
   }
 
   if (any(age < 0, na.rm = TRUE)) {

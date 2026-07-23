@@ -87,3 +87,14 @@ test_that("bmic errors for bmi with non-convertible units", {
   bmi <- units::set_units(c(22, 31), "kg", mode = "standard")
   expect_error(bmic(bmi, c(30, 40)), "cannot be converted")
 })
+
+test_that("bmic uses a custom band config when scicalc.bmic_config is set", {
+  withr::local_options(scicalc.bmic_config = data.frame(
+    label = c("lean", "high"),
+    min = c(0, 27),
+    code = c(1, 2)
+  ))
+  result <- bmic(c(22, 30), c(40, 40))
+  expect_equal(as.numeric(result), c(1, 2))
+  expect_equal(attr(result, "category_standard"), "custom")
+})

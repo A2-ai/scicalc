@@ -57,6 +57,56 @@ scicalc_options_message <- function() {
   packageStartupMessage(msg)
   packageStartupMessage(bsa_msg)
   packageStartupMessage(u_msg)
+  for (line in scicalc_config_messages()) {
+    packageStartupMessage(line)
+  }
+}
+
+# Startup lines for any categorical config options that are set, under their
+# own section rule. Empty when none are set.
+scicalc_config_messages <- function() {
+  lines <- character()
+
+  racen <- getOption("scicalc.racen_config", NULL)
+  if (!is.null(racen)) {
+    text <- paste0("scicalc.racen_config: ", format_racen_config(racen))
+    lines <- c(lines, cli::format_inline("{.alert-info {text}}"))
+  }
+
+  bands <- list(scicalc.agec_config = "age", scicalc.bmic_config = "bmi")
+  for (opt in names(bands)) {
+    config <- getOption(opt, NULL)
+    if (!is.null(config)) {
+      lines <- c(lines, cli::format_inline("{.alert-info {opt}:}"), paste0("    ", format_band_config(config, bands[[opt]])))
+    }
+  }
+
+  if (length(lines) == 0) {
+    return(character())
+  }
+  c(cli::rule(left = "Categorical Configurations"), lines)
+}
+
+format_racen_config <- function(config) {
+  if (is.numeric(config) && !is.null(names(config))) {
+    paste(paste0(names(config), "=", config), collapse = ", ")
+  } else {
+    "set"
+  }
+}
+
+# One string per band: `min <= <var> < next-min -> label, [code]`, top band
+# open-ended.
+format_band_config <- function(config, var) {
+  if (!is.data.frame(config) || !all(c("label", "min", "code") %in% names(config))) {
+    return("set")
+  }
+  config <- config[order(config$min), , drop = FALSE]
+  n <- nrow(config)
+  vapply(seq_len(n), function(i) {
+    bound <- if (i < n) paste0(" < ", config$min[i + 1]) else ""
+    paste0(config$min[i], " <= ", var, bound, " -> ", config$label[i], ", [", config$code[i], "]")
+  }, character(1))
 }
 
 check_mv_computation <- function(x, name) {

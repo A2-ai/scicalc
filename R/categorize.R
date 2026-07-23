@@ -94,3 +94,40 @@ categorize <- function(
 
   return(continuous_quantile)
 }
+
+# Validate a custom band config for agec()/bmic(): a data frame of half-open
+# bands with columns label, min (lower bound), code. Returns NULL if unset.
+validate_band_config <- function(config, option) {
+  if (is.null(config)) {
+    return(NULL)
+  }
+  if (!is.data.frame(config)) {
+    rlang::abort(paste0("`", option, "` must be a data frame with columns label, min, code."))
+  }
+  missing_cols <- setdiff(c("label", "min", "code"), names(config))
+  if (length(missing_cols) > 0) {
+    rlang::abort(paste0("`", option, "` is missing column(s): ", paste(missing_cols, collapse = ", "), "."))
+  }
+  if (!is.numeric(config$min) || anyNA(config$min)) {
+    rlang::abort(paste0("`", option, "$min` must be numeric with no missing values."))
+  }
+  if (anyDuplicated(config$min) > 0) {
+    rlang::abort(paste0("`", option, "$min` must be unique."))
+  }
+  if (!is.numeric(config$code) || anyNA(config$code)) {
+    rlang::abort(paste0("`", option, "$code` must be numeric with no missing values."))
+  }
+  config
+}
+
+# Assign each x the code of the band it falls in: half-open [min_i, min_{i+1}),
+# top band open-ended. Below the lowest min (and NA) returns missing_value.
+apply_band_config <- function(x, config) {
+  config <- config[order(config$min), , drop = FALSE]
+  mv <- getOption("scicalc.missing_value", -999)
+  idx <- findInterval(x, config$min)
+  out <- rep(mv, length(x))
+  hit <- !is.na(idx) & idx >= 1L
+  out[hit] <- config$code[idx[hit]]
+  out
+}

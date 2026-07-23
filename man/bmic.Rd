@@ -39,6 +39,15 @@ The function will warn if any individuals are under
 18 years old, as standard adult BMI categories may not be appropriate for
 children and adolescents.
 }
+\section{Custom bands}{
+
+Set \code{options(scicalc.bmic_config = )} to a data frame of custom bands
+with columns \code{label}, \code{min} (lower bound), and \code{code} to
+replace the WHO bands entirely. Bands are half-open \code{[min, next min)}
+with the top band open-ended; BMI values below the lowest \code{min} return
+the missing value. The \code{category_standard} attribute is then "custom".
+}
+
 \examples{
 patients <- data.frame(
   ID = 1:6,
