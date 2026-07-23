@@ -2,9 +2,9 @@
 #'
 #' Builds a reviewer-oriented view over the immutable event log returned by
 #' [scicalc_audit()]. For each unit-bearing final column the report states its
-#' unit story — which call attached or converted its units, from what evidence
+#' unit story -- which call attached or converted its units, from what evidence
 #' (source unit column, conversion, arithmetic on unit-bearing columns, or a
-#' spec attach flagged for review) — by joining runtime unit events to the
+#' spec attach flagged for review) -- by joining runtime unit events to the
 #' tagged expressions captured by [audit_script()]. Runtime events that match
 #' no tagged call are listed as unattributed rather than dropped. The original
 #' events remain available as `report$events`.
@@ -40,7 +40,9 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
   evidence <- audit_report_evidence(transformations)
   findings <- audit_report_findings(events, files, transformations)
 
-  status <- if (any(findings$severity == "error")) {
+  status <- if (identical(run$phase[[1]], "failed")) {
+    "run failed"
+  } else if (any(findings$severity == "error")) {
     "attention required"
   } else if (any(findings$severity == "warning")) {
     "review recommended"
@@ -73,7 +75,6 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
 }
 
 # Final schema supplied to audit_script(data = final).
-#' @noRd
 audit_report_columns <- function(events) {
   keep <- audit_report_field(events, "event_type") == "schema"
   if (!any(keep)) {
@@ -89,7 +90,6 @@ audit_report_columns <- function(events) {
 }
 
 # AST-derived final-column lineage captured by audit_script(data = final).
-#' @noRd
 audit_report_lineage <- function(events) {
   keep <- audit_report_field(events, "event_type") == "lineage"
   if (!any(keep)) return(audit_empty_lineage())
@@ -117,7 +117,6 @@ audit_report_lineage <- function(events) {
 # textual occurrence of that call. Events matching no tagged call (e.g. fired
 # inside a sourced helper) are reported as unattributed rather than shifting
 # other matches.
-#' @noRd
 audit_report_units <- function(events, columns, lineage, files) {
   empty_stories <- tibble::tibble(
     target = character(), kind = character(), line = character(), refs = character()
@@ -257,7 +256,7 @@ audit_report_units <- function(events, columns, lineage, files) {
     if (!is.na(context) && nrow(callsites) > 0L && nrow(site) == 0L) {
       residual <- c(residual, paste0(
         audit_report_residual_line(event),
-        " — from convert_units_to_spec() on `", context,
+        " \u2014 from convert_units_to_spec() on `", context,
         "`, whose result was not assigned"
       ))
       next
@@ -279,7 +278,7 @@ audit_report_units <- function(events, columns, lineage, files) {
   }
 
   # A unit column created without its own unit call inherits units from its
-  # unit-bearing operands — unless a spec attach event exists for it, which
+  # unit-bearing operands -- unless a spec attach event exists for it, which
   # proves the column reached the spec unitless.
   bound <- if (length(stories) == 0L) empty_stories else dplyr::bind_rows(stories)
   spec_attached <- unique(spec_events$input[spec_events$transform %in% "attach"])
@@ -301,7 +300,7 @@ audit_report_units <- function(events, columns, lineage, files) {
         target, "derived",
         paste0(
           definitions$expression[[index]], " in ", definitions$object[[index]],
-          " — units derived by arithmetic from ", paste(labels, collapse = " and ")
+          " \u2014 units derived by arithmetic from ", paste(labels, collapse = " and ")
         ),
         refs = paste(operands, collapse = ",")
       )
@@ -312,7 +311,6 @@ audit_report_units <- function(events, columns, lineage, files) {
   list(stories = stories, residual = residual)
 }
 
-#' @noRd
 audit_report_unit_call_line <- function(candidate, object, event) {
   fn <- event$fn[[1]]
   detail <- event$detail[[1]]
@@ -339,13 +337,12 @@ audit_report_unit_call_line <- function(candidate, object, event) {
     audit_report_evidence_short(evidence)
   }
   paste0(
-    label, " in ", object, " — ", audit_report_unit_action(event),
-    " — ", suffix,
+    label, " in ", object, " \u2014 ", audit_report_unit_action(event),
+    " \u2014 ", suffix,
     " (", format(event$n[[1]], big.mark = ",", trim = TRUE), " values)"
   )
 }
 
-#' @noRd
 audit_report_unit_action <- function(event) {
   transform <- event$transform[[1]]
   detail <- event$detail[[1]]
@@ -359,12 +356,11 @@ audit_report_unit_action <- function(event) {
     }
     return(paste0("attached ", event$to[[1]], source))
   }
-  text <- paste0(event$from[[1]], " → ", event$to[[1]])
+  text <- paste0(event$from[[1]], " \u2192 ", event$to[[1]])
   if (identical(transform, "log-shift")) text <- paste0(text, " (log reference shift)")
   text
 }
 
-#' @noRd
 audit_report_unit_spec_line <- function(event, spec_file, object = NA_character_,
                                         call_label = "convert_units_to_spec()") {
   transform <- event$transform[[1]]
@@ -376,14 +372,13 @@ audit_report_unit_spec_line <- function(event, spec_file, object = NA_character_
   if (identical(transform, "failed")) action <- paste0(action, " failed")
   location <- if (is.na(object) || !nzchar(object)) "" else paste0(" in ", object)
   paste0(
-    call_label, location, " — ", action, " — from ", spec_file,
+    call_label, location, " \u2014 ", action, " \u2014 from ", spec_file,
     " (", format(event$n[[1]], big.mark = ",", trim = TRUE), " values)"
   )
 }
 
 # The convert_units_to_spec() call as the analyst wrote it, minus the piped
 # data argument.
-#' @noRd
 audit_report_spec_call_label <- function(text) {
   node <- tryCatch(str2lang(text), error = function(e) NULL)
   if (is.null(node) || !is.call(node) || length(node) < 2L) {
@@ -392,7 +387,6 @@ audit_report_spec_call_label <- function(text) {
   paste(deparse(as.call(as.list(node)[-2L]), width.cutoff = 500L), collapse = " ")
 }
 
-#' @noRd
 audit_report_residual_line <- function(event) {
   row <- tibble::tibble(
     input = event$input[[1]], fn = event$fn[[1]], transform = event$transform[[1]],
@@ -400,12 +394,11 @@ audit_report_residual_line <- function(event) {
     n = event$n[[1]]
   )
   paste0(
-    audit_report_transformation_text(row), " — ",
+    audit_report_transformation_text(row), " \u2014 ",
     audit_report_evidence_short(event$evidence[[1]])
   )
 }
 
-#' @noRd
 audit_report_evidence_short <- function(evidence) {
   switch(
     evidence,
@@ -417,14 +410,13 @@ audit_report_evidence_short <- function(evidence) {
 }
 
 # Build the run manifest from the first/last run bookend currently available.
-#' @noRd
 audit_report_run <- function(events) {
   run <- events[audit_report_field(events, "event_type") == "run", , drop = FALSE]
   if (nrow(run) == 0) {
     return(tibble::tibble(
       phase = NA_character_, script = NA_character_, script_hash = NA_character_,
       script_type = NA_character_, scicalc_version = NA_character_,
-      r_version = NA_character_
+      r_version = NA_character_, error = NA_character_
     ))
   }
 
@@ -434,12 +426,12 @@ audit_report_run <- function(events) {
     script_hash = audit_report_field(run, "script_hash")[1],
     script_type = audit_report_field(run, "script_type")[1],
     scicalc_version = audit_report_field(run, "scicalc_version")[1],
-    r_version = audit_report_field(run, "r_version")[1]
+    r_version = audit_report_field(run, "r_version")[1],
+    error = audit_report_field(run, "error")[nrow(run)]
   )
 }
 
 # Build the file/specification anchor table.
-#' @noRd
 audit_report_files <- function(events) {
   event_type <- audit_report_field(events, "event_type")
   keep <- event_type %in% c("ingest", "spec", "write")
@@ -464,7 +456,6 @@ audit_report_files <- function(events) {
 
 # Group identical transformation records so grouped mutate() calls stay
 # readable in the report.
-#' @noRd
 audit_report_transformations <- function(events) {
   event_type <- audit_report_field(events, "event_type")
   events <- events[event_type == "unit", , drop = FALSE]
@@ -503,7 +494,6 @@ audit_report_transformations <- function(events) {
 }
 
 # Derive a cautious label for old logs that predate explicit evidence fields.
-#' @noRd
 audit_report_event_evidence <- function(events) {
   explicit <- audit_report_field(events, "evidence")
   missing <- is.na(explicit) | !nzchar(explicit)
@@ -519,7 +509,6 @@ audit_report_event_evidence <- function(events) {
 }
 
 # Compact counts for use in tables and programmatic review.
-#' @noRd
 audit_report_evidence <- function(transformations) {
   if (nrow(transformations) == 0) {
     return(tibble::tibble(evidence = character(), transformations = integer(), values = numeric()))
@@ -533,7 +522,6 @@ audit_report_evidence <- function(transformations) {
 }
 
 # Create explicit review findings from what the current event schema can prove.
-#' @noRd
 audit_report_findings <- function(events, files, transformations) {
   findings <- list()
   add_finding <- function(severity, finding, detail = NA_character_) {
@@ -571,7 +559,6 @@ audit_report_findings <- function(events, files, transformations) {
 }
 
 # Pull a character field from a sparse JSON event table.
-#' @noRd
 audit_report_field <- function(events, field) {
   if (!field %in% names(events)) {
     return(rep(NA_character_, nrow(events)))
@@ -580,7 +567,6 @@ audit_report_field <- function(events, field) {
 }
 
 # Make one unit event readable in a single sentence.
-#' @noRd
 audit_report_transformation_text <- function(row) {
   input <- audit_report_input_label(row$input[[1]])
   from <- row$from[[1]]
@@ -591,10 +577,10 @@ audit_report_transformation_text <- function(row) {
   action <- switch(
     row$transform[[1]],
     attach = paste0("attached ", to, if (!is.na(detail)) paste0(" from ", detail) else ""),
-    convert = paste0(from, " → ", to),
-    `log-shift` = paste0(from, " → ", to, " (log reference shift)"),
-    failed = paste0(from, " → ", to),
-    paste0(from, " → ", to)
+    convert = paste0(from, " \u2192 ", to),
+    `log-shift` = paste0(from, " \u2192 ", to, " (log reference shift)"),
+    failed = paste0(from, " \u2192 ", to),
+    paste0(from, " \u2192 ", to)
   )
   show_detail <- row$transform[[1]] == "log-shift" ||
     row$fn[[1]] %in% c("convert_mass_to_mol", "convert_mol_to_mass")
@@ -614,7 +600,6 @@ audit_report_transformation_text <- function(row) {
 # Hide serialized values captured by older audit logs. A data object is never a
 # useful reviewer-facing input label; new conversion events retain the caller's
 # expression before their arguments are evaluated.
-#' @noRd
 audit_report_input_label <- function(input) {
   if (is.na(input) || !nzchar(input)) return("<unnamed input>")
   if (startsWith(trimws(input), "structure(")) {

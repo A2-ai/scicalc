@@ -12,6 +12,14 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
   cli::cli_text("{.strong Status:} {overview$status}")
 
   audit_report_print_run(x$run)
+  if (identical(x$run$phase[[1]], "failed")) {
+    audit_report_print_failure(x$run)
+    errors <- x$findings[x$findings$severity == "error", , drop = FALSE]
+    if (nrow(errors) > 0) {
+      audit_report_print_findings(errors)
+    }
+    return(invisible(x))
+  }
   audit_report_print_files(x$files)
   if (nrow(x$columns) > 0L) {
     audit_report_print_unit_stories(x$columns, x$lineage, x$units$stories, x$trace)
@@ -29,11 +37,11 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
 #' Render an audit report inside a knitr / Quarto document
 #'
 #' Emits the report as HTML rather than console text. It reads the same
-#' already-built report object as [print][print.scicalc_audit_report] (its log
-#' file read and events transformed by [scicalc_audit_report()]) and reuses the
-#' same content builders — [audit_report_story_lines()] and
-#' [audit_report_column_definition_lines()] — so the knitted and console reports
-#' carry identical information, differently styled.
+#' already-built report object as `print()` (its log file read and events
+#' transformed by [scicalc_audit_report()]) and reuses the same content builders
+#' (`audit_report_story_lines()` and `audit_report_column_definition_lines()`),
+#' so the knitted and console reports carry identical information, differently
+#' styled.
 #'
 #' @param x A `scicalc_audit_report`.
 #' @param ... Unused.
@@ -41,10 +49,22 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
 #' @return A `knitr::asis_output` HTML block.
 #' @exportS3Method knitr::knit_print
 knit_print.scicalc_audit_report <- function(x, ...) {
-  out <- c(
+  head <- c(
     audit_html_heading("scicalc audit"),
     audit_html_para(paste0("<strong>Status:</strong> ", audit_html_escape(x$overview$status[[1]]))),
-    audit_report_knit_run(x$run),
+    audit_report_knit_run(x$run)
+  )
+  if (identical(x$run$phase[[1]], "failed")) {
+    errors <- x$findings[x$findings$severity == "error", , drop = FALSE]
+    out <- c(
+      head,
+      audit_report_knit_failure(x$run),
+      if (nrow(errors) > 0) audit_report_knit_findings(errors)
+    )
+    return(knitr::asis_output(paste(out, collapse = "\n")))
+  }
+  out <- c(
+    head,
     audit_report_knit_files(x$files),
     if (nrow(x$columns) > 0L) {
       c(
@@ -61,7 +81,6 @@ knit_print.scicalc_audit_report <- function(x, ...) {
 
 # HTML fragment helpers ------------------------------------------------------
 
-#' @noRd
 audit_html_escape <- function(text) {
   text <- gsub("&", "&amp;", text, fixed = TRUE)
   text <- gsub("<", "&lt;", text, fixed = TRUE)
@@ -70,19 +89,16 @@ audit_html_escape <- function(text) {
 
 # A section label as its own block, plus a trailing blank line so pandoc treats
 # the following block separately.
-#' @noRd
 audit_html_heading <- function(text) {
   c(paste0("<p><strong>", audit_html_escape(text), "</strong></p>"), "")
 }
 
-#' @noRd
 audit_html_para <- function(html) {
   c(paste0("<p>", html, "</p>"), "")
 }
 
 # Text lines in a monospace block, HTML-escaped, indentation preserved. Empty
 # input yields nothing.
-#' @noRd
 audit_html_pre <- function(lines) {
   if (length(lines) == 0L) return(character())
   c("<pre>", audit_html_escape(lines), "</pre>", "")
@@ -90,7 +106,6 @@ audit_html_pre <- function(lines) {
 
 # knitr section renderers ----------------------------------------------------
 
-#' @noRd
 audit_report_knit_run <- function(run) {
   if (is.na(run$phase[[1]])) return(character())
   script <- run$script[[1]]
@@ -106,7 +121,15 @@ audit_report_knit_run <- function(run) {
   )
 }
 
-#' @noRd
+audit_report_knit_failure <- function(run) {
+  error <- run$error[[1]]
+  if (is.na(error) || !nzchar(error)) return(character())
+  c(
+    audit_html_heading("Failure"),
+    audit_html_pre(strsplit(error, "\n", fixed = TRUE)[[1]])
+  )
+}
+
 audit_report_knit_files <- function(files) {
   out <- character()
   for (role in c("input", "specification", "output")) {
@@ -128,7 +151,6 @@ audit_report_knit_files <- function(files) {
   out
 }
 
-#' @noRd
 audit_report_knit_unit_stories <- function(columns, lineage, stories, trace) {
   unit_columns <- columns[columns$has_units, , drop = FALSE]
   numeric_columns <- columns[!columns$has_units & columns$data_type == "numeric", , drop = FALSE]
@@ -154,7 +176,6 @@ audit_report_knit_unit_stories <- function(columns, lineage, stories, trace) {
   out
 }
 
-#' @noRd
 audit_report_knit_column_definitions <- function(title, columns, lineage, suffix) {
   if (nrow(columns) == 0L) return(character())
   out <- audit_html_heading(title)
@@ -170,16 +191,14 @@ audit_report_knit_column_definitions <- function(title, columns, lineage, suffix
   out
 }
 
-#' @noRd
 audit_report_knit_residual <- function(residual) {
   if (length(residual) == 0L) return(character())
   c(
     audit_html_heading("Unattributed unit operations"),
-    audit_html_pre(paste0("• ", residual))
+    audit_html_pre(paste0("\u2022 ", residual))
   )
 }
 
-#' @noRd
 audit_report_knit_evidence <- function(transformations) {
   out <- audit_html_heading("Runtime unit operations")
   if (nrow(transformations) == 0) {
@@ -192,8 +211,8 @@ audit_report_knit_evidence <- function(transformations) {
     for (i in seq_len(nrow(rows))) {
       text <- audit_report_transformation_text(rows[i, , drop = FALSE])
       basis <- rows$basis[[i]]
-      if (!is.na(basis) && nzchar(basis)) text <- paste0(text, " — ", basis)
-      lines <- c(lines, paste0("• ", text))
+      if (!is.na(basis) && nzchar(basis)) text <- paste0(text, " \u2014 ", basis)
+      lines <- c(lines, paste0("\u2022 ", text))
     }
     out <- c(
       out,
@@ -204,7 +223,6 @@ audit_report_knit_evidence <- function(transformations) {
   out
 }
 
-#' @noRd
 audit_report_knit_findings <- function(findings) {
   out <- audit_html_heading("Findings")
   if (nrow(findings) == 0) {
@@ -214,12 +232,11 @@ audit_report_knit_findings <- function(findings) {
   for (i in seq_len(nrow(findings))) {
     label <- paste0(toupper(findings$severity[[i]]), ": ", findings$finding[[i]])
     if (!is.na(findings$detail[[i]])) label <- paste0(label, " ", findings$detail[[i]])
-    lines <- c(lines, paste0("• ", label))
+    lines <- c(lines, paste0("\u2022 ", label))
   }
   c(out, audit_html_pre(lines))
 }
 
-#' @noRd
 audit_report_print_files <- function(files) {
   for (role in c("input", "specification", "output")) {
     rows <- files[files$role == role, , drop = FALSE]
@@ -240,7 +257,6 @@ audit_report_print_files <- function(files) {
   }
 }
 
-#' @noRd
 audit_report_print_run <- function(run) {
   if (is.na(run$phase[[1]])) return(invisible())
 
@@ -254,9 +270,18 @@ audit_report_print_run <- function(run) {
   invisible()
 }
 
+audit_report_print_failure <- function(run) {
+  error <- run$error[[1]]
+  if (is.na(error) || !nzchar(error)) return(invisible())
+  cli::cli_h2("Failure")
+  for (line in strsplit(error, "\n", fixed = TRUE)[[1]]) {
+    cli::cli_verbatim(line)
+  }
+  invisible()
+}
+
 # Per-column unit provenance: the section a reviewer reads to see where each
 # final column's units came from.
-#' @noRd
 audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
   unit_columns <- columns[columns$has_units, , drop = FALSE]
   numeric_columns <- columns[!columns$has_units & columns$data_type == "numeric", , drop = FALSE]
@@ -282,7 +307,6 @@ audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
   invisible()
 }
 
-#' @noRd
 audit_report_print_column_definitions <- function(title, columns, lineage, suffix) {
   if (nrow(columns) == 0L) return(invisible())
   cli::cli_h2(title)
@@ -298,7 +322,6 @@ audit_report_print_column_definitions <- function(title, columns, lineage, suffi
   invisible()
 }
 
-#' @noRd
 audit_report_print_story_lines <- function(target, stories) {
   for (line in audit_report_story_lines(target, stories)) cli::cli_verbatim(line)
   invisible()
@@ -312,7 +335,6 @@ audit_report_print_story_lines <- function(target, stories) {
 # One column's unit story as indented text lines. A derived line is followed by
 # the story of each column it inherits units from, indented, so the chain reads
 # in place; `seen` stops cycles.
-#' @noRd
 audit_report_story_lines <- function(target, stories, indent = 1L, seen = target) {
   prefix <- if (indent > 1L) paste0(target, ": ") else ""
   lines <- stories[stories$target == target, , drop = FALSE]
@@ -335,7 +357,6 @@ audit_report_story_lines <- function(target, stories, indent = 1L, seen = target
 }
 
 # The definition/source lines for a unitless column, from the static lineage.
-#' @noRd
 audit_report_column_definition_lines <- function(target, lineage) {
   definitions <- lineage[lineage$target == target & lineage$relation == "definition", , drop = FALSE]
   sources <- lineage[lineage$target == target & lineage$relation == "source", , drop = FALSE]
@@ -350,15 +371,13 @@ audit_report_column_definition_lines <- function(target, lineage) {
 
 # Unit events that matched no tagged call or final column. Shown so the
 # attribution join can never silently hide evidence.
-#' @noRd
 audit_report_print_residual <- function(residual) {
   if (length(residual) == 0L) return(invisible())
   cli::cli_h2("Unattributed unit operations")
-  for (line in residual) cli::cli_verbatim(paste0("• ", line))
+  for (line in residual) cli::cli_verbatim(paste0("\u2022 ", line))
   invisible()
 }
 
-#' @noRd
 audit_report_print_evidence <- function(transformations, max_transformations) {
   cli::cli_h2("Runtime unit operations")
   if (nrow(transformations) == 0) {
@@ -376,7 +395,7 @@ audit_report_print_evidence <- function(transformations, max_transformations) {
     for (i in seq_len(nrow(shown))) {
       text <- audit_report_transformation_text(shown[i, , drop = FALSE])
       basis <- shown$basis[[i]]
-      if (!is.na(basis) && nzchar(basis)) text <- paste0(text, " — ", basis)
+      if (!is.na(basis) && nzchar(basis)) text <- paste0(text, " \u2014 ", basis)
       cli::cli_li(text)
     }
     cli::cli_end()
@@ -388,14 +407,12 @@ audit_report_print_evidence <- function(transformations, max_transformations) {
 }
 
 # Evidence classes in reading order, unknown classes appended.
-#' @noRd
 audit_report_evidence_levels <- function(evidence) {
   order <- c("source-recorded", "carried-converted", "analyst-declared", "assumed", "unclassified", "failed")
   present <- unique(evidence)
   c(intersect(order, present), setdiff(present, order))
 }
 
-#' @noRd
 audit_report_evidence_label <- function(evidence) {
   switch(
     evidence,
@@ -409,7 +426,6 @@ audit_report_evidence_label <- function(evidence) {
   )
 }
 
-#' @noRd
 audit_report_print_findings <- function(findings) {
   cli::cli_h2("Findings")
   if (nrow(findings) == 0) {

@@ -181,6 +181,25 @@ test_that("audit_script refuses to overwrite an existing log by default", {
   expect_error(audit_script(script, dir = dir), "already exists")
 })
 
+test_that("a failed audit_script keeps a log marked as a failed run", {
+  skip_if_not_installed("callr")
+  dir <- withr::local_tempdir()
+  script <- file.path(dir, "boom.R")
+  writeLines("stop('kaboom')", script)
+
+  expect_error(
+    audit_script(script, name = "boom", dir = dir, quiet = TRUE),
+    "assembly script failed"
+  )
+  log_path <- file.path(dir, "boom.audit.log")
+  expect_true(file.exists(log_path))
+
+  a <- scicalc_audit(log_file = log_path)
+  run <- a[a$event_type == "run", , drop = FALSE]
+  expect_equal(run$phase[nrow(run)], "failed")
+  expect_match(run$error[nrow(run)], "kaboom")
+})
+
 test_that("scicalc_audit errors clearly when no log exists", {
   log_file <- withr::local_tempfile(fileext = ".log")
   expect_error(scicalc_audit(log_file = log_file), "No scicalc audit log")

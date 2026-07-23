@@ -64,7 +64,6 @@ convert_units_to_spec.default <- function(data, spec, ...) {
   ))
 }
 
-#' @noRd
 convert_units_to_map <- function(data, unit_map, context = NA_character_) {
   checkmate::assert_data_frame(data)
   checkmate::assert_character(unit_map, names = "named")

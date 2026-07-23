@@ -22,6 +22,7 @@ Depends:
     units
 Imports:
     arrow,
+    callr,
     checkmate,
     cli,
     digest,
@@ -31,16 +32,16 @@ Imports:
     jsonlite,
     lifecycle,
     log4r,
-    magrittr,
     readr,
     readxl,
     rlang,
     stats,
     stringr,
     tibble,
-    tidyr
+    tidyr,
+    tools,
+    utils
 Suggests:
-    callr,
     knitr,
     rmarkdown,
     testthat (>= 3.0.0),
@@ -48,7 +49,6 @@ Suggests:
     here,
     purrr,
     pzfx,
-    tools,
     withr,
 		yspec,
 Config/testthat/edition: 3

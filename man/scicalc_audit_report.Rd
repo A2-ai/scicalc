@@ -31,9 +31,9 @@ and unattributed residual), runtime \code{evidence} and \code{transformations},
 \description{
 Builds a reviewer-oriented view over the immutable event log returned by
 \code{\link[=scicalc_audit]{scicalc_audit()}}. For each unit-bearing final column the report states its
-unit story — which call attached or converted its units, from what evidence
+unit story -- which call attached or converted its units, from what evidence
 (source unit column, conversion, arithmetic on unit-bearing columns, or a
-spec attach flagged for review) — by joining runtime unit events to the
+spec attach flagged for review) -- by joining runtime unit events to the
 tagged expressions captured by \code{\link[=audit_script]{audit_script()}}. Runtime events that match
 no tagged call are listed as unattributed rather than dropped. The original
 events remain available as \code{report$events}.

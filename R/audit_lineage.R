@@ -4,7 +4,6 @@
 # assignments, tagged expressions nested in them, and symbol references between
 # those expressions. It does not interpret dplyr (or any other data package).
 
-#' @noRd
 audit_static_lineage <- function(script, targets, target_object) {
   graph <- audit_ast_graph(parse(file = script, keep.source = FALSE))
   paths <- audit_ast_paths(graph, target_object)
@@ -187,7 +186,6 @@ audit_static_lineage <- function(script, targets, target_object) {
   audit_lineage_rows(rows)
 }
 
-#' @noRd
 audit_empty_lineage <- function() {
   tibble::tibble(
     target = character(), relation = character(), object = character(),
@@ -197,13 +195,11 @@ audit_empty_lineage <- function() {
   )
 }
 
-#' @noRd
 audit_lineage_rows <- function(rows) {
   if (length(rows) == 0L) return(audit_empty_lineage())
   dplyr::distinct(dplyr::bind_rows(rows))
 }
 
-#' @noRd
 audit_ast_graph <- function(expressions) {
   objects <- list()
   columns <- list()
@@ -246,7 +242,6 @@ audit_ast_graph <- function(expressions) {
 
 # Object-to-object paths use the generic symbol graph. Function names have no
 # special status, so this works equally for dplyr, data.table, or local helpers.
-#' @noRd
 audit_ast_paths <- function(graph, target_object) {
   paths <- stats::setNames(list(target_object), target_object)
   queue <- target_object
@@ -267,7 +262,6 @@ audit_ast_paths <- function(graph, target_object) {
 # A source terminal is the left-most expression in an ordinary R pipe. A
 # non-piped call is retained whole as its terminal expression: the graph does
 # not assume that any argument position represents data.
-#' @noRd
 audit_ast_terminal_input <- function(graph, object, seen = character()) {
   if (object %in% seen) return(object)
   expression <- graph$objects[[object]]
@@ -283,7 +277,6 @@ audit_ast_terminal_input <- function(graph, object, seen = character()) {
   audit_ast_deparse(input)
 }
 
-#' @noRd
 audit_ast_pipe_lhs <- function(expression) {
   if (!is.call(expression)) return(expression)
   if (audit_ast_call_name(expression) %in% c("|>", "%>%")) {
@@ -292,7 +285,6 @@ audit_ast_pipe_lhs <- function(expression) {
   expression
 }
 
-#' @noRd
 audit_ast_symbols <- function(expression) {
   reserved <- c("TRUE", "FALSE", "NULL", "NA", "NA_real_", "NA_integer_", "NA_character_", "Inf", "NaN", "T", "F", ".")
   walk <- function(node) {
@@ -309,7 +301,6 @@ audit_ast_symbols <- function(expression) {
 
 # Preserve calls which depend only on external runtime values. For example,
 # `Sys.getenv("COLUMN")` is a terminal source expression, not an error.
-#' @noRd
 audit_ast_terminal_calls <- function(expression) {
   terminals <- character()
   walk <- function(node) {
@@ -327,7 +318,6 @@ audit_ast_terminal_calls <- function(expression) {
 
 # Calls to any of `fns` inside a deparsed expression, with each argument's
 # deparse, for joining runtime unit events back to the tag that ran them.
-#' @noRd
 audit_ast_matching_calls <- function(text, fns) {
   expression <- tryCatch(str2lang(text), error = function(e) NULL)
   calls <- list()
@@ -347,7 +337,6 @@ audit_ast_matching_calls <- function(text, fns) {
   calls
 }
 
-#' @noRd
 audit_ast_call_name <- function(expression) {
   if (!is.call(expression)) return(NA_character_)
   fun <- expression[[1]]
@@ -358,14 +347,12 @@ audit_ast_call_name <- function(expression) {
 
 # Missing call arguments are valid R syntax (for example `f(, x)`) and occur
 # in generated/knitted scripts. They carry no dependency edge, so skip them.
-#' @noRd
 audit_ast_arguments <- function(expression) {
   arguments <- as.list(expression)[-1]
   if (length(arguments) == 0L) return(arguments)
   arguments[!vapply(arguments, rlang::is_missing, logical(1))]
 }
 
-#' @noRd
 audit_ast_deparse <- function(expression) {
   if (is.null(expression)) return(NA_character_)
   paste(deparse(expression, width.cutoff = 500L), collapse = " ")

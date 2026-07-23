@@ -179,7 +179,6 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = 
       rlang::abort("`data` must be a named data frame object, e.g. `data = final`.")
     }
   }
-  rlang::check_installed("callr")
 
   if (is.null(name)) {
     name <- tools::file_path_sans_ext(basename(script))
@@ -238,9 +237,10 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = 
   )
 
   if (!is.null(res$status) && res$status != 0L) {
-    audit_log_run_event(log_path, name, script, ext, phase = "failed")
-    detail <- if (!is.null(res$stderr) && nzchar(res$stderr)) {
-      paste0("\n", res$stderr)
+    error_text <- if (!is.null(res$stderr) && nzchar(res$stderr)) res$stderr else NA_character_
+    audit_log_run_event(log_path, name, script, ext, phase = "failed", error = error_text)
+    detail <- if (!is.na(error_text)) {
+      paste0("\n", error_text)
     } else {
       " See the script's output above."
     }
@@ -268,7 +268,6 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = 
   invisible(scicalc_audit(log_file = log_path))
 }
 
-#' @noRd
 audit_log_static_lineage <- function(log_path, name, lineage, schema) {
   prior_active <- Sys.getenv("SCICALC_AUDITING", unset = "")
   prior_log <- Sys.getenv("SCICALC_AUDIT_LOG", unset = "")
@@ -297,7 +296,6 @@ audit_log_static_lineage <- function(log_path, name, lineage, schema) {
   invisible()
 }
 
-#' @noRd
 audit_data_schema <- function(data) {
   tibble::tibble(
     target = names(data),
@@ -314,7 +312,6 @@ audit_data_schema <- function(data) {
   )
 }
 
-#' @noRd
 audit_data_unit_label <- function(column) {
   if (inherits(column, "units")) return(units::deparse_unit(column))
   if (!inherits(column, "mixed_units")) return(NA_character_)
@@ -328,8 +325,7 @@ audit_data_unit_label <- function(column) {
 # Write a run-manifest event from the parent process. The child process writes
 # the assembly events; these bookends identify the exact audited script and
 # whether that run completed.
-#' @noRd
-audit_log_run_event <- function(log_path, name, script, script_type, phase) {
+audit_log_run_event <- function(log_path, name, script, script_type, phase, error = NA_character_) {
   prior_active <- Sys.getenv("SCICALC_AUDITING", unset = "")
   prior_log <- Sys.getenv("SCICALC_AUDIT_LOG", unset = "")
   on.exit({
@@ -337,8 +333,7 @@ audit_log_run_event <- function(log_path, name, script, script_type, phase) {
   }, add = TRUE)
 
   Sys.setenv(SCICALC_AUDITING = name, SCICALC_AUDIT_LOG = log_path)
-  log_audit_event(
-    "run",
+  fields <- list(
     fn = "audit_script",
     phase = phase,
     script = audit_rel_path(script),
@@ -347,6 +342,10 @@ audit_log_run_event <- function(log_path, name, script, script_type, phase) {
     scicalc_version = as.character(utils::packageVersion("scicalc")),
     r_version = paste(R.version$major, R.version$minor, sep = ".")
   )
+  if (!is.na(error) && nzchar(error)) {
+    fields$error <- error
+  }
+  do.call(log_audit_event, c("run", fields))
 }
 
 #' Read a scicalc Assembly Audit Log
@@ -397,7 +396,7 @@ scicalc_audit <- function(name = NULL, dir = default_audit_dir(), log_file = NUL
   # sensible column order: what happened, via which function, then details
   preferred <- c(
     "event_type", "phase", "fn", "script", "script_hash", "script_type",
-    "scicalc_version", "r_version", "target", "relation", "object", "symbol",
+    "scicalc_version", "r_version", "error", "target", "relation", "object", "symbol",
     "expression", "source_object", "source_column", "path", "depth", "order", "data_type",
     "has_units", "unit", "input", "from", "to", "transform", "n", "detail",
     "file", "hash", "algo", "spec_hash", "spec_file"

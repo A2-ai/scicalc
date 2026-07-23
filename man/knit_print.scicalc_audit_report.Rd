@@ -16,9 +16,9 @@ A \code{knitr::asis_output} HTML block.
 }
 \description{
 Emits the report as HTML rather than console text. It reads the same
-already-built report object as \link[=print.scicalc_audit_report]{print} (its log
-file read and events transformed by \code{\link[=scicalc_audit_report]{scicalc_audit_report()}}) and reuses the
-same content builders — \code{\link[=audit_report_story_lines]{audit_report_story_lines()}} and
-\code{\link[=audit_report_column_definition_lines]{audit_report_column_definition_lines()}} — so the knitted and console reports
-carry identical information, differently styled.
+already-built report object as \code{print()} (its log file read and events
+transformed by \code{\link[=scicalc_audit_report]{scicalc_audit_report()}}) and reuses the same content builders
+(\code{audit_report_story_lines()} and \code{audit_report_column_definition_lines()}),
+so the knitted and console reports carry identical information, differently
+styled.
 }
