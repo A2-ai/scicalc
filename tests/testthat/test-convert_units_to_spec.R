@@ -8,15 +8,27 @@ test_that("worker converts unit-carrying columns to the target unit", {
   expect_equal(as.numeric(out$WT), c(70, 80))
 })
 
-test_that("worker attaches units to plain numeric columns with a warning", {
+test_that("worker leaves plain numeric columns untouched (no attach)", {
   df <- data.frame(WT = c(70, 80))
 
-  expect_warning(
-    out <- convert_units_to_map(df, c(WT = "kg")),
-    "Attached spec units to unitless column\\(s\\): WT \\[kg\\]"
-  )
-  expect_equal(as.character(units(out$WT)), "kg")
-  expect_equal(as.numeric(out$WT), c(70, 80))
+  out <- expect_silent(convert_units_to_map(df, c(WT = "kg")))
+  expect_false(inherits(out$WT, "units"))
+  expect_identical(out$WT, df$WT)
+})
+
+test_that("worker records the spec unit for every mapped column", {
+  lf <- withr::local_tempfile(fileext = ".log")
+  withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = lf))
+  scicalc_audit_reset(log_file = lf)
+
+  df <- data.frame(WT = c(70, 80), AGE = c(30, 40))
+  df$WT <- units::set_units(df$WT, "kg", mode = "standard")
+  convert_units_to_map(df, c(WT = "kg", AGE = "years"))
+
+  a <- scicalc_audit(log_file = lf)
+  spec_units <- a[a$event_type == "spec_unit", , drop = FALSE]
+  expect_setequal(spec_units$target, c("WT", "AGE"))
+  expect_equal(spec_units$unit[spec_units$target == "AGE"], "years")
 })
 
 test_that("worker aborts listing every failed conversion", {
@@ -42,20 +54,19 @@ test_that("worker logs a failed event for each offender before aborting", {
   expect_error(convert_units_to_map(df, c(CREAT = "hours", BILI = "days")))
 
   a <- scicalc_audit(log_file = lf)
-  failed <- a[a$transform == "failed", , drop = FALSE]
+  failed <- a[!is.na(a$transform) & a$transform == "failed", , drop = FALSE]
   expect_setequal(failed$input, c("CREAT", "BILI"))
 })
 
 test_that("worker leaves columns not in the map and non-numeric columns untouched", {
   df <- data.frame(ID = c("a", "b"), AGE = c(30, 40), OTHER = c(1, 2))
 
-  expect_warning(
-    out <- convert_units_to_map(df, c(AGE = "years", ID = "kg")),
-    "AGE \\[years\\]"
-  )
+  out <- convert_units_to_map(df, c(AGE = "years", ID = "kg"))
   expect_identical(out$ID, df$ID)
   expect_identical(out$OTHER, df$OTHER)
-  expect_equal(as.character(units(out$AGE)), "years")
+  # AGE is plain numeric: left untouched, not attached
+  expect_false(inherits(out$AGE, "units"))
+  expect_identical(out$AGE, df$AGE)
 })
 
 test_that("worker ignores empty and NA spec units", {
@@ -71,13 +82,11 @@ test_that("convert_units_to_spec dispatches on a yspec object", {
   df <- data.frame(WT = c(70000, 80000), AGE = c(30, 40))
   df$WT <- units::set_units(df$WT, "g", mode = "standard")
 
-  expect_warning(
-    out <- convert_units_to_spec(df, spec),
-    "AGE \\[years\\]"
-  )
+  out <- convert_units_to_spec(df, spec)
   expect_equal(as.character(units(out$WT)), "kg")
   expect_equal(as.numeric(out$WT), c(70, 80))
-  expect_equal(as.character(units(out$AGE)), "years")
+  # AGE is plain numeric: left untouched
+  expect_false(inherits(out$AGE, "units"))
 })
 
 test_that("worker converts a log column to a new log reference", {
@@ -128,14 +137,11 @@ test_that("worker reports a log column against a non-log spec as an offender", {
   )
 })
 
-test_that("worker attaches a log unit to an already-logged plain numeric column", {
+test_that("worker leaves an already-logged plain numeric column untouched", {
   df <- data.frame(LDV = c(0, 0.6931472))
-  expect_warning(
-    out <- convert_units_to_map(df, c(LDV = "log(ug/mL)")),
-    "Attached spec units to unitless column"
-  )
-  expect_equal(units(out$LDV), units(log(units::set_units(1, "ug/mL", mode = "standard"))))
-  expect_equal(as.numeric(out$LDV), c(0, 0.6931472))
+  out <- expect_silent(convert_units_to_map(df, c(LDV = "log(ug/mL)")))
+  expect_false(inherits(out$LDV, "units"))
+  expect_identical(out$LDV, df$LDV)
 })
 
 test_that("convert_units_to_spec preserves a column label through conversion", {
@@ -148,12 +154,6 @@ test_that("convert_units_to_spec preserves a column label through conversion", {
   expect_equal(as.numeric(out$WT), c(70, 80))
 })
 
-test_that("convert_units_to_spec preserves a label when attaching to plain numeric", {
-  df <- data.frame(AGE = structure(c(30, 40), label = "Age"))
-  suppressWarnings(out <- convert_units_to_map(df, c(AGE = "years")))
-  expect_equal(attr(out$AGE, "label"), "Age")
-  expect_equal(as.character(units(out$AGE)), "years")
-})
 
 test_that("convert_units_to_spec errors informatively for unsupported spec classes", {
   df <- data.frame(A = 1)

@@ -331,6 +331,65 @@ test_that("a spec attach suppresses the derived-by-arithmetic line", {
   expect_equal(ntfd$kind, "spec")
 })
 
+test_that("a unitless column the spec declares a unit for is flagged in the report", {
+  log_file <- withr::local_tempfile(fileext = ".log")
+  withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))
+  scicalc_audit_reset(log_file = log_file)
+
+  log_audit_event("schema", target = "ATFD", data_type = "numeric", has_units = FALSE, unit = NA_character_)
+  log_audit_event("spec_unit", fn = "convert_units_to_spec", target = "ATFD", unit = "d")
+
+  report <- scicalc_audit_report(log_file = log_file)
+  expect_equal(report$spec_units$unit[report$spec_units$target == "ATFD"], "d")
+
+  out <- cli::ansi_strip(paste(cli::cli_fmt(print(report)), collapse = "\n"))
+  expect_match(out, "ATFD [no units] (spec expects: d)", fixed = TRUE)
+})
+
+test_that("a pivoted column's report traces its values and unit source", {
+  columns <- tibble::tibble(target = "ALTBL", data_type = "units", has_units = TRUE, unit = "U/L")
+  lineage <- dplyr::bind_rows(
+    tibble::tibble(
+      target = "ALTBL", relation = "definition", object = "lbKey", symbol = NA_character_,
+      expression = "ALT", detail = NA_character_, source_object = NA_character_,
+      source_column = NA_character_, path = NA_character_, depth = "0", order = "1"
+    ),
+    tibble::tibble(
+      target = "ALTBL", relation = "source", object = NA_character_, symbol = "ALT",
+      expression = NA_character_, detail = NA_character_, source_object = "adlb",
+      source_column = "ALT", path = NA_character_, depth = "1", order = NA_character_
+    ),
+    tibble::tibble(
+      target = "PARAMU", relation = "definition", object = "lbKey", symbol = NA_character_,
+      expression = "str_match(PARAM, \"re\")[, 2]", detail = NA_character_,
+      source_object = NA_character_, source_column = NA_character_, path = NA_character_,
+      depth = "0", order = "2"
+    )
+  )
+  events <- dplyr::bind_rows(
+    tibble::tibble(
+      event_type = "pivot", fn = "pivot_with_units", target = "ALT",
+      input = "AVAL", unit_column = "PARAMU", to = "ukat/L", n = 5
+    ),
+    tibble::tibble(
+      event_type = "unit", fn = "convert_units_to_spec", input = "ALTBL",
+      from = "ukat/L", to = "U/L", transform = "convert", detail = NA_character_,
+      evidence = "carried-converted", basis = "input column carried units",
+      context = NA_character_, n = 5
+    )
+  )
+  files <- tibble::tibble(role = "specification", file = "pk.yml", hash = "h", algo = "blake3")
+
+  units <- audit_report_units(events, columns, lineage, files)
+  altbl <- units$stories[units$stories$target == "ALTBL", , drop = FALSE]
+
+  expect_true(any(altbl$kind == "pivot"))
+  pivot_line <- altbl$line[altbl$kind == "pivot"]
+  expect_match(pivot_line, "ALT via pivot_with_units", fixed = TRUE)
+  expect_match(pivot_line, "values from AVAL", fixed = TRUE)
+  expect_match(pivot_line, "unit from PARAMU = str_match(PARAM", fixed = TRUE)
+})
+
 test_that("scicalc_audit_report flags missing anchors and failed conversions", {
   log_file <- withr::local_tempfile(fileext = ".log")
   withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = log_file))

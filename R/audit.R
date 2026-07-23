@@ -251,9 +251,13 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = 
   }
 
   if (!is.null(data)) {
+    # also trace the unit-source columns of any pivot_with_units() calls, so the
+    # report can show where a pivoted column's unit came from (e.g. a regex).
+    pivot_targets <- audit_pivot_unit_columns(log_path)
     lineage <- tryCatch(
       audit_static_lineage(
-        run_file, targets = names(data), target_object = as.character(data_expression)
+        run_file, targets = unique(c(names(data), pivot_targets)),
+        target_object = as.character(data_expression)
       ),
       error = function(error) {
         rlang::warn(paste0("Static audit lineage was not captured: ", conditionMessage(error)))
@@ -266,6 +270,15 @@ audit_script <- function(script, name = NULL, dir = default_audit_dir(), data = 
   audit_log_run_event(log_path, name, script, ext, phase = "completed")
 
   invisible(scicalc_audit(log_file = log_path))
+}
+
+audit_pivot_unit_columns <- function(log_path) {
+  captured <- tryCatch(scicalc_audit(log_file = log_path), error = function(e) NULL)
+  if (is.null(captured) || !all(c("event_type", "unit_column") %in% names(captured))) {
+    return(character())
+  }
+  rows <- captured[!is.na(captured$event_type) & captured$event_type == "pivot", , drop = FALSE]
+  unique(stats::na.omit(as.character(rows$unit_column)))
 }
 
 audit_log_static_lineage <- function(log_path, name, lineage, schema) {

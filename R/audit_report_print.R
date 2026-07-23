@@ -22,7 +22,7 @@ print.scicalc_audit_report <- function(x, ..., max_transformations = Inf) {
   }
   audit_report_print_files(x$files)
   if (nrow(x$columns) > 0L) {
-    audit_report_print_unit_stories(x$columns, x$lineage, x$units$stories, x$trace)
+    audit_report_print_unit_stories(x$columns, x$lineage, x$units$stories, x$trace, x$spec_units)
     audit_report_print_residual(x$units$residual)
   } else {
     # no final schema (audit_script() ran without data=): fall back to the
@@ -68,7 +68,7 @@ knit_print.scicalc_audit_report <- function(x, ...) {
     audit_report_knit_files(x$files),
     if (nrow(x$columns) > 0L) {
       c(
-        audit_report_knit_unit_stories(x$columns, x$lineage, x$units$stories, x$trace),
+        audit_report_knit_unit_stories(x$columns, x$lineage, x$units$stories, x$trace, x$spec_units),
         audit_report_knit_residual(x$units$residual)
       )
     } else {
@@ -151,7 +151,7 @@ audit_report_knit_files <- function(files) {
   out
 }
 
-audit_report_knit_unit_stories <- function(columns, lineage, stories, trace) {
+audit_report_knit_unit_stories <- function(columns, lineage, stories, trace, spec_units = NULL) {
   unit_columns <- columns[columns$has_units, , drop = FALSE]
   numeric_columns <- columns[!columns$has_units & columns$data_type == "numeric", , drop = FALSE]
   other_columns <- columns[!columns$has_units & columns$data_type != "numeric", , drop = FALSE]
@@ -169,19 +169,20 @@ audit_report_knit_unit_stories <- function(columns, lineage, stories, trace) {
       )
     }
   }
-  out <- c(out, audit_report_knit_column_definitions("Unitless numeric columns", numeric_columns, lineage, " [no units]"))
+  out <- c(out, audit_report_knit_column_definitions("Unitless numeric columns", numeric_columns, lineage, " [no units]", spec_units))
   if (identical(trace, "all")) {
-    out <- c(out, audit_report_knit_column_definitions("Other final columns", other_columns, lineage, NULL))
+    out <- c(out, audit_report_knit_column_definitions("Other final columns", other_columns, lineage, NULL, spec_units))
   }
   out
 }
 
-audit_report_knit_column_definitions <- function(title, columns, lineage, suffix) {
+audit_report_knit_column_definitions <- function(title, columns, lineage, suffix, spec_units = NULL) {
   if (nrow(columns) == 0L) return(character())
   out <- audit_html_heading(title)
   for (index in seq_len(nrow(columns))) {
     target <- columns$target[[index]]
     label <- if (is.null(suffix)) target else paste0(target, suffix)
+    label <- paste0(label, audit_report_spec_expects(target, spec_units))
     out <- c(
       out,
       audit_html_para(paste0("<strong>", audit_html_escape(label), "</strong>")),
@@ -282,7 +283,16 @@ audit_report_print_failure <- function(run) {
 
 # Per-column unit provenance: the section a reviewer reads to see where each
 # final column's units came from.
-audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
+# " (spec expects: <unit>)" when the spec declared a unit for a column that
+# reached final unitless; "" otherwise.
+audit_report_spec_expects <- function(target, spec_units) {
+  if (is.null(spec_units) || nrow(spec_units) == 0L) return("")
+  unit <- spec_units$unit[spec_units$target == target]
+  if (length(unit) == 0L || is.na(unit[[1]]) || !nzchar(unit[[1]])) return("")
+  paste0(" (spec expects: ", unit[[1]], ")")
+}
+
+audit_report_print_unit_stories <- function(columns, lineage, stories, trace, spec_units = NULL) {
   unit_columns <- columns[columns$has_units, , drop = FALSE]
   numeric_columns <- columns[!columns$has_units & columns$data_type == "numeric", , drop = FALSE]
   other_columns <- columns[!columns$has_units & columns$data_type != "numeric", , drop = FALSE]
@@ -299,20 +309,21 @@ audit_report_print_unit_stories <- function(columns, lineage, stories, trace) {
   }
 
   audit_report_print_column_definitions(
-    "Unitless numeric columns", numeric_columns, lineage, " [no units]"
+    "Unitless numeric columns", numeric_columns, lineage, " [no units]", spec_units
   )
   if (identical(trace, "all")) {
-    audit_report_print_column_definitions("Other final columns", other_columns, lineage, NULL)
+    audit_report_print_column_definitions("Other final columns", other_columns, lineage, NULL, spec_units)
   }
   invisible()
 }
 
-audit_report_print_column_definitions <- function(title, columns, lineage, suffix) {
+audit_report_print_column_definitions <- function(title, columns, lineage, suffix, spec_units = NULL) {
   if (nrow(columns) == 0L) return(invisible())
   cli::cli_h2(title)
   for (index in seq_len(nrow(columns))) {
     target <- columns$target[[index]]
     label <- if (is.null(suffix)) target else paste0(target, suffix)
+    label <- paste0(label, audit_report_spec_expects(target, spec_units))
     cli::cli_text("{.strong {label}}")
     for (line in audit_report_column_definition_lines(target, lineage)) {
       cli::cli_verbatim(paste0("  ", line))
@@ -338,7 +349,7 @@ audit_report_print_story_lines <- function(target, stories) {
 audit_report_story_lines <- function(target, stories, indent = 1L, seen = target) {
   prefix <- if (indent > 1L) paste0(target, ": ") else ""
   lines <- stories[stories$target == target, , drop = FALSE]
-  lines <- lines[order(match(lines$kind, c("derived", "call", "spec"))), , drop = FALSE]
+  lines <- lines[order(match(lines$kind, c("pivot", "derived", "call", "spec"))), , drop = FALSE]
   if (nrow(lines) == 0L) {
     return(paste0(strrep("  ", indent), prefix, "no unit evidence captured for this column"))
   }

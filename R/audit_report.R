@@ -35,6 +35,7 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
   files <- audit_report_files(events)
   columns <- audit_report_columns(events)
   lineage <- audit_report_lineage(events)
+  spec_units <- audit_report_spec_units(events)
   units <- audit_report_units(events, columns, lineage, files)
   transformations <- audit_report_transformations(events)
   evidence <- audit_report_evidence(transformations)
@@ -63,6 +64,7 @@ scicalc_audit_report <- function(name = NULL, dir = default_audit_dir(), log_fil
       files = files,
       columns = columns,
       lineage = lineage,
+      spec_units = spec_units,
       units = units,
       trace = trace,
       evidence = evidence,
@@ -85,6 +87,19 @@ audit_report_columns <- function(events) {
     target = audit_report_field(rows, "target"),
     data_type = audit_report_field(rows, "data_type"),
     has_units = audit_report_field(rows, "has_units") == "TRUE",
+    unit = audit_report_field(rows, "unit")
+  ))
+}
+
+# The spec's declared unit per column, logged by convert_units_to_spec().
+audit_report_spec_units <- function(events) {
+  keep <- audit_report_field(events, "event_type") == "spec_unit"
+  if (!any(keep)) {
+    return(tibble::tibble(target = character(), unit = character()))
+  }
+  rows <- events[keep, , drop = FALSE]
+  dplyr::distinct(tibble::tibble(
+    target = audit_report_field(rows, "target"),
     unit = audit_report_field(rows, "unit")
   ))
 }
@@ -307,8 +322,52 @@ audit_report_units <- function(events, columns, lineage, files) {
     }
   }
 
+  # pivot_with_units() creates columns from data, so the static tracer can't
+  # follow them (and would fabricate a source). Its runtime events carry the
+  # true roles: attribute the values source and unit source to the final column
+  # the pivoted column feeds.
+  pivot_raw <- events[audit_report_field(events, "event_type") == "pivot", , drop = FALSE]
+  if (nrow(pivot_raw) > 0L) {
+    pivot_events <- dplyr::distinct(tibble::tibble(
+      output = audit_report_field(pivot_raw, "target"),
+      values = audit_report_field(pivot_raw, "input"),
+      unit_column = audit_report_field(pivot_raw, "unit_column")
+    ))
+    unit_targets <- columns$target[columns$has_units]
+    for (index in seq_len(nrow(pivot_events))) {
+      output <- pivot_events$output[[index]]
+      hosts <- unique(lineage$target[
+        (!is.na(lineage$source_column) & lineage$source_column == output) |
+          (!is.na(lineage$symbol) & lineage$symbol == output)
+      ])
+      if (output %in% unit_targets) hosts <- c(hosts, output)
+      hosts <- intersect(unique(hosts), unit_targets)
+      for (host in hosts) {
+        add_story(host, "pivot", audit_report_pivot_line(pivot_events[index, , drop = FALSE], lineage))
+      }
+    }
+  }
+
   stories <- if (length(stories) == 0L) empty_stories else dplyr::bind_rows(stories)
   list(stories = stories, residual = residual)
+}
+
+# One pivot_with_units() provenance line for a final column: the pivoted column,
+# its values source, and its unit source (with that column's own definition when
+# the lineage traced it, e.g. a regex on PARAM).
+audit_report_pivot_line <- function(pivot_event, lineage) {
+  output <- pivot_event$output[[1]]
+  values <- pivot_event$values[[1]]
+  unit_column <- pivot_event$unit_column[[1]]
+  definition <- lineage[lineage$target == unit_column & lineage$relation == "definition", , drop = FALSE]
+  unit_from <- if (nrow(definition) > 0L) {
+    paste0(unit_column, " = ", definition$expression[[1]])
+  } else {
+    unit_column
+  }
+  paste0(
+    output, " via pivot_with_units() \u2014 values from ", values, ", unit from ", unit_from
+  )
 }
 
 audit_report_unit_call_line <- function(candidate, object, event) {

@@ -2,14 +2,16 @@
 #'
 #' @description
 #' Converts each unit-carrying column of `data` to the unit declared for it in
-#' a data specification. Columns that are plain numeric get the spec unit
-#' attached (assuming the values are already in that unit) with a warning.
+#' a data specification. Columns that are plain numeric are left untouched: the
+#' spec unit is *not* attached (attaching a unit to a bare number asserts a unit
+#' that was never verified). The spec's declared unit is still recorded in the
+#' audit log, so a captured run can flag columns that reached the spec unitless.
 #'
-#' Every column is attempted, then, if any column's current units could not be
-#' converted to its spec unit, the function aborts and lists all offenders. A
-#' failed conversion would leave a column carrying the wrong units in the
-#' written dataset, so it stops the assembly rather than warning; the per-column
-#' failures are still recorded in the audit log for a run captured by
+#' Every unit-carrying column is attempted, then, if any column's current units
+#' could not be converted to its spec unit, the function aborts and lists all
+#' offenders. A failed conversion would leave a column carrying the wrong units
+#' in the written dataset, so it stops the assembly rather than warning; the
+#' per-column failures are still recorded in the audit log for a run captured by
 #' [audit_script()].
 #'
 #' Pairs with [pivot_with_units()]: pivot attaches source units, then
@@ -19,9 +21,9 @@
 #' @param spec a data specification object; currently a `yspec` object.
 #' @param ... reserved for methods.
 #'
-#' @return `data` with columns converted (values rescaled) or assigned units
-#'   per the spec. Columns not in the spec, or with no unit in the spec, are
-#'   returned untouched. Errors if any spec conversion fails.
+#' @return `data` with unit-carrying columns converted (values rescaled) per
+#'   the spec. Plain numeric columns, columns not in the spec, and columns with
+#'   no unit in the spec are returned untouched. Errors if any conversion fails.
 #'
 #' @family unit_checking
 #' @export
@@ -71,91 +73,53 @@ convert_units_to_map <- function(data, unit_map, context = NA_character_) {
   unit_map <- unit_map[!is.na(unit_map) & unit_map != ""]
   unit_map <- unit_map[names(unit_map) %in% colnames(data)]
 
-  attached <- character(0)
+  for (col in names(unit_map)) {
+    log_audit_event(
+      "spec_unit", fn = "convert_units_to_spec", target = col, unit = unit_map[[col]]
+    )
+  }
+
   failed <- character(0)
 
   for (col in names(unit_map)) {
+    # convert only: a unitless column is left untouched, its spec unit recorded
+    # above so the report can flag the gap.
+    if (!inherits(data[[col]], "units")) {
+      next
+    }
     target <- unit_map[[col]]
     tgt_log <- parse_log_spec(target)
     missing_mask <- is_missing_value(data[[col]])
     n_col <- sum(!is.na(as.numeric(data[[col]])) & !missing_mask)
+    current <- as.character(units(data[[col]]))
+    src_log <- parse_log_unit(current)
 
-    if (inherits(data[[col]], "units")) {
-      current <- as.character(units(data[[col]]))
-      src_log <- parse_log_unit(current)
-
-      if (!is.null(src_log) || !is.null(tgt_log)) {
-        # at least one side is a log unit: reconcile via a reference shift
-        shifted <- shift_log_column(data[[col]], src_log, tgt_log)
-        if (is.null(shifted)) {
-          failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
-          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed", context)
-        } else {
-          data[[col]] <- apply_mv_mask(
-            restore_attrs(shifted, data[[col]]), missing_mask
-          )
-          log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col, "carried-converted", "input column carried units", context)
-        }
+    if (!is.null(src_log) || !is.null(tgt_log)) {
+      shifted <- shift_log_column(data[[col]], src_log, tgt_log)
+      if (is.null(shifted)) {
+        failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+        log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed", context)
       } else {
-        converted <- tryCatch(
-          units::set_units(data[[col]], target, mode = "standard"),
-          error = function(e) NULL
+        data[[col]] <- apply_mv_mask(
+          restore_attrs(shifted, data[[col]]), missing_mask
         )
-        if (is.null(converted)) {
-          failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
-          log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed", context)
-        } else {
-          data[[col]] <- apply_mv_mask(
-            restore_attrs(converted, data[[col]]), missing_mask
-          )
-          log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col, "carried-converted", "input column carried units", context)
-        }
+        log_unit_conversion(col, current, as.character(units(shifted)), "log-shift", n_col, "carried-converted", "input column carried units", context)
       }
-    } else if (is.numeric(data[[col]])) {
-      if (!is.null(tgt_log)) {
-        # plain numeric assumed already log-transformed on the target basis
-        with_unit <- tryCatch(
-          {
-            tmp <- data[[col]]
-            units(tmp) <- tgt_log$unit
-            tmp
-          },
-          error = function(e) NULL
-        )
-        if (is.null(with_unit)) {
-          failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed", context)
-        } else {
-          data[[col]] <- apply_mv_mask(
-            restore_attrs(with_unit, data[[col]]), missing_mask
-          )
-          attached <- c(attached, paste0(col, " [", target, "]"))
-          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification", context)
-        }
+    } else {
+      converted <- tryCatch(
+        units::set_units(data[[col]], target, mode = "standard"),
+        error = function(e) NULL
+      )
+      if (is.null(converted)) {
+        failed <- c(failed, paste0(col, " [", current, "] -> [", target, "]"))
+        log_unit_conversion(col, current, target, "failed", n_col, "failed", "conversion to specification failed", context)
       } else {
-        with_unit <- tryCatch(
-          units::set_units(data[[col]], target, mode = "standard"),
-          error = function(e) NULL
+        data[[col]] <- apply_mv_mask(
+          restore_attrs(converted, data[[col]]), missing_mask
         )
-        if (is.null(with_unit)) {
-          failed <- c(failed, paste0(col, " [unitless] -> [", target, "]"))
-          log_unit_conversion(col, NA_character_, target, "failed", n_col, "failed", "unit attachment from specification failed", context)
-        } else {
-          data[[col]] <- apply_mv_mask(
-            restore_attrs(with_unit, data[[col]]), missing_mask
-          )
-          attached <- c(attached, paste0(col, " [", target, "]"))
-          log_unit_conversion(col, NA_character_, as.character(units(with_unit)), "attach", n_col, "assumed", "unitless numeric labelled from specification", context)
-        }
+        log_unit_conversion(col, current, as.character(units(converted)), "convert", n_col, "carried-converted", "input column carried units", context)
       }
     }
-  }
-
-  if (length(attached) > 0) {
-    rlang::warn(paste0(
-      "Attached spec units to unitless column(s): ",
-      paste(attached, collapse = ", ")
-    ))
   }
 
   # A failed spec conversion means a column would keep the wrong units in the

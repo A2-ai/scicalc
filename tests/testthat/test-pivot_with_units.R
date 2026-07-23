@@ -95,3 +95,24 @@ test_that("pivot_with_units errors on unparseable units", {
   )
   expect_error(pivot_with_units(long, VAL, UNIT, TEST), "X")
 })
+
+test_that("pivot_with_units logs a pivot event per unit-bearing output column", {
+  lf <- withr::local_tempfile(fileext = ".log")
+  withr::local_envvar(c(SCICALC_AUDITING = "test", SCICALC_AUDIT_LOG = lf))
+  scicalc_audit_reset(log_file = lf)
+
+  df <- data.frame(
+    ID = c(1, 1, 2, 2),
+    TEST = c("ALT", "AST", "ALT", "AST"),
+    VAL = c(20, 30, 25, 35),
+    UNIT = c("U/L", "U/L", "U/L", "U/L")
+  )
+  pivot_with_units(df, values_from = VAL, units_from = UNIT, names_from = TEST)
+
+  a <- scicalc_audit(log_file = lf)
+  piv <- a[!is.na(a$event_type) & a$event_type == "pivot", , drop = FALSE]
+  expect_setequal(piv$target, c("ALT", "AST"))
+  expect_true(all(piv$input == "VAL"))
+  expect_true(all(piv$unit_column == "UNIT"))
+  expect_true(all(piv$to == "U/L"))
+})

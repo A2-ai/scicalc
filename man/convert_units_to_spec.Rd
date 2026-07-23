@@ -20,20 +20,22 @@ convert_units_to_spec(data, spec, ...)
 \item{...}{reserved for methods.}
 }
 \value{
-\code{data} with columns converted (values rescaled) or assigned units
-per the spec. Columns not in the spec, or with no unit in the spec, are
-returned untouched. Errors if any spec conversion fails.
+\code{data} with unit-carrying columns converted (values rescaled) per
+the spec. Plain numeric columns, columns not in the spec, and columns with
+no unit in the spec are returned untouched. Errors if any conversion fails.
 }
 \description{
 Converts each unit-carrying column of \code{data} to the unit declared for it in
-a data specification. Columns that are plain numeric get the spec unit
-attached (assuming the values are already in that unit) with a warning.
+a data specification. Columns that are plain numeric are left untouched: the
+spec unit is \emph{not} attached (attaching a unit to a bare number asserts a unit
+that was never verified). The spec's declared unit is still recorded in the
+audit log, so a captured run can flag columns that reached the spec unitless.
 
-Every column is attempted, then, if any column's current units could not be
-converted to its spec unit, the function aborts and lists all offenders. A
-failed conversion would leave a column carrying the wrong units in the
-written dataset, so it stops the assembly rather than warning; the per-column
-failures are still recorded in the audit log for a run captured by
+Every unit-carrying column is attempted, then, if any column's current units
+could not be converted to its spec unit, the function aborts and lists all
+offenders. A failed conversion would leave a column carrying the wrong units
+in the written dataset, so it stops the assembly rather than warning; the
+per-column failures are still recorded in the audit log for a run captured by
 \code{\link[=audit_script]{audit_script()}}.
 
 Pairs with \code{\link[=pivot_with_units]{pivot_with_units()}}: pivot attaches source units, then

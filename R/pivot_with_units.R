@@ -79,6 +79,15 @@ pivot_with_units <- function(data, values_from, units_from, names_from, ...) {
           ))
         }
       )
+      log_audit_event(
+        "pivot",
+        fn = "pivot_with_units",
+        target = param,
+        input = values_name,
+        unit_column = units_name,
+        to = unit,
+        n = sum(!is.na(wide[[param]]))
+      )
     }
 
     # carry the source value column's attributes (e.g. label) onto each column
