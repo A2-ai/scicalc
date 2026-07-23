@@ -44,8 +44,7 @@ Suggests:
     here,
     purrr,
     pzfx,
-    withr,
-		yspec,
+    withr
 Config/testthat/edition: 3
 VignetteBuilder: knitr
 URL: https://a2-ai.github.io/scicalc-docs, https://github.com/a2-ai/scicalc
