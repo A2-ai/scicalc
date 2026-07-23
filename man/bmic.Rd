@@ -14,8 +14,9 @@ the function will issue warnings for individuals under 18 years old, as
 adult BMI categories may not be appropriate for pediatric populations}
 }
 \value{
-Integer vector of obesity categories (1-4). Returns \code{-999}
-for missing BMI values.
+Integer vector of obesity categories (1-6). Returns the value of
+\code{getOption("scicalc.missing_value")} (default \code{-999}) for
+missing BMI values.
 }
 \description{
 Categorizes individuals based on their Body Mass Index (BMI) according to
@@ -28,7 +29,9 @@ to ensure appropriate application of adult BMI categories.
 \item 1: Underweight: BMI < 18.5 kg/m²
 \item 2: Normal weight: BMI 18.5 to < 25 kg/m²
 \item 3: Overweight: BMI 25 to < 30 kg/m²
-\item 4: Obese: BMI ≥ 30 kg/m²
+\item 4: Obese class 1: BMI 30 to < 35 kg/m²
+\item 5: Obese class 2: BMI 35 to < 40 kg/m²
+\item 6: Obese class 3: BMI >= 40 kg/m²
 }
 
 \strong{Age Considerations:}
@@ -36,6 +39,15 @@ The function will warn if any individuals are under
 18 years old, as standard adult BMI categories may not be appropriate for
 children and adolescents.
 }
+\section{Custom bands}{
+
+Set \code{options(scicalc.bmic_config = )} to a data frame of custom bands
+with columns \code{label}, \code{min} (lower bound), and \code{code} to
+replace the WHO bands entirely. Bands are half-open \code{[min, next min)}
+with the top band open-ended; BMI values below the lowest \code{min} return
+the missing value. The \code{category_standard} attribute is then "custom".
+}
+
 \examples{
 patients <- data.frame(
   ID = 1:6,

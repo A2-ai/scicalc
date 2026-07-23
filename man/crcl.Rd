@@ -45,8 +45,8 @@ df <- data.frame(
   "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
+df <- df |>
+  dplyr::group_by(ID) |>
   dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
 df
 }

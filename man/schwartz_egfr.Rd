@@ -15,7 +15,9 @@ schwartz_egfr(height, creat)
 eGFR in mL/min/1.73m^2
 }
 \description{
-Calculate eGFR Using Schwartz Equation
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=egfr]{egfr()}} with \code{method = "Schwartz"}.
 }
 \details{
 The Schwartz equation for pediatric eGFR:
@@ -28,7 +30,7 @@ where:
 }
 }
 \examples{
-schwartz_egfr(100, 1)
+egfr(FALSE, FALSE, 10, 1, height = 100, method = "Schwartz")
 }
 \seealso{
 Other renal_function: 
@@ -42,3 +44,4 @@ Other renal_function:
 \code{\link{rfc}()}
 }
 \concept{renal_function}
+\keyword{internal}

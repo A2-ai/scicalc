@@ -1,6 +1,6 @@
 test_that("aibw sets units attribute", {
   result <- aibw(70, 170, 0, 25)
-  expect_equal(attr(result, "units"), "kg")
+  expect_equal(attr(result, "scicalc_units"), "kg")
 })
 
 test_that("aibw works for basic calculations", {
@@ -19,7 +19,7 @@ test_that("aibw works for basic calculations", {
   # Verify mathematical correctness: AIBW = IBW + 0.4 * (weight - IBW)
   ibw_values <- ibw(heights, sexes, ages)
   expected <- ibw_values + 0.4 * (weights - ibw_values)
-  expect_true(all(dplyr::near(results, expected)))
+  expect_true(all(dplyr::near(as.numeric(results), expected)))
 })
 
 test_that("aibw handles allow_tbw_lt_ibw parameter correctly", {
@@ -99,7 +99,7 @@ test_that("aibw can be used in a mutate", {
   )
 
   # Add AIBW using dplyr mutate (real-world usage)
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(AIBW = aibw(WEIGHT, HEIGHT, SEX, AGE))
 
   expect_length(df$AIBW, 8)
@@ -110,7 +110,7 @@ test_that("aibw can be used in a mutate", {
   expect_equal(df$AIBW[7], aibw(95, 168, 0, 45), ignore_attr = TRUE) # Overweight case
 
   # Test with both parameter variations in mutate
-  df_conservative <- df %>%
+  df_conservative <- df |>
     dplyr::mutate(
       AIBW_CONSERVATIVE = aibw(
         WEIGHT,

@@ -23,8 +23,8 @@ df <- data.frame(
   BILI = c(10, 15, 25, 40)
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
+df <- df |>
+  dplyr::group_by(ID) |>
   dplyr::mutate(BILIBL = convert_bili(BILI))
 df
 }

@@ -25,12 +25,15 @@ is_white(1)
 \seealso{
 Other demographics: 
 \code{\link{ethnicn}()},
+\code{\link{is_american_native}()},
 \code{\link{is_asian}()},
 \code{\link{is_black}()},
 \code{\link{is_female}()},
 \code{\link{is_hispanic_or_latino}()},
 \code{\link{is_not_hispanic_or_latino}()},
 \code{\link{is_other}()},
+\code{\link{is_pacific_islander}()},
+\code{\link{is_unspecified}()},
 \code{\link{racen}()},
 \code{\link{sexf}()}
 }

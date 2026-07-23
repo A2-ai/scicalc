@@ -7,13 +7,13 @@ test_that("egfr with ckdepi 2009 method works and can be used in a mutate", {
     "AGE" = c(24, 24, 23, 24),
     "CREAT" = c(1, 1, 2, 1)
   )
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       ckdepi_2009_egfr = egfr(SEXN, RACEN, AGE, CREAT, method = "CKDEPI 2009")
     )
 
   expect_equal(
-    df$ckdepi_2009_egfr %>% round(3),
+    df$ckdepi_2009_egfr |> round(3),
     c(104.877, 78.790, 52.950, 78.790),
     ignore_attr = TRUE
   )
@@ -26,7 +26,7 @@ test_that("egfr with MDRD method works and can be used in a mutate", {
     "AGE" = c(24, 24, 23, 24),
     "CREAT" = c(1, 1, 2, 1)
   )
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       mdrd_egfr = egfr(
         sexf = SEXN,
@@ -38,7 +38,7 @@ test_that("egfr with MDRD method works and can be used in a mutate", {
     )
 
   expect_equal(
-    df$mdrd_egfr %>% round(3),
+    df$mdrd_egfr |> round(3),
     c(91.803, 68.118, 50.434, 68.118),
     ignore_attr = TRUE
   )
@@ -52,7 +52,7 @@ test_that("egfr with ckdepi_2021_egfr_cystatin can be used in a mutate", {
     "CREAT" = c(1, 1, 2, 1),
     "CYSTC" = c(0.4, 0.8, 1, 2)
   )
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       ckdepi_2021_egfr = egfr(
         sexf = SEXN,
@@ -64,7 +64,7 @@ test_that("egfr with ckdepi_2021_egfr_cystatin can be used in a mutate", {
     )
 
   expect_equal(
-    df$ckdepi_2021_egfr %>% round(3),
+    df$ckdepi_2021_egfr |> round(3),
     c(145.193, 97.491, 67.182, 47.793),
     ignore_attr = TRUE
   )
@@ -79,7 +79,7 @@ test_that("egfr with schwartz_egfr can be used in a mutate", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c(174, 186, 201, 193)
   )
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       schwartz_egfr = egfr(
         sexf = SEXN,
@@ -93,7 +93,7 @@ test_that("egfr with schwartz_egfr can be used in a mutate", {
     )
 
   expect_equal(
-    df$schwartz_egfr %>% round(3),
+    df$schwartz_egfr |> round(3),
     c(71.862, 76.818, 41.506, 79.709),
     ignore_attr = TRUE
   )
@@ -149,22 +149,22 @@ test_that("egfr messages about <18 being used in non schwartz methods", {
 
 test_that("egfr functions set units attribute to mL/min/1.73m^2", {
   # Test each method
-  result_2009 <- ckdepi_2009_egfr(TRUE, FALSE, 30, 1.0)
-  expect_equal(attr(result_2009, "units"), "mL/min/1.73m^2")
+  result_2009 <- .egfr_ckdepi_2009(TRUE, FALSE, 30, 1.0)
+  expect_equal(attr(result_2009, "scicalc_units"), "mL/min/1.73m^2")
 
-  result_2021 <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  expect_equal(attr(result_2021, "units"), "mL/min/1.73m^2")
+  result_2021 <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
+  expect_equal(attr(result_2021, "scicalc_units"), "mL/min/1.73m^2")
 
-  result_cystatin <- ckdepi_2021_egfr_cystatin(TRUE, 30, 1.0, 0.8)
-  expect_equal(attr(result_cystatin, "units"), "mL/min/1.73m^2")
+  result_cystatin <- .egfr_ckdepi_2021_cystatin(TRUE, 30, 1.0, 0.8)
+  expect_equal(attr(result_cystatin, "scicalc_units"), "mL/min/1.73m^2")
 
-  result_mdrd <- mdrd_egfr(TRUE, FALSE, 30, 1.0)
-  expect_equal(attr(result_mdrd, "units"), "mL/min/1.73m^2")
+  result_mdrd <- .egfr_mdrd(TRUE, FALSE, 30, 1.0)
+  expect_equal(attr(result_mdrd, "scicalc_units"), "mL/min/1.73m^2")
 
-  result_schwartz <- schwartz_egfr(150, 1.0)
-  expect_equal(attr(result_schwartz, "units"), "mL/min/1.73m^2")
+  result_schwartz <- .egfr_schwartz(150, 1.0)
+  expect_equal(attr(result_schwartz, "scicalc_units"), "mL/min/1.73m^2")
 
   # Test via main egfr() dispatcher
   result_main <- egfr(TRUE, FALSE, 30, 1.0, method = "CKDEPI 2021")
-  expect_equal(attr(result_main, "units"), "mL/min/1.73m^2")
+  expect_equal(attr(result_main, "scicalc_units"), "mL/min/1.73m^2")
 })

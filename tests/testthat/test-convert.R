@@ -1,6 +1,6 @@
 test_that("convert_alb sets units attribute", {
   result <- convert_alb(40)
-  expect_equal(attr(result, "units"), "g/dL")
+  expect_equal(attr(result, "scicalc_units"), "g/dL")
 })
 
 test_that("convert_alb converts g/L to g/dL", {
@@ -23,7 +23,7 @@ test_that("convert_alb handles missing values", {
 
 test_that("convert_bili sets units attribute", {
   result <- convert_bili(17.1)
-  expect_equal(attr(result, "units"), "mg/dL")
+  expect_equal(attr(result, "scicalc_units"), "mg/dL")
 })
 
 test_that("convert_bili converts umol/L to mg/dL", {
@@ -49,7 +49,7 @@ test_that("convert_bili handles missing values", {
 
 test_that("convert_creat sets units attribute", {
   result <- convert_creat(88.4)
-  expect_equal(attr(result, "units"), "mg/dL")
+  expect_equal(attr(result, "scicalc_units"), "mg/dL")
 })
 
 test_that("convert_creat converts umol/L to mg/dL", {
@@ -71,4 +71,10 @@ test_that("convert_creat handles missing values", {
   result <- suppressMessages(convert_creat(c(88.4, NA)))
   expect_equal(result[1], 1, tolerance = 0.01, ignore_attr = TRUE)
   expect_true(is.na(result[2]))
+})
+
+test_that("convert_* preserve the missing-value sentinel", {
+  expect_equal(suppressMessages(convert_alb(c(40, -999))), c(4, -999), ignore_attr = TRUE)
+  expect_equal(suppressMessages(convert_bili(c(17.1, -999)))[2], -999, ignore_attr = TRUE)
+  expect_equal(suppressMessages(convert_creat(c(88.42, -999)))[2], -999, ignore_attr = TRUE)
 })

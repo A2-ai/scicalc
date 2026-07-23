@@ -15,11 +15,13 @@
 #'   ALB = c(35, 40, 28, 45)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(ALBBL = convert_alb(ALB))
 #' df
 convert_alb <- function(alb) {
+  alb_input <- mask_missing_computation_input(alb, "alb")
+  alb <- alb_input$value
   checkmate::assertNumeric(alb)
 
   if (any(is.na(alb))) {
@@ -27,7 +29,8 @@ convert_alb <- function(alb) {
   }
 
   alb_gdl <- alb / 10
-  attr(alb_gdl, "units") <- "g/dL"
+  alb_gdl <- apply_mv_mask(alb_gdl, alb_input$mask)
+  attr(alb_gdl, "scicalc_units") <- "g/dL"
   return(alb_gdl)
 }
 
@@ -48,11 +51,13 @@ convert_alb <- function(alb) {
 #'   BILI = c(10, 15, 25, 40)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(BILIBL = convert_bili(BILI))
 #' df
 convert_bili <- function(bili) {
+  bili_input <- mask_missing_computation_input(bili, "bili")
+  bili <- bili_input$value
   checkmate::assertNumeric(bili)
 
   if (any(is.na(bili))) {
@@ -63,7 +68,8 @@ convert_bili <- function(bili) {
   # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
   conversion_factor <- mol_weight_bili / 10^4
   bili_mgdl <- bili * conversion_factor
-  attr(bili_mgdl, "units") <- "mg/dL"
+  bili_mgdl <- apply_mv_mask(bili_mgdl, bili_input$mask)
+  attr(bili_mgdl, "scicalc_units") <- "mg/dL"
   return(bili_mgdl)
 }
 
@@ -84,11 +90,13 @@ convert_bili <- function(bili) {
 #'   CREAT = c(70, 90, 110, 130)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(CREATBL = convert_creat(CREAT))
 #' df
 convert_creat <- function(creat) {
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  creat <- creat_input$value
   checkmate::assertNumeric(creat)
 
   if (any(is.na(creat))) {
@@ -99,6 +107,7 @@ convert_creat <- function(creat) {
   # 1 umol/L * MW g/mol * mol / 10^6 umol * 10^3 mg /g * L / 10 dL
   conversion_factor <- mol_weight_creat / 10^4
   creat_mgdl <- creat * conversion_factor
-  attr(creat_mgdl, "units") <- "mg/dL"
+  creat_mgdl <- apply_mv_mask(creat_mgdl, creat_input$mask)
+  attr(creat_mgdl, "scicalc_units") <- "mg/dL"
   return(creat_mgdl)
 }

@@ -22,13 +22,12 @@ test_that("aegfr handles vectorized input", {
 
 test_that("aegfr sets units attribute to mL/min", {
   result <- aegfr(90, 1.8)
-  expect_equal(attr(result, "units"), "mL/min")
+  expect_equal(attr(result, "scicalc_units"), "mL/min")
 })
 
 test_that("aegfr warns and returns unchanged if input already has absolute units", {
-  # Create input with absolute units attribute
   input <- 90
- attr(input, "units") <- "mL/min"
+  attr(input, "scicalc_units") <- "mL/min"
 
   expect_warning(
     result <- aegfr(input, 1.8),
@@ -36,8 +35,8 @@ test_that("aegfr warns and returns unchanged if input already has absolute units
   )
 
   # Should return unchanged
- expect_equal(as.numeric(result), 90)
-  expect_equal(attr(result, "units"), "mL/min")
+  expect_equal(as.numeric(result), 90)
+  expect_equal(attr(result, "scicalc_units"), "mL/min")
 })
 
 test_that("aegfr handles missing values", {
@@ -50,9 +49,9 @@ test_that("aegfr handles missing values", {
 
 test_that("aegfr preserves units attribute through pipeline from egfr()", {
   # Simulate pipeline: egfr() -> aegfr()
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  expect_equal(attr(egfr_result, "units"), "mL/min/1.73m^2")
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
+  expect_equal(attr(egfr_result, "scicalc_units"), "mL/min/1.73m^2")
 
   aegfr_result <- aegfr(egfr_result, 1.8)
-  expect_equal(attr(aegfr_result, "units"), "mL/min")
+  expect_equal(attr(aegfr_result, "scicalc_units"), "mL/min")
 })

@@ -23,8 +23,8 @@ df <- data.frame(
   ALB = c(35, 40, 28, 45)
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
+df <- df |>
+  dplyr::group_by(ID) |>
   dplyr::mutate(ALBBL = convert_alb(ALB))
 df
 }

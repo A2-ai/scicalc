@@ -17,7 +17,9 @@ write_parquet_with_hash(data, parquet_path, ...)
 Nothing. creates parquet_path file and prints hash
 }
 \description{
-Write Parquet File with Hash Output
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=write_file_with_hash]{write_file_with_hash()}}.
 }
 \examples{
 \dontrun{
@@ -25,7 +27,7 @@ df <- data.frame(
   "a" = c(1, 2, 3, 4)
   "b" = c("A", "B", "C", "D")
 )
-write_parquet_with_hash(df, "test/test.parquet")
+write_file_with_hash(df, "test/test.parquet")
 }
 }
 \seealso{
@@ -42,3 +44,4 @@ Other file_io:
 \code{\link{write_file_with_hash}()}
 }
 \concept{file_io}
+\keyword{internal}

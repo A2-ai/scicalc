@@ -7,7 +7,10 @@
 #'
 #' @param estimator Numeric vector of renal function estimator values (eGFR, CrCL, etc.)
 #' @param absolute_units Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
-#'   or mL/min/1.73m² (\code{FALSE})
+#'   or mL/min/1.73m² (\code{FALSE}). When supplied it is used as-is; when
+#'   \code{NULL} (default) it is inferred from the estimator's
+#'   \code{"scicalc_units"} attribute (as tagged by \code{egfr()}/\code{aegfr()}),
+#'   erroring if there is none.
 #' @param bsa Numeric vector of body surface area in m² for unit conversion. Required when
 #'   converting between absolute and relative units
 #' @param category_standard Character string specifying categorization standard:
@@ -40,7 +43,8 @@
 #' }
 #'
 #' @return Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-#'   Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+#'   Returns the value of \code{getOption("scicalc.missing_value")} (default \code{-999})
+#'   for missing values. Includes a \code{category_standard} attribute
 #'   indicating the source ("FDA" or "KDIGO").
 #'
 #' @references
@@ -86,7 +90,7 @@
 #' )
 #'
 #' library(dplyr)
-#' df %>%
+#' df <- df |>
 #'   mutate(
 #'     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
 #'     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
@@ -109,21 +113,20 @@ rfc <- function(
   checkmate::assert_numeric(estimator, null.ok = FALSE)
   category_standard <- match.arg(category_standard)
 
-
-  # Infer units from attribute if present
-  input_units <- attr(estimator, "units")
-  if (!is.null(input_units)) {
-    inferred_absolute <- (input_units == "mL/min")
-    if (!is.null(absolute_units) && absolute_units != inferred_absolute) {
-      warning(
-        "Provided absolute_units (", absolute_units, ") conflicts with input units attribute (",
-        input_units, "). Using attribute."
-      )
+  # An explicit absolute_units wins. Only when it is not supplied do we fall
+  # back to the units attribute tagged by egfr()/aegfr().
+  if (is.null(absolute_units)) {
+    input_units <- attr(estimator, "scicalc_units")
+    if (is.null(input_units)) {
+      rlang::abort("Must supply absolute_units when input has no units attribute.")
     }
-    absolute_units <- inferred_absolute
-  } else if (is.null(absolute_units)) {
-    stop("Must supply absolute_units when input has no units attribute.")
+    absolute_units <- (input_units == "mL/min")
   }
+
+  # Now estimator is plain numeric — safe for sentinel checks
+  mv_est <- check_mv_computation(estimator, "estimator")
+  estimator[mv_est] <- NA
+  mv_bsa <- NULL
 
   if (category_standard == "clinical") {
     if (!absolute_units) {
@@ -131,13 +134,15 @@ rfc <- function(
     } else {
       checkmate::assert_numeric(bsa, null.ok = FALSE)
       if (any(!is.na(estimator) & is.na(bsa))) {
-        stop("bsa cannot be missing when absolute_est has values")
+        rlang::abort("bsa cannot be missing when absolute_est has values")
       }
+      mv_bsa <- check_mv_computation(bsa, "bsa")
+      bsa[mv_bsa] <- NA
       rel_est <- convert_abs_to_rel(estimator, bsa)
     }
 
     if (any(is.na(rel_est))) {
-      message("Estimator input has missing values")
+      rlang::inform("Estimator input has missing values")
     }
 
     rfc <- clinical_rfc(rel_est)
@@ -147,17 +152,20 @@ rfc <- function(
     } else {
       checkmate::assert_numeric(bsa, null.ok = FALSE)
       if (any(!is.na(estimator) & is.na(bsa))) {
-        stop("bsa cannot be missing when relative_est has values")
+        rlang::abort("bsa cannot be missing when relative_est has values")
       }
+      mv_bsa <- check_mv_computation(bsa, "bsa")
+      bsa[mv_bsa] <- NA
       abs_est <- convert_rel_to_abs(estimator, bsa)
     }
 
     if (any(is.na(abs_est))) {
-      message("Estimator input has missing values")
+      rlang::inform("Estimator input has missing values")
     }
 
     rfc <- regulatory_rfc(abs_est)
   }
+  rfc <- apply_mv_mask(rfc, mv_est, mv_bsa)
   attr(rfc, "category_standard") <- if (category_standard == "clinical") "KDIGO" else "FDA"
   return(rfc)
 }
@@ -170,7 +178,7 @@ clinical_rfc <- function(relative_est) {
     relative_est >= 30 ~ 3,
     relative_est >= 15 ~ 4,
     relative_est < 15 ~ 5,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
   rfc
 }
@@ -182,7 +190,7 @@ regulatory_rfc <- function(absolute_est) {
     absolute_est >= 60 ~ 2,
     absolute_est >= 30 ~ 3,
     absolute_est < 30 ~ 4,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
   rfc
 }

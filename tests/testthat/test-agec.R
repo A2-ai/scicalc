@@ -61,11 +61,19 @@ test_that("agec works with dplyr operations", {
     SEX = c("M", "F", "M", "F")
   )
 
-  df <- df %>%
-    dplyr::group_by(SEX) %>%
+  df <- df |>
+    dplyr::group_by(SEX) |>
     dplyr::mutate(AGEC = agec(AGE))
 
   expect_equal(df$AGEC, c(5, 5, 4, 6), ignore_attr = TRUE)
+})
+
+test_that("agec warns and masks when age contains missing value sentinel", {
+  expect_warning(
+    result <- agec(c(25, -999)),
+    "age contains missing value indicator"
+  )
+  expect_equal(result, c(5, -999), ignore_attr = TRUE)
 })
 
 test_that("agec handles edge cases and invalid inputs", {
@@ -91,4 +99,29 @@ test_that("agec handles edge cases and invalid inputs", {
   expect_equal(suppressWarnings(agec(28 / 365)), 2, ignore_attr = TRUE) # Exactly 28 days should be infant
   expect_equal(suppressWarnings(agec(27 / 365)), 1, ignore_attr = TRUE) # 27 days should be neonate
   expect_equal(agec(29 / 365), 2, ignore_attr = TRUE) # 29 days should be infant
+})
+
+test_that("agec uses a custom band config when scicalc.agec_config is set", {
+  withr::local_options(scicalc.agec_config = data.frame(
+    label = c("child", "adult", "senior"),
+    min = c(0, 18, 65),
+    code = c(1, 2, 3)
+  ))
+  result <- agec(c(5, 30, 70))
+  expect_equal(as.numeric(result), c(1, 2, 3))
+  expect_equal(attr(result, "category_standard"), "custom")
+})
+
+test_that("agec custom config: values below the lowest band are the missing value", {
+  withr::local_options(scicalc.agec_config = data.frame(
+    label = "adult", min = 18, code = 2
+  ))
+  expect_equal(as.numeric(agec(10)), getOption("scicalc.missing_value", -999))
+})
+
+test_that("agec rejects a malformed band config", {
+  withr::local_options(scicalc.agec_config = data.frame(
+    label = "x", min = "a", code = 1
+  ))
+  expect_error(agec(30), "scicalc.agec_config\\$min")
 })

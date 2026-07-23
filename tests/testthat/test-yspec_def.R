@@ -40,14 +40,49 @@ test_that("racen returns expected value for asian", {
   expect_equal(racen("asian"), 3)
 })
 
-test_that("racen returns expected value for other", {
-  expect_equal(racen("OTHER"), 4)
-  expect_equal(racen("other"), 4)
+test_that("racen returns expected value for american native", {
+  expect_equal(racen("AMERICAN INDIAN OR ALASKA NATIVE"), 4)
+  expect_equal(racen("american native"), 4)
+  expect_equal(racen("Native American"), 4)
 })
 
-test_that("racen returns expected value for default", {
+test_that("racen returns expected value for pacific islander", {
+  expect_equal(racen("NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER"), 5)
+  expect_equal(racen("pacific islander"), 5)
+  expect_equal(racen("Native Hawaiian"), 5)
+})
+
+test_that("racen returns expected value for other", {
+  expect_equal(racen("OTHER"), 6)
+  expect_equal(racen("other"), 6)
+})
+
+test_that("racen maps unknown and NA to the missing value", {
   expect_equal(racen("unknown"), -999)
-  expect_equal(racen("random input"), -999)
+  expect_equal(racen(NA_character_), -999)
+})
+
+test_that("racen warns and returns NA for unspecified values", {
+  expect_warning(
+    result <- racen("random input"),
+    "Unspecified race value"
+  )
+  expect_true(is.na(result))
+})
+
+test_that("racen honors scicalc.racen_config overrides and additions", {
+  withr::local_options(scicalc.racen_config = c("WHITE" = 2, "JAPANESE" = 7))
+
+  expect_equal(racen("WHITE"), 2)
+  expect_equal(racen("JAPANESE"), 7)
+  expect_equal(racen("BLACK"), 2)
+  # a configured novel category is not flagged as unspecified
+  expect_silent(racen("japanese"))
+})
+
+test_that("racen rejects an invalid racen_config", {
+  withr::local_options(scicalc.racen_config = c(1, 2))
+  expect_error(racen("WHITE"))
 })
 
 

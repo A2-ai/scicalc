@@ -21,11 +21,15 @@ converting between absolute and relative units}
 \code{"regulatory"} (default) or \code{"clinical"}}
 
 \item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
-or mL/min/1.73m² (\code{FALSE})}
+or mL/min/1.73m² (\code{FALSE}). When supplied it is used as-is; when
+\code{NULL} (default) it is inferred from the estimator's
+\code{"scicalc_units"} attribute (as tagged by \code{egfr()}/\code{aegfr()}),
+erroring if there is none.}
 }
 \value{
 Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+Returns the value of \code{getOption("scicalc.missing_value")} (default \code{-999})
+for missing values. Includes a \code{category_standard} attribute
 indicating the source ("FDA" or "KDIGO").
 }
 \description{
@@ -90,7 +94,7 @@ df <- data.frame(
 )
 
 library(dplyr)
-df \%>\%
+df <- df |>
   mutate(
     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),

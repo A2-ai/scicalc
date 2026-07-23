@@ -22,19 +22,15 @@ get_unique_units_df <- function(params, units) {
   checkmate::assertCharacter(params)
   checkmate::assertCharacter(units)
 
-  df <- data.frame(
+  df <- dplyr::distinct(data.frame(
     PARAM = params,
     UNIT = units
-  ) %>%
-    dplyr::distinct()
+  ))
 
   df$UNIT <- stringr::str_replace_all(df$UNIT, "\U03BC", "u")
   df$UNIT <- stringr::str_replace_all(df$UNIT, "IU", "U")
 
-  df <- df %>%
-    dplyr::distinct()
-
-  df
+  dplyr::distinct(df)
 }
 
 #' Check for Unique Units per Parameter

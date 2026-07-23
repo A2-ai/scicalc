@@ -19,8 +19,11 @@
 #' round_like(123.456, ref = 12.34)    # -> 123.5
 #' round_like(123.456)                 # -> 123.456
 round_like <- function(x, ref = NULL, sdig = NULL) {
+  missing_mask <- is_missing_value(x)
+
   if (!is.null(sdig)) {
-    return(signif(x, sdig))
+    out <- signif(x, sdig)
+    return(apply_mv_mask(out, missing_mask))
   }
   if (!is.null(ref)) {
     # Helper to infer number of significant digits from numeric input
@@ -38,9 +41,10 @@ round_like <- function(x, ref = NULL, sdig = NULL) {
 
     sdig_ref <- infer_sigfigs(ref)
     sdig_use <- ifelse(length(sdig_ref) == 0, 0, min(sdig_ref, na.rm = TRUE))
-    return(signif(x, sdig_use))
+    out <- signif(x, sdig_use)
+    return(apply_mv_mask(out, missing_mask))
   }
   if (is.null(sdig) && is.null(ref)) {
-    return(x)
+    return(apply_mv_mask(x, missing_mask))
   }
 }

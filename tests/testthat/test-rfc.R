@@ -155,9 +155,8 @@ test_that("rfc validates required parameters", {
 })
 
 test_that("rfc infers absolute_units from input attribute", {
-  # Create input with relative units attribute (from egfr())
-  relative_input <- 60
-  attr(relative_input, "units") <- "mL/min/1.73m^2"
+  # Create input with relative units (from egfr())
+  relative_input <- structure(60, scicalc_units = "mL/min/1.73m^2")
 
   # Should infer absolute_units = FALSE and use clinical pathway without bsa
   expect_equal(
@@ -166,41 +165,28 @@ test_that("rfc infers absolute_units from input attribute", {
     ignore_attr = TRUE
   )
 
-  # Create input with absolute units attribute (from aegfr())
-  absolute_input <- 60
-  attr(absolute_input, "units") <- "mL/min"
+  # Create input with absolute units (from aegfr())
+  absolute_input <- structure(60, scicalc_units = "mL/min")
 
   # Should infer absolute_units = TRUE and use regulatory pathway
 
   expect_equal(rfc(estimator = absolute_input), 2, ignore_attr = TRUE)
 })
 
-test_that("rfc warns when absolute_units conflicts with attribute", {
-  # Create input with relative units
-  relative_input <- 60
-  attr(relative_input, "units") <- "mL/min/1.73m^2"
-
-  # Providing absolute_units = TRUE should warn and use attribute
-  expect_warning(
-    rfc(estimator = relative_input, absolute_units = TRUE, bsa = 1.73),
-    "conflicts with input units attribute"
+test_that("an explicit absolute_units wins over the units attribute", {
+  # Attribute says relative, but the caller explicitly declares absolute: the
+  # explicit flag is used, no warning, no attribute override.
+  tagged <- structure(60, scicalc_units = "mL/min/1.73m^2")
+  expect_no_warning(
+    result <- rfc(estimator = tagged, absolute_units = TRUE)
   )
-
-  # Create input with absolute units
-  absolute_input <- 60
-  attr(absolute_input, "units") <- "mL/min"
-
-  # Providing absolute_units = FALSE should warn and use attribute
-  expect_warning(
-    rfc(estimator = absolute_input, absolute_units = FALSE, bsa = 1.73),
-    "conflicts with input units attribute"
-  )
+  expect_equal(result, rfc(estimator = 60, absolute_units = TRUE), ignore_attr = TRUE)
 })
 
 test_that("rfc works with egfr() output directly", {
   # Simulate pipeline: egfr() -> rfc()
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
-  expect_equal(attr(egfr_result, "units"), "mL/min/1.73m^2")
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
+  expect_equal(attr(egfr_result, "scicalc_units"), "mL/min/1.73m^2")
 
   # rfc should infer units from attribute
   rfc_result <- rfc(egfr_result, category_standard = "clinical")
@@ -209,13 +195,41 @@ test_that("rfc works with egfr() output directly", {
 
 test_that("rfc works with aegfr() output directly", {
   # Simulate pipeline: egfr() -> aegfr() -> rfc()
-  egfr_result <- ckdepi_2021_egfr(TRUE, 30, 1.0)
+  egfr_result <- .egfr_ckdepi_2021(TRUE, 30, 1.0)
   aegfr_result <- aegfr(egfr_result, 1.8)
-  expect_equal(attr(aegfr_result, "units"), "mL/min")
+  expect_equal(attr(aegfr_result, "scicalc_units"), "mL/min")
 
   # rfc should infer units from attribute
   rfc_result <- rfc(aegfr_result)
   expect_true(rfc_result %in% 1:4)
+})
+
+test_that("rfc warns and masks when estimator contains missing value sentinel", {
+  expect_warning(
+    result <- rfc(estimator = c(90, -999), absolute_units = TRUE),
+    "estimator contains missing value indicator"
+  )
+  expect_equal(result, c(1, -999), ignore_attr = TRUE)
+})
+
+test_that("rfc warns and masks when bsa contains missing value sentinel and bsa is used", {
+  # regulatory + relative units → bsa IS used for conversion
+  expect_warning(
+    result <- rfc(estimator = c(90, 60), absolute_units = FALSE, bsa = c(1.73, -999)),
+    "bsa contains missing value indicator"
+  )
+  expect_equal(result[2], -999, ignore_attr = TRUE)
+})
+
+test_that("rfc ignores bsa sentinel when bsa is not used for conversion", {
+  # regulatory + absolute units → bsa is not used, sentinel should not mask
+  result <- rfc(estimator = c(90, 60), absolute_units = TRUE, bsa = c(1.73, -999))
+  expect_equal(result, c(1, 2), ignore_attr = TRUE)
+
+  # clinical + relative units → bsa is not used, sentinel should not mask
+  result <- rfc(estimator = c(90, 60), absolute_units = FALSE,
+                bsa = c(1.73, -999), category_standard = "clinical")
+  expect_equal(result, c(1, 2), ignore_attr = TRUE)
 })
 
 test_that("rfc handles missing values correctly", {
@@ -239,6 +253,18 @@ test_that("rfc handles missing values correctly", {
     rfc(estimator = c(60, NA, 90), absolute_units = TRUE),
     "Estimator input has missing values"
   )
+})
+
+test_that("a foreign units attribute is ignored by rfc", {
+  # A non-scicalc `units` attribute (e.g. m^2 inherited through arithmetic from
+  # a BSA column) is not read by rfc, so it cannot flip the pathway.
+  stray <- structure(90, units = "m^2")
+  expect_no_warning(
+    result <- rfc(estimator = stray, absolute_units = TRUE)
+  )
+  expect_equal(result, rfc(estimator = 90, absolute_units = TRUE), ignore_attr = TRUE)
+  # and with no explicit flag, the foreign attribute does not satisfy inference
+  expect_error(rfc(estimator = stray), "Must supply absolute_units")
 })
 
 test_that("rfc conversion functions handle BSA validation correctly", {

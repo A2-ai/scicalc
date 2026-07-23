@@ -27,8 +27,9 @@
 #' values are very close to 1.5 × ULN or 3 × ULN to handle floating-point precision
 #' issues that can occur with calculated thresholds.
 #'
-#' @return Integer vector of hepatic function categories (1-4). Returns \code{-999}
-#'   for missing values.
+#' @return Integer vector of hepatic function categories (1-4). Returns the value of
+#'   \code{getOption("scicalc.missing_value")} (default \code{-999}) for
+#'   missing values.
 #'
 #' @family hepatic_function
 #'
@@ -59,7 +60,7 @@
 #'   ULNBILI = 1.2
 #' )
 #'
-#' patients %>%
+#' patients |>
 #'   mutate(BHFC = hfc(AST, ULNAST, BILI, ULNBILI))
 #'
 #' @export
@@ -69,17 +70,26 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
   checkmate::assertNumeric(bili)
   checkmate::assertNumeric(ulnbili)
 
+  mv_ast <- check_mv_computation(ast, "ast")
+  mv_ulnast <- check_mv_computation(ulnast, "ulnast")
+  mv_bili <- check_mv_computation(bili, "bili")
+  mv_ulnbili <- check_mv_computation(ulnbili, "ulnbili")
+  ast[mv_ast] <- NA
+  ulnast[mv_ulnast] <- NA
+  bili[mv_bili] <- NA
+  ulnbili[mv_ulnbili] <- NA
+
   if (any(is.na(ast))) {
-    message("AST contains missing values")
+    rlang::inform("AST contains missing values")
   }
   if (any(is.na(ulnast))) {
-    message("ULNAST contains missing values")
+    rlang::inform("ULNAST contains missing values")
   }
   if (any(is.na(bili))) {
-    message("BILI contains missing values")
+    rlang::inform("BILI contains missing values")
   }
   if (any(is.na(ulnbili))) {
-    message("ULNBILI contains missing values")
+    rlang::inform("ULNBILI contains missing values")
   }
 
   hfc <- dplyr::case_when(
@@ -96,8 +106,9 @@ hfc <- function(ast, ulnast, bili, ulnbili) {
     # CASE 4: Bilirubin > 3 × ULN
     bili > 3 * ulnbili ~ 4,
     # ELSE
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
+  hfc <- apply_mv_mask(hfc, mv_ast, mv_ulnast, mv_bili, mv_ulnbili)
   attr(hfc, "category_standard") <- "NCI-ODWG"
   return(hfc)
 }

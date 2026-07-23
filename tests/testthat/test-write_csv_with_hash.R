@@ -5,7 +5,7 @@ test_that("write_csv_with_hash creates a csv file", {
   )
   path <- "test.csv"
   expect_equal(!file.exists(path), TRUE)
-  write_csv_with_hash(df, path)
+  .write_csv_with_hash(df, path)
   expect_equal(file.exists(path), TRUE)
   unlink(path, recursive = TRUE)
 })
@@ -17,16 +17,28 @@ test_that("write_csv_with_hash prints a hash", {
   )
 
   path <- "test.csv"
-  write_csv_with_hash(df, path) #Generating file to digest it for hash to test output
+  .write_csv_with_hash(df, path) #Generating file to digest it for hash to test output
   md5_hash <- digest::digest(file = path)
   blake3_hash <- digest::digest(file = path, algo = "blake3")
 
-  expect_output(write_csv_with_hash(df, path), paste0("test.csv: ", md5_hash))
+  # blake3 is the default, matching the read functions
+  expect_output(.write_csv_with_hash(df, path), paste0("test.csv: ", blake3_hash))
   unlink(path, recursive = TRUE)
   expect_output(
-    write_csv_with_hash(df, path, algo = "blake3"),
-    paste0("test.csv: ", blake3_hash)
+    .write_csv_with_hash(df, path, algo = "md5"),
+    paste0("test.csv: ", md5_hash)
   )
+  unlink(path, recursive = TRUE)
+})
+
+test_that("write_csv_with_hash forwards write_csv arguments", {
+  df <- data.frame(
+    "a" = c(1, 2, 3, 4),
+    "b" = c("A", "B", "C", "D")
+  )
+  path <- "test.csv"
+  .write_csv_with_hash(df, path, eol = "\r\n")
+  expect_true(grepl("\r\n", readChar(path, file.size(path), useBytes = TRUE)))
   unlink(path, recursive = TRUE)
 })
 
@@ -36,5 +48,5 @@ test_that("write_csv_with_hash fails for wrong file type", {
     "b" = c("A", "B", "C", "D")
   )
   path <- "test.parquet"
-  expect_error(write_csv_with_hash(df, path))
+  expect_error(.write_csv_with_hash(df, path))
 })

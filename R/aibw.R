@@ -45,6 +45,15 @@ aibw <- function(
   allow_ibw_lt_intercept = TRUE,
   allow_tbw_lt_ibw = TRUE
 ) {
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  height_input <- mask_missing_computation_input(height, "height")
+  sexf_input <- mask_missing_computation_input(sexf, "sexf")
+  age_input <- mask_missing_computation_input(age, "age")
+  weight <- weight_input$value
+  height <- height_input$value
+  sexf <- sexf_input$value
+  age <- age_input$value
+
   checkmate::assert_numeric(weight)
 
   input_lengths <- lengths(list(weight, height, sexf, age))
@@ -64,6 +73,9 @@ aibw <- function(
   }
 
   aibw <- ideal_bw + 0.4 * mult
-  attr(aibw, "units") <- "kg"
+  aibw <- apply_mv_mask(
+    aibw, weight_input$mask, height_input$mask, sexf_input$mask, age_input$mask
+  )
+  attr(aibw, "scicalc_units") <- "kg"
   return(aibw)
 }
