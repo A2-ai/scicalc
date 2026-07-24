@@ -32,14 +32,4 @@ where:
 \examples{
 mosteller_bsa <- bsa(70, 170, method = "Mosteller")
 }
-\seealso{
-Other body_composition: 
-\code{\link{aibw}()},
-\code{\link{bmi}()},
-\code{\link{bmic}()},
-\code{\link{bsa}()},
-\code{\link{dubois_bsa}()},
-\code{\link{ibw}()}
-}
-\concept{body_composition}
 \keyword{internal}

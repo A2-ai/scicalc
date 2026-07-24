@@ -11,7 +11,8 @@ bsa(weight, height, method = "Dubois")
 
 \item{height}{height of a subject (cm)}
 
-\item{method}{String to dictate which equation to use. Dubois or Mosteller.}
+\item{method}{equation to use: \link[=.bsa_dubois]{bsa(method = "Dubois")} or
+\link[=.bsa_mosteller]{bsa(method = "Mosteller")}.}
 }
 \value{
 bsa (m^2)
@@ -25,12 +26,14 @@ bsa(70, 170, method = "Mosteller")
 bsa(70, 170, method = "Dubois")
 }
 \seealso{
+The method implementations:
+\link[=.bsa_dubois]{bsa(method = "Dubois")},
+\link[=.bsa_mosteller]{bsa(method = "Mosteller")}.
+
 Other body_composition: 
 \code{\link{aibw}()},
 \code{\link{bmi}()},
 \code{\link{bmic}()},
-\code{\link{dubois_bsa}()},
-\code{\link{ibw}()},
-\code{\link{mosteller_bsa}()}
+\code{\link{ibw}()}
 }
 \concept{body_composition}

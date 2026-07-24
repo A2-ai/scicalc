@@ -53,8 +53,6 @@ Other body_composition:
 \code{\link{aibw}()},
 \code{\link{bmi}()},
 \code{\link{bmic}()},
-\code{\link{bsa}()},
-\code{\link{dubois_bsa}()},
-\code{\link{mosteller_bsa}()}
+\code{\link{bsa}()}
 }
 \concept{body_composition}

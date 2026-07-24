@@ -1,9 +1,14 @@
 #' Calculate Body Surface Area
 #' @param weight weight of a subject (kg)
 #' @param height height of a subject (cm)
-#' @param method String to dictate which equation to use. Dubois or Mosteller.
+#' @param method equation to use: [bsa(method = "Dubois")][.bsa_dubois] or
+#'   [bsa(method = "Mosteller")][.bsa_mosteller].
 #'
 #' @return bsa (m^2)
+#'
+#' @seealso The method implementations:
+#'   [bsa(method = "Dubois")][.bsa_dubois],
+#'   [bsa(method = "Mosteller")][.bsa_mosteller].
 #'
 #' @family body_composition
 #' @export
@@ -23,7 +28,26 @@ bsa <- function(weight, height, method = "Dubois") {
   return(bsa)
 }
 
-#' @noRd
+#' Du Bois body surface area equation
+#'
+#' The equation used by [bsa()] with `method = "Dubois"`.
+#'
+#' @param weight weight of subject (kg)
+#' @param height height of subject (cm)
+#'
+#' @details
+#' The Du Bois equation for BSA:
+#' \deqn{BSA = 0.007184 \cdot W^{0.425} \cdot H^{0.725}}{BSA = 0.007184 * W^0.425 * H^0.725}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{H} = height (cm)
+#' }
+#'
+#' @return the body surface area (m^2)
+#'
+#' @keywords internal
 .bsa_dubois <- function(weight, height) {
   weight_input <- mask_missing_computation_input(weight, "weight")
   height_input <- mask_missing_computation_input(height, "height")
@@ -53,7 +77,26 @@ bsa <- function(weight, height, method = "Dubois") {
   return(bsa)
 }
 
-#' @noRd
+#' Mosteller body surface area equation
+#'
+#' The equation used by [bsa()] with `method = "Mosteller"`.
+#'
+#' @param weight weight of subject (kg)
+#' @param height height of subject (cm)
+#'
+#' @details
+#' The Mosteller equation for BSA:
+#' \deqn{BSA = \sqrt{\frac{W \cdot H}{3600}}}{BSA = sqrt(W * H / 3600)}
+#'
+#' where:
+#' \itemize{
+#'   \item \eqn{W} = weight (kg)
+#'   \item \eqn{H} = height (cm)
+#' }
+#'
+#' @return the body surface area (m^2)
+#'
+#' @keywords internal
 .bsa_mosteller <- function(weight, height) {
   weight_input <- mask_missing_computation_input(weight, "weight")
   height_input <- mask_missing_computation_input(height, "height")
@@ -104,7 +147,6 @@ bsa <- function(weight, height, method = "Dubois") {
 #'
 #' @return the body surface area (m^2)
 #'
-#' @family body_composition
 #' @keywords internal
 #' @export
 #'
@@ -142,7 +184,6 @@ dubois_bsa <- function(weight, height) {
 #'
 #' @return the body surface area (m^2)
 #'
-#' @family body_composition
 #' @keywords internal
 #' @export
 #'

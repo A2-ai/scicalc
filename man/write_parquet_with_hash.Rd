@@ -30,18 +30,4 @@ df <- data.frame(
 write_file_with_hash(df, "test/test.parquet")
 }
 }
-\seealso{
-Other file_io: 
-\code{\link{read_csv_with_hash}()},
-\code{\link{read_excel_with_hash}()},
-\code{\link{read_file_with_hash}()},
-\code{\link{read_hashed_file}()},
-\code{\link{read_parquet_with_hash}()},
-\code{\link{read_pzfx_with_hash}()},
-\code{\link{read_sas_with_hash}()},
-\code{\link{read_xpt_with_hash}()},
-\code{\link{write_csv_with_hash}()},
-\code{\link{write_file_with_hash}()}
-}
-\concept{file_io}
 \keyword{internal}

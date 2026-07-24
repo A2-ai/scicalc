@@ -30,7 +30,12 @@ egfr(
 
 \item{height}{the height of a patient in cm - required for the "Schwartz" method.}
 
-\item{method}{a string specifying the method to use. Available options are "CKDEPI 2009", "MDRD", "CKDEPI 2021", "CKDEPI 2021 cystatin", "Schwartz".}
+\item{method}{equation to use, one of:
+\link[=.egfr_ckdepi_2009]{egfr(method = "CKDEPI 2009")},
+\link[=.egfr_mdrd]{egfr(method = "MDRD")},
+\link[=.egfr_ckdepi_2021]{egfr(method = "CKDEPI 2021")},
+\link[=.egfr_ckdepi_2021_cystatin]{egfr(method = "CKDEPI 2021 cystatin")},
+\link[=.egfr_schwartz]{egfr(method = "Schwartz")}.}
 }
 \value{
 the eGFR calculated based on method.
@@ -51,14 +56,16 @@ df <- dplyr::mutate(df, egfr = egfr(SEXF, RACEB, AGE, CREAT, method = "CKDEPI 20
 df
 }
 \seealso{
+The method implementations:
+\link[=.egfr_ckdepi_2009]{egfr(method = "CKDEPI 2009")},
+\link[=.egfr_mdrd]{egfr(method = "MDRD")},
+\link[=.egfr_ckdepi_2021]{egfr(method = "CKDEPI 2021")},
+\link[=.egfr_ckdepi_2021_cystatin]{egfr(method = "CKDEPI 2021 cystatin")},
+\link[=.egfr_schwartz]{egfr(method = "Schwartz")}.
+
 Other renal_function: 
 \code{\link{aegfr}()},
-\code{\link{ckdepi_2009_egfr}()},
-\code{\link{ckdepi_2021_egfr}()},
-\code{\link{ckdepi_2021_egfr_cystatin}()},
 \code{\link{crcl}()},
-\code{\link{mdrd_egfr}()},
-\code{\link{rfc}()},
-\code{\link{schwartz_egfr}()}
+\code{\link{rfc}()}
 }
 \concept{renal_function}

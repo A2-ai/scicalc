@@ -44,13 +44,8 @@ df
 }
 \seealso{
 Other renal_function: 
-\code{\link{ckdepi_2009_egfr}()},
-\code{\link{ckdepi_2021_egfr}()},
-\code{\link{ckdepi_2021_egfr_cystatin}()},
 \code{\link{crcl}()},
 \code{\link{egfr}()},
-\code{\link{mdrd_egfr}()},
-\code{\link{rfc}()},
-\code{\link{schwartz_egfr}()}
+\code{\link{rfc}()}
 }
 \concept{renal_function}

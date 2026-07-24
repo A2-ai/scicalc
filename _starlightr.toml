@@ -16,7 +16,7 @@ hero = { tagline = "Utility functions helpful for reproducible scientific calcul
 
 [sidebar]
 articles = [
-    { label = "Getting Started", contents = ["scicalc"] }
+    { label = "Getting Started", contents = ["scicalc", "categorical-config"] }
 ]
 reference = [
     { label = "File Manipulations", collapsed = true, contents = [
@@ -29,9 +29,12 @@ reference = [
         "is_black",
         "is_white",
         "is_other",
-        "racen",
+        "is_american_native",
+        "is_pacific_islander",
+        "is_unspecified",
         "is_hispanic_or_latino",
         "is_not_hispanic_or_latino",
+        "racen",
         "ethnicn",
         "is_female",
         "sexf"
@@ -43,18 +46,11 @@ reference = [
         "ibw",
         "aibw",
         "bsa",
-        "dubois_bsa",
-        "mosteller_bsa",
         "crcl",
         "rfc",
         "hfc",
         "egfr",
-        "aegfr",
-        "ckdepi_2021_egfr",
-        "ckdepi_2009_egfr",
-        "ckdepi_2021_egfr_cystatin",
-        "mdrd_egfr",
-        "schwartz_egfr"
+        "aegfr"
     ] },
     { label = "Units", collapsed = true, contents = [
         "check_for_unique_units",
@@ -71,6 +67,9 @@ reference = [
         "categorize",
         "cor_df",
         "round_like"
+    ] },
+    { label = "Utilities", collapsed = true, contents = [
+        "is_missing_value"
     ] }
 ]
 news = { label = "Changelog", source = "NEWS.md" }
@@ -78,7 +77,8 @@ news = { label = "Changelog", source = "NEWS.md" }
 [versions]
 enabled = true
 list = [
-    { tag = "0.3.0", label = "v0.3.0", default = true },
+    { tag = "0.4.0", label = "v0.4.0", default = true },
+    { tag = "0.3.0", label = "v0.3.0" },
     { tag = "0.2.1", label = "v0.2.1" }
 ]
 workflow = { generate = true, node_version = "20" }
@@ -91,8 +91,8 @@ right = [
 [theme]
 color_mode = "auto"
 
-[content]
-skip_sections = ["name"]
-include_pagefid = true
-
+[reference]
+skip_sections = ["title", "name", "alias", "doc type", "keyword"]
+section_order = ["Description", "Details"]
+include_pagefind = true
 

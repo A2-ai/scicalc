@@ -101,7 +101,6 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3", reader = NULL, 
 #'
 #' @return dataframe of data within file
 #'
-#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -147,7 +146,6 @@ read_csv_with_hash <- function(csv_file_path, ..., algo = "blake3") {
 #'
 #' @return a tibble of data within file
 #'
-#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -194,7 +192,6 @@ read_parquet_with_hash <- function(parquet_file_path, ..., algo = "blake3") {
 #'
 #' @return a dataframe(?) of data within file
 #'
-#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -239,7 +236,6 @@ read_sas_with_hash <- function(sas_file_path, ..., algo = "blake3") {
 #'
 #' @return a dataframe(?) of data within file
 #'
-#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -285,7 +281,6 @@ read_xpt_with_hash <- function(xpt_file_path, ..., algo = "blake3") {
 #'
 #' @return a dataframe(?) of data within file
 #'
-#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{
@@ -333,7 +328,6 @@ read_excel_with_hash <- function(xlsx_file_path, ..., algo = "blake3") {
 #'
 #' @return data within the table of the pzfx file
 #'
-#' @family file_io
 #' @export
 #'
 #' @examples \dontrun{

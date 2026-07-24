@@ -102,7 +102,6 @@ write_file_with_hash <- function(data, path, overwrite = FALSE, ..., algo = "bla
 #'
 #' @return Nothing, creates csv_path file and prints hash of the file
 #'
-#' @family file_io
 #' @keywords internal
 #' @export
 #'
@@ -158,7 +157,6 @@ write_csv_with_hash <- function(data, csv_path, ...) {
 #'
 #' @return Nothing. creates parquet_path file and prints hash
 #'
-#' @family file_io
 #' @keywords internal
 #' @export
 #'

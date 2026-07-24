@@ -6,11 +6,9 @@
 #' (mL/min/1.73m²) units using body surface area.
 #'
 #' @param estimator Numeric vector of renal function estimator values (eGFR, CrCL, etc.)
-#' @param absolute_units Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
-#'   or mL/min/1.73m² (\code{FALSE}). When supplied it is used as-is; when
-#'   \code{NULL} (default) it is inferred from the estimator's
-#'   \code{"scicalc_units"} attribute (as tagged by \code{egfr()}/\code{aegfr()}),
-#'   erroring if there is none.
+#' @param absolute_units Logical: are \code{estimator} units mL/min (\code{TRUE})
+#'   or mL/min/1.73m² (\code{FALSE})? If \code{NULL} (default), inferred from the
+#'   estimator's \code{scicalc_units} attribute.
 #' @param bsa Numeric vector of body surface area in m² for unit conversion. Required when
 #'   converting between absolute and relative units
 #' @param category_standard Character string specifying categorization standard:
