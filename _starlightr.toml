@@ -5,7 +5,7 @@ logo = "man/figures/logo.png"
 favicon = "man/figures/logo.png"
 
 [output]
-dir = "../Docs/scicalc-docs-test-new"
+dir = "../Docs/scicalc-docs"
 include_build_files = true
 
 [home]
