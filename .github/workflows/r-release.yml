@@ -60,8 +60,7 @@ jobs:
           [
             {"os":"ubuntu-latest", "os_name":"almalinux8", "arch":"x86_64", "r":"4.6", "container":"almalinux:8"},
             {"os":"ubuntu-latest", "os_name":"almalinux8", "arch":"x86_64", "r":"4.4", "container":"almalinux:8"},
-            {"os":"macos-latest", "os_name":"macos", "arch":"arm64", "r":"4.6"},
-            {"os":"windows-latest", "os_name":"windows", "arch":"x86_64", "r":"4.6"}
+            {"os":"macos-latest", "os_name":"macos", "arch":"arm64", "r":"4.6"}
           ]
           JSON
           )
@@ -107,6 +106,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: refs/tags/${{ needs['determine-tag'].outputs.tag }}
+
+      # -- Use the slim release dependency config for the build --------------
+      - name: Use release rproject.toml
+        run: mv rproject-release.toml rproject.toml
 
       - name: Get R version from rproject.toml
         id: r-version
@@ -258,6 +261,10 @@ jobs:
         with:
           fetch-depth: 0
           ref: refs/tags/${{ needs['determine-tag'].outputs.tag }}
+
+      # -- Use the slim release dependency config for the build --------------
+      - name: Use release rproject.toml
+        run: mv rproject-release.toml rproject.toml
 
       # -- Install R (container: rig, bare-metal: r-lib/actions) -------------
       - name: Setup R (container)
