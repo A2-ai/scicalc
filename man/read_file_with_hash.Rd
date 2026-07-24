@@ -41,8 +41,8 @@ dat3 <- read_file_with_hash("data/derived/pk.feather", reader = arrow::read_feat
 }
 }
 \seealso{
-Other file_io: 
-\code{\link{read_hashed_file}()},
-\code{\link{write_file_with_hash}()}
+Other file_io:
+\code{\link[=read_hashed_file]{read_hashed_file()}},
+\code{\link[=write_file_with_hash]{write_file_with_hash()}}
 }
 \concept{file_io}

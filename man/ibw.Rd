@@ -49,10 +49,10 @@ The Origin of the "Ideal" Body Weight Equations, by Pai and Paloucek.
 The annals of Pharmacotherapy 2000 september, volumn 34
 }
 \seealso{
-Other body_composition: 
-\code{\link{aibw}()},
-\code{\link{bmi}()},
-\code{\link{bmic}()},
-\code{\link{bsa}()}
+Other body_composition:
+\code{\link[=aibw]{aibw()}},
+\code{\link[=bmi]{bmi()}},
+\code{\link[=bmic]{bmic()}},
+\code{\link[=bsa]{bsa()}}
 }
 \concept{body_composition}

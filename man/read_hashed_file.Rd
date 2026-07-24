@@ -45,8 +45,8 @@ read_hashed_file(file_path, hash)
 }
 }
 \seealso{
-Other file_io: 
-\code{\link{read_file_with_hash}()},
-\code{\link{write_file_with_hash}()}
+Other file_io:
+\code{\link[=read_file_with_hash]{read_file_with_hash()}},
+\code{\link[=write_file_with_hash]{write_file_with_hash()}}
 }
 \concept{file_io}

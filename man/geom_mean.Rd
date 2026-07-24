@@ -25,10 +25,10 @@ The geometric mean is calculated as:
 geom_mean(c(1, 2, 3, 2, 1))
 }
 \seealso{
-Other statistics: 
-\code{\link{cor_df}()},
-\code{\link{cv}()},
-\code{\link{geom_cv}()},
-\code{\link{geom_sd}()}
+Other statistics:
+\code{\link[=cor_df]{cor_df()}},
+\code{\link[=cv]{cv()}},
+\code{\link[=geom_cv]{geom_cv()}},
+\code{\link[=geom_sd]{geom_sd()}}
 }
 \concept{statistics}

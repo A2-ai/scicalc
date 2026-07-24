@@ -49,10 +49,10 @@ cor_df(df, columns = c("A", "B", "C"))
 
 }
 \seealso{
-Other statistics: 
-\code{\link{cv}()},
-\code{\link{geom_cv}()},
-\code{\link{geom_mean}()},
-\code{\link{geom_sd}()}
+Other statistics:
+\code{\link[=cv]{cv()}},
+\code{\link[=geom_cv]{geom_cv()}},
+\code{\link[=geom_mean]{geom_mean()}},
+\code{\link[=geom_sd]{geom_sd()}}
 }
 \concept{statistics}

@@ -49,8 +49,8 @@ write_file_with_hash(df, "data.rds", writer = saveRDS)
 }
 }
 \seealso{
-Other file_io: 
-\code{\link{read_file_with_hash}()},
-\code{\link{read_hashed_file}()}
+Other file_io:
+\code{\link[=read_file_with_hash]{read_file_with_hash()}},
+\code{\link[=read_hashed_file]{read_hashed_file()}}
 }
 \concept{file_io}

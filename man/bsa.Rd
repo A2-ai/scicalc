@@ -30,10 +30,10 @@ The method implementations:
 \link[=.bsa_dubois]{bsa(method = "Dubois")},
 \link[=.bsa_mosteller]{bsa(method = "Mosteller")}.
 
-Other body_composition: 
-\code{\link{aibw}()},
-\code{\link{bmi}()},
-\code{\link{bmic}()},
-\code{\link{ibw}()}
+Other body_composition:
+\code{\link[=aibw]{aibw()}},
+\code{\link[=bmi]{bmi()}},
+\code{\link[=bmic]{bmic()}},
+\code{\link[=ibw]{ibw()}}
 }
 \concept{body_composition}

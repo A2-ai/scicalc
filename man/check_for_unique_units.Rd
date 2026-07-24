@@ -29,7 +29,7 @@ df <- data.frame(
 check_for_unique_units(df$PARAM, df$UNIT)
 }
 \seealso{
-Other unit_checking: 
-\code{\link{get_unique_units_df}()}
+Other unit_checking:
+\code{\link[=get_unique_units_df]{get_unique_units_df()}}
 }
 \concept{unit_checking}

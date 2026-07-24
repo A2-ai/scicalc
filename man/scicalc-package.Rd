@@ -23,6 +23,7 @@ Useful links:
 
 Authors:
 \itemize{
+  \item Matthew Smith \email{matthews@a2-ai.com}
   \item Jacob Dumbleton \email{jacob@a2-ai.com}
   \item Jenna Johnson \email{jenna@a2-ai.com}
   \item Devin Pastoor \email{devin@a2-ai.com}

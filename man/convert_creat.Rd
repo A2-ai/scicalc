@@ -29,8 +29,8 @@ df <- df |>
 df
 }
 \seealso{
-Other unit_conversion: 
-\code{\link{convert_alb}()},
-\code{\link{convert_bili}()}
+Other unit_conversion:
+\code{\link[=convert_alb]{convert_alb()}},
+\code{\link[=convert_bili]{convert_bili()}}
 }
 \concept{unit_conversion}

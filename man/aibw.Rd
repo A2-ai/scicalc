@@ -57,10 +57,10 @@ df <- dplyr::mutate(df, AIBW = aibw(WEIGHT, HEIGHT, SEX, AGE))
 df
 }
 \seealso{
-Other body_composition: 
-\code{\link{bmi}()},
-\code{\link{bmic}()},
-\code{\link{bsa}()},
-\code{\link{ibw}()}
+Other body_composition:
+\code{\link[=bmi]{bmi()}},
+\code{\link[=bmic]{bmic()}},
+\code{\link[=bsa]{bsa()}},
+\code{\link[=ibw]{ibw()}}
 }
 \concept{body_composition}

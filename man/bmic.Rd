@@ -70,10 +70,10 @@ https://www.who.int/news-room/fact-sheets/detail/obesity-and-overweight
 \code{\link{bmi}} for calculating BMI from weight and height,
 \code{\link{agec}} for age categorization
 
-Other body_composition: 
-\code{\link{aibw}()},
-\code{\link{bmi}()},
-\code{\link{bsa}()},
-\code{\link{ibw}()}
+Other body_composition:
+\code{\link[=aibw]{aibw()}},
+\code{\link[=bmi]{bmi()}},
+\code{\link[=bsa]{bsa()}},
+\code{\link[=ibw]{ibw()}}
 }
 \concept{body_composition}

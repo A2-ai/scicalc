@@ -63,9 +63,9 @@ The method implementations:
 \link[=.egfr_ckdepi_2021_cystatin]{egfr(method = "CKDEPI 2021 cystatin")},
 \link[=.egfr_schwartz]{egfr(method = "Schwartz")}.
 
-Other renal_function: 
-\code{\link{aegfr}()},
-\code{\link{crcl}()},
-\code{\link{rfc}()}
+Other renal_function:
+\code{\link[=aegfr]{aegfr()}},
+\code{\link[=crcl]{crcl()}},
+\code{\link[=rfc]{rfc()}}
 }
 \concept{renal_function}

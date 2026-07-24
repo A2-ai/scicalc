@@ -30,18 +30,18 @@ is_unspecified("WHITE")
 is_unspecified("UNKNOWN")
 }
 \seealso{
-Other demographics: 
-\code{\link{ethnicn}()},
-\code{\link{is_american_native}()},
-\code{\link{is_asian}()},
-\code{\link{is_black}()},
-\code{\link{is_female}()},
-\code{\link{is_hispanic_or_latino}()},
-\code{\link{is_not_hispanic_or_latino}()},
-\code{\link{is_other}()},
-\code{\link{is_pacific_islander}()},
-\code{\link{is_white}()},
-\code{\link{racen}()},
-\code{\link{sexf}()}
+Other demographics:
+\code{\link[=ethnicn]{ethnicn()}},
+\code{\link[=is_american_native]{is_american_native()}},
+\code{\link[=is_asian]{is_asian()}},
+\code{\link[=is_black]{is_black()}},
+\code{\link[=is_female]{is_female()}},
+\code{\link[=is_hispanic_or_latino]{is_hispanic_or_latino()}},
+\code{\link[=is_not_hispanic_or_latino]{is_not_hispanic_or_latino()}},
+\code{\link[=is_other]{is_other()}},
+\code{\link[=is_pacific_islander]{is_pacific_islander()}},
+\code{\link[=is_white]{is_white()}},
+\code{\link[=racen]{racen()}},
+\code{\link[=sexf]{sexf()}}
 }
 \concept{demographics}

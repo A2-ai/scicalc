@@ -51,9 +51,9 @@ df <- df |>
 df
 }
 \seealso{
-Other renal_function: 
-\code{\link{aegfr}()},
-\code{\link{egfr}()},
-\code{\link{rfc}()}
+Other renal_function:
+\code{\link[=aegfr]{aegfr()}},
+\code{\link[=egfr]{egfr()}},
+\code{\link[=rfc]{rfc()}}
 }
 \concept{renal_function}

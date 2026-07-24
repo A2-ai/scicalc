@@ -25,10 +25,10 @@ The geometric standard deviation is calculated as:
 geom_sd(c(1, 2, 3, 2, 1))
 }
 \seealso{
-Other statistics: 
-\code{\link{cor_df}()},
-\code{\link{cv}()},
-\code{\link{geom_cv}()},
-\code{\link{geom_mean}()}
+Other statistics:
+\code{\link[=cor_df]{cor_df()}},
+\code{\link[=cv]{cv()}},
+\code{\link[=geom_cv]{geom_cv()}},
+\code{\link[=geom_mean]{geom_mean()}}
 }
 \concept{statistics}

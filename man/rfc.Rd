@@ -117,9 +117,9 @@ KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chro
 \code{\link{egfr}} for calculating eGFR, \code{\link{crcl}} for creatinine clearance,
 \code{\link{bsa}} for body surface area calculation
 
-Other renal_function: 
-\code{\link{aegfr}()},
-\code{\link{crcl}()},
-\code{\link{egfr}()}
+Other renal_function:
+\code{\link[=aegfr]{aegfr()}},
+\code{\link[=crcl]{crcl()}},
+\code{\link[=egfr]{egfr()}}
 }
 \concept{renal_function}

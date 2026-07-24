@@ -29,8 +29,8 @@ df <- df |>
 df
 }
 \seealso{
-Other unit_conversion: 
-\code{\link{convert_alb}()},
-\code{\link{convert_creat}()}
+Other unit_conversion:
+\code{\link[=convert_alb]{convert_alb()}},
+\code{\link[=convert_creat]{convert_creat()}}
 }
 \concept{unit_conversion}
