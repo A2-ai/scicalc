@@ -5,7 +5,7 @@ name = "scicalc"
 r_version = "4.5"
 
 repositories = [
-	{ alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-01-29/" },
+	{ alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-07-16/" },
 ]
 
 dependencies = [
