@@ -95,4 +95,4 @@ color_mode = "auto"
 skip_sections = ["title", "name", "alias", "doc type", "keyword"]
 section_order = ["Description", "Details"]
 include_pagefind = true
-
+include_internal = true

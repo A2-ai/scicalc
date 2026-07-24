@@ -32,8 +32,7 @@ bsa <- function(weight, height, method = "Dubois") {
 #'
 #' The equation used by [bsa()] with `method = "Dubois"`.
 #'
-#' @param weight weight of subject (kg)
-#' @param height height of subject (cm)
+#' @usage NULL
 #'
 #' @details
 #' The Du Bois equation for BSA:
@@ -44,8 +43,6 @@ bsa <- function(weight, height, method = "Dubois") {
 #'   \item \eqn{W} = weight (kg)
 #'   \item \eqn{H} = height (cm)
 #' }
-#'
-#' @return the body surface area (m^2)
 #'
 #' @keywords internal
 .bsa_dubois <- function(weight, height) {
@@ -81,8 +78,7 @@ bsa <- function(weight, height, method = "Dubois") {
 #'
 #' The equation used by [bsa()] with `method = "Mosteller"`.
 #'
-#' @param weight weight of subject (kg)
-#' @param height height of subject (cm)
+#' @usage NULL
 #'
 #' @details
 #' The Mosteller equation for BSA:
@@ -93,8 +89,6 @@ bsa <- function(weight, height, method = "Dubois") {
 #'   \item \eqn{W} = weight (kg)
 #'   \item \eqn{H} = height (cm)
 #' }
-#'
-#' @return the body surface area (m^2)
 #'
 #' @keywords internal
 .bsa_mosteller <- function(weight, height) {

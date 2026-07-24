@@ -3,17 +3,6 @@
 \name{.egfr_schwartz}
 \alias{.egfr_schwartz}
 \title{Bedside Schwartz eGFR equation}
-\usage{
-.egfr_schwartz(height, creat)
-}
-\arguments{
-\item{height}{height of patients in cm.}
-
-\item{creat}{Serum creatinine levels in mg/dL}
-}
-\value{
-eGFR in mL/min/1.73m^2
-}
 \description{
 The equation used by \code{\link[=egfr]{egfr()}} with \code{method = "Schwartz"}.
 }

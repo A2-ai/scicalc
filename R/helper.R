@@ -149,6 +149,8 @@ is_asian <- function(x) {
 #' @examples
 #' is_other("OTHER")
 #'
+#' is_other("MULTIPLE")
+#'
 #' is_other("BLACK")
 #'
 #' is_other(6)
@@ -167,7 +169,7 @@ is_other <- function(x) {
   x <- tolower(x)
 
   return(ifelse(
-    x == "other",
+    x == "other" | x == "multiple",
     TRUE,
     FALSE
   ))

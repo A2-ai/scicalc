@@ -18,6 +18,8 @@ Check if Race is Other
 \examples{
 is_other("OTHER")
 
+is_other("MULTIPLE")
+
 is_other("BLACK")
 
 is_other(6)

@@ -3,19 +3,6 @@
 \name{.egfr_ckdepi_2021}
 \alias{.egfr_ckdepi_2021}
 \title{CKD-EPI 2021 creatinine eGFR equation}
-\usage{
-.egfr_ckdepi_2021(sexf, age, creat)
-}
-\arguments{
-\item{sexf}{boolean value of sex Female: TRUE, Male: FALSE}
-
-\item{age}{age of subject (years)}
-
-\item{creat}{creatinine levels of subject (mg/dL)}
-}
-\value{
-the eGFR value (mL/min/1.73m2)
-}
 \description{
 The equation used by \code{\link[=egfr]{egfr()}} with \code{method = "CKDEPI 2021"}.
 }

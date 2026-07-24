@@ -3,21 +3,6 @@
 \name{.egfr_ckdepi_2009}
 \alias{.egfr_ckdepi_2009}
 \title{CKD-EPI 2009 creatinine eGFR equation}
-\usage{
-.egfr_ckdepi_2009(sexf, raceb, age, creat)
-}
-\arguments{
-\item{sexf}{boolean value of sex Female: TRUE, Male: FALSE}
-
-\item{raceb}{boolean value of Race == Black: Black: TRUE, Other: FALSE}
-
-\item{age}{age of subject (years)}
-
-\item{creat}{creatinine levels of subject (mg/dL)}
-}
-\value{
-the eGFR value (mL/min/1.73m2)
-}
 \description{
 The equation used by \code{\link[=egfr]{egfr()}} with \code{method = "CKDEPI 2009"}.
 }

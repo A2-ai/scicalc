@@ -88,10 +88,7 @@ egfr <- function(
 #'
 #' The equation used by [egfr()] with `method = "CKDEPI 2009"`.
 #'
-#' @param sexf boolean value of sex Female: TRUE, Male: FALSE
-#' @param raceb boolean value of Race == Black: Black: TRUE, Other: FALSE
-#' @param age age of subject (years)
-#' @param creat creatinine levels of subject (mg/dL)
+#' @usage NULL
 #'
 #' @details
 #' The CKD-EPI 2009 equation:
@@ -106,8 +103,6 @@ egfr <- function(
 #'   \item \eqn{F} = 1 (female) or 0 (male)
 #'   \item \eqn{B} = 1 (Black) or 0 (other)
 #' }
-#'
-#' @return the eGFR value (mL/min/1.73m2)
 #'
 #' @keywords internal
 .egfr_ckdepi_2009 <- function(sexf, raceb, age, creat) {
@@ -170,9 +165,7 @@ egfr <- function(
 #'
 #' The equation used by [egfr()] with `method = "CKDEPI 2021"`.
 #'
-#' @param sexf boolean value of sex Female: TRUE, Male: FALSE
-#' @param age age of subject (years)
-#' @param creat creatinine levels of subject (mg/dL)
+#' @usage NULL
 #'
 #' @details
 #' The CKD-EPI 2021 creatinine equation (race-free):
@@ -186,8 +179,6 @@ egfr <- function(
 #'   \item \eqn{A} = age (years)
 #'   \item \eqn{F} = 1 (female) or 0 (male)
 #' }
-#'
-#' @return the eGFR value (mL/min/1.73m2)
 #'
 #' @keywords internal
 .egfr_ckdepi_2021 <- function(sexf, age, creat) {
@@ -244,10 +235,7 @@ egfr <- function(
 #'
 #' The equation used by [egfr()] with `method = "CKDEPI 2021 cystatin"`.
 #'
-#' @param sexf a boolean representing if the patient is female.
-#' @param age age of patient in years
-#' @param creat serum creatinine levels in mg/dL.
-#' @param cystc serum cystatin C levels in mg/L.
+#' @usage NULL
 #'
 #' @details
 #' The CKD-EPI 2021 creatinine-cystatin equation:
@@ -263,8 +251,6 @@ egfr <- function(
 #'   \item \eqn{A} = age (years)
 #'   \item \eqn{F} = 1 (female) or 0 (male)
 #' }
-#'
-#' @return eGFR in mL/min/1.73 m^2
 #'
 #' @keywords internal
 .egfr_ckdepi_2021_cystatin <- function(sexf, age, creat, cystc) {
@@ -333,10 +319,7 @@ egfr <- function(
 #'
 #' The equation used by [egfr()] with `method = "MDRD"`.
 #'
-#' @param sexf a boolean representing if the patient is female.
-#' @param raceb a boolean representing if the patient is black.
-#' @param age the age of the patient in years
-#' @param creat the serum creatinine levels in mg/dL
+#' @usage NULL
 #'
 #' @details
 #' The MDRD equation:
@@ -349,8 +332,6 @@ egfr <- function(
 #'   \item \eqn{F} = 1 (female) or 0 (male)
 #'   \item \eqn{B} = 1 (Black) or 0 (other)
 #' }
-#'
-#' @return the eGFR in mL/min/1.73 m^2
 #'
 #' @keywords internal
 .egfr_mdrd <- function(sexf, raceb, age, creat) {
@@ -406,8 +387,7 @@ egfr <- function(
 #'
 #' The equation used by [egfr()] with `method = "Schwartz"`.
 #'
-#' @param height height of patients in cm.
-#' @param creat Serum creatinine levels in mg/dL
+#' @usage NULL
 #'
 #' @details
 #' The Schwartz equation for pediatric eGFR:
@@ -418,8 +398,6 @@ egfr <- function(
 #'   \item \eqn{H} = height (cm)
 #'   \item \eqn{S_{cr}} = serum creatinine (mg/dL)
 #' }
-#'
-#' @return eGFR in mL/min/1.73m^2
 #'
 #' @keywords internal
 .egfr_schwartz <- function(height, creat) {

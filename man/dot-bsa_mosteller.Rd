@@ -3,17 +3,6 @@
 \name{.bsa_mosteller}
 \alias{.bsa_mosteller}
 \title{Mosteller body surface area equation}
-\usage{
-.bsa_mosteller(weight, height)
-}
-\arguments{
-\item{weight}{weight of subject (kg)}
-
-\item{height}{height of subject (cm)}
-}
-\value{
-the body surface area (m^2)
-}
 \description{
 The equation used by \code{\link[=bsa]{bsa()}} with \code{method = "Mosteller"}.
 }

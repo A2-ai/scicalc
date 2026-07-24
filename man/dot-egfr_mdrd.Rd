@@ -3,21 +3,6 @@
 \name{.egfr_mdrd}
 \alias{.egfr_mdrd}
 \title{MDRD (4-variable) eGFR equation}
-\usage{
-.egfr_mdrd(sexf, raceb, age, creat)
-}
-\arguments{
-\item{sexf}{a boolean representing if the patient is female.}
-
-\item{raceb}{a boolean representing if the patient is black.}
-
-\item{age}{the age of the patient in years}
-
-\item{creat}{the serum creatinine levels in mg/dL}
-}
-\value{
-the eGFR in mL/min/1.73 m^2
-}
 \description{
 The equation used by \code{\link[=egfr]{egfr()}} with \code{method = "MDRD"}.
 }

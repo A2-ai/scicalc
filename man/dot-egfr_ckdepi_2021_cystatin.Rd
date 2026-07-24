@@ -3,21 +3,6 @@
 \name{.egfr_ckdepi_2021_cystatin}
 \alias{.egfr_ckdepi_2021_cystatin}
 \title{CKD-EPI 2021 creatinine-cystatin C eGFR equation}
-\usage{
-.egfr_ckdepi_2021_cystatin(sexf, age, creat, cystc)
-}
-\arguments{
-\item{sexf}{a boolean representing if the patient is female.}
-
-\item{age}{age of patient in years}
-
-\item{creat}{serum creatinine levels in mg/dL.}
-
-\item{cystc}{serum cystatin C levels in mg/L.}
-}
-\value{
-eGFR in mL/min/1.73 m^2
-}
 \description{
 The equation used by \code{\link[=egfr]{egfr()}} with \code{method = "CKDEPI 2021 cystatin"}.
 }
