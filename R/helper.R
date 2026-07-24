@@ -46,10 +46,10 @@ is_female <- function(x) {
 #' is_white(1)
 is_white <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 1     ~ TRUE,
-      x %in% c(2, 3, 4) ~ FALSE,
+      x %in% c(2, 3, 4, 5, 6) ~ FALSE,
       .default   = NA
     ))
   }
@@ -82,10 +82,10 @@ is_white <- function(x) {
 #' is_black(2)
 is_black <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 2     ~ TRUE,
-      x %in% c(1, 3, 4) ~ FALSE,
+      x %in% c(1, 3, 4, 5, 6) ~ FALSE,
       .default   = NA
     ))
   }
@@ -118,10 +118,10 @@ is_black <- function(x) {
 #' is_asian(3)
 is_asian <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
     return(dplyr::case_when(
       x == 3     ~ TRUE,
-      x %in% c(1, 2, 4) ~ FALSE,
+      x %in% c(1, 2, 4, 5, 6) ~ FALSE,
       .default   = NA
     ))
   }
@@ -149,15 +149,17 @@ is_asian <- function(x) {
 #' @examples
 #' is_other("OTHER")
 #'
+#' is_other("MULTIPLE")
+#'
 #' is_other("BLACK")
 #'
-#' is_other(4)
+#' is_other(6)
 is_other <- function(x) {
   if (is.numeric(x)) {
-    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = Other, -999 = Missing.")
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
     return(dplyr::case_when(
-      x == 4     ~ TRUE,
-      x %in% c(1, 2, 3) ~ FALSE,
+      x == 6     ~ TRUE,
+      x %in% c(1, 2, 3, 4, 5) ~ FALSE,
       .default   = NA
     ))
   }
@@ -167,10 +169,150 @@ is_other <- function(x) {
   x <- tolower(x)
 
   return(ifelse(
-    x == "other",
+    x == "other" | x == "multiple",
     TRUE,
     FALSE
   ))
+}
+
+#' Check if Race is American Native
+#'
+#' @param x input character representing race
+#'
+#' @return boolean representing Race == American Native
+#'
+#' @family demographics
+#' @export
+#'
+#' @examples
+#' is_american_native("AMERICAN INDIAN OR ALASKA NATIVE")
+#'
+#' is_american_native("BLACK")
+#'
+#' is_american_native(4)
+is_american_native <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 4     ~ TRUE,
+      x %in% c(1, 2, 3, 5, 6) ~ FALSE,
+      .default   = NA
+    ))
+  }
+
+  checkmate::assert_character(x)
+
+  x <- tolower(x)
+
+  return(ifelse(
+    x %in% c(
+      "american indian or alaska native",
+      "american native",
+      "native american",
+      "american indian",
+      "alaska native"
+    ),
+    TRUE,
+    FALSE
+  ))
+}
+
+#' Check if Race is Pacific Islander
+#'
+#' @param x input character representing race
+#'
+#' @return boolean representing Race == Pacific Islander
+#'
+#' @family demographics
+#' @export
+#'
+#' @examples
+#' is_pacific_islander("NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER")
+#'
+#' is_pacific_islander("BLACK")
+#'
+#' is_pacific_islander(5)
+is_pacific_islander <- function(x) {
+  if (is.numeric(x)) {
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, -999 = Missing.")
+    return(dplyr::case_when(
+      x == 5     ~ TRUE,
+      x %in% c(1, 2, 3, 4, 6) ~ FALSE,
+      .default   = NA
+    ))
+  }
+
+  checkmate::assert_character(x)
+
+  x <- tolower(x)
+
+  return(ifelse(
+    x %in% c(
+      "native hawaiian or other pacific islander",
+      "pacific islander",
+      "native hawaiian"
+    ),
+    TRUE,
+    FALSE
+  ))
+}
+
+#' Check if Race is Unspecified
+#'
+#' @description
+#' `TRUE` for a race value that is present but matches none of the known
+#' categories (`is_white`, `is_black`, `is_asian`, `is_american_native`,
+#' `is_pacific_islander`, `is_other`). `"unknown"` and `NA` are treated as
+#' missing (not unspecified) and return `FALSE`. When unspecified values are
+#' found a warning is emitted naming the distinct offenders.
+#'
+#' @param x input character representing race
+#' @param known optional character vector of additional recognized values to
+#'   treat as specified (used by [racen()] to honor `scicalc.racen_config`).
+#'
+#' @return boolean representing an unrecognized race value
+#'
+#' @family demographics
+#' @export
+#'
+#' @examples
+#' is_unspecified("ROMAN LATIN")
+#'
+#' is_unspecified("WHITE")
+#'
+#' is_unspecified("UNKNOWN")
+is_unspecified <- function(x, known = character(0)) {
+  if (is.numeric(x)) {
+    mv <- getOption("scicalc.missing_value", -999)
+    message("Numeric input detected - assuming 1 = White, 2 = Black, 3 = Asian, 4 = American Native, 5 = Pacific Islander, 6 = Other, ", mv, " = Missing.")
+    return(!(x %in% c(1, 2, 3, 4, 5, 6, mv)) & !is.na(x))
+  }
+
+  checkmate::assert_character(x)
+
+  x_lower <- tolower(x)
+  known <- tolower(known)
+
+  specified <- is_white(x_lower) |
+    is_black(x_lower) |
+    is_asian(x_lower) |
+    is_american_native(x_lower) |
+    is_pacific_islander(x_lower) |
+    is_other(x_lower) |
+    (x_lower %in% known) |
+    (x_lower == "unknown")
+
+  unspecified <- !specified & !is.na(x_lower)
+
+  if (any(unspecified)) {
+    offenders <- unique(x[unspecified])
+    rlang::warn(paste0(
+      "Unspecified race value(s) detected: ",
+      paste0('"', offenders, '"', collapse = ", ")
+    ))
+  }
+
+  unspecified
 }
 
 #' Check if Ethnicity is Hispanic or Latino

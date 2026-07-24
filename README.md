@@ -83,7 +83,7 @@ patients <- data.frame(
 )
 
 # Calculate derived values
-patients <- patients %>%
+patients <- patients |>
   mutate(
     BSA = bsa(WEIGHT, HEIGHT),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),

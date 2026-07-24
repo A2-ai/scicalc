@@ -61,8 +61,6 @@ Other body_composition:
 \code{\link{bmi}()},
 \code{\link{bmic}()},
 \code{\link{bsa}()},
-\code{\link{dubois_bsa}()},
-\code{\link{ibw}()},
-\code{\link{mosteller_bsa}()}
+\code{\link{ibw}()}
 }
 \concept{body_composition}

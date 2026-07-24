@@ -4,7 +4,15 @@
 \alias{write_file_with_hash}
 \title{Write Data File with Hash Output}
 \usage{
-write_file_with_hash(data, path, overwrite = FALSE, ...)
+write_file_with_hash(
+  data,
+  path,
+  overwrite = FALSE,
+  ...,
+  algo = "blake3",
+  writer = NULL,
+  force = FALSE
+)
 }
 \arguments{
 \item{data}{the data object to write to file}
@@ -13,7 +21,16 @@ write_file_with_hash(data, path, overwrite = FALSE, ...)
 
 \item{overwrite}{boolean of whether to overwrite or not.}
 
-\item{...}{additional arguments for digest or write_file.}
+\item{...}{additional arguments for digest, write_csv, write_parquet, or \code{writer}.}
+
+\item{algo}{hashing algorithm to use, default is "blake3"}
+
+\item{writer}{optional function used to write the file, called as \code{writer(data, path, ...)}.
+Required for file extensions this function doesn't know how to write. For a known
+extension (csv, parquet), \code{writer} is ignored unless \code{force = TRUE}.}
+
+\item{force}{if \code{TRUE}, use \code{writer} even for a known extension instead of the built-in
+writer. Must be \code{FALSE} (the default) when \code{writer} is not supplied.}
 }
 \value{
 Nothing, File is created and hash of created file is printed
@@ -27,20 +44,13 @@ df <- data.frame(
   "a" = c(1, 2, 3, 4)
   "b" = c("A", "B", "C", "D")
 )
-write_data_with_hash(df, "data.csv")
+write_file_with_hash(df, "data.csv")
+write_file_with_hash(df, "data.rds", writer = saveRDS)
 }
 }
 \seealso{
 Other file_io: 
-\code{\link{read_csv_with_hash}()},
-\code{\link{read_excel_with_hash}()},
 \code{\link{read_file_with_hash}()},
-\code{\link{read_hashed_file}()},
-\code{\link{read_parquet_with_hash}()},
-\code{\link{read_pzfx_with_hash}()},
-\code{\link{read_sas_with_hash}()},
-\code{\link{read_xpt_with_hash}()},
-\code{\link{write_csv_with_hash}()},
-\code{\link{write_parquet_with_hash}()}
+\code{\link{read_hashed_file}()}
 }
 \concept{file_io}

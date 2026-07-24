@@ -19,7 +19,9 @@ ckdepi_2021_egfr_cystatin(sexf, age, creat, cystc)
 eGFR in mL/min/1.73 m^2
 }
 \description{
-Calculate eGFR Using CKD-EPI 2021 Cystatin Equation
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=egfr]{egfr()}} with \code{method = "CKDEPI 2021 cystatin"}.
 }
 \details{
 The CKD-EPI 2021 creatinine-cystatin equation:
@@ -37,27 +39,6 @@ where:
 }
 }
 \examples{
-e <- ckdepi_2021_egfr_cystatin(TRUE, 24, 1, 2)
-
-df <- data.frame(
-  "SEXF" = c(TRUE, FALSE, TRUE, FALSE),
-  "RACEB" = c(FALSE, FALSE, TRUE, FALSE),
-  "AGE" = c(24, 24, 23, 24),
-  "CREAT" = c(1, 1, 2, 1),
-  "CYSTC" = c(0.4, 0.8, 1, 2)
-)
-df <- dplyr::mutate(df, egfr = ckdepi_2021_egfr_cystatin(SEXF, AGE, CREAT, CYSTC))
-df
+e <- egfr(TRUE, FALSE, 24, 1, cystc = 2, method = "CKDEPI 2021 cystatin")
 }
-\seealso{
-Other renal_function: 
-\code{\link{aegfr}()},
-\code{\link{ckdepi_2009_egfr}()},
-\code{\link{ckdepi_2021_egfr}()},
-\code{\link{crcl}()},
-\code{\link{egfr}()},
-\code{\link{mdrd_egfr}()},
-\code{\link{rfc}()},
-\code{\link{schwartz_egfr}()}
-}
-\concept{renal_function}
+\keyword{internal}

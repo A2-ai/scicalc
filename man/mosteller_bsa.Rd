@@ -15,7 +15,9 @@ mosteller_bsa(weight, height)
 the body surface area (m^2)
 }
 \description{
-Calculate Body Surface Area Using Mosteller Equation
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=bsa]{bsa()}} with \code{method = "Mosteller"}.
 }
 \details{
 The Mosteller equation for BSA:
@@ -28,15 +30,6 @@ where:
 }
 }
 \examples{
-mosteller_bsa(70, 170)
+mosteller_bsa <- bsa(70, 170, method = "Mosteller")
 }
-\seealso{
-Other body_composition: 
-\code{\link{aibw}()},
-\code{\link{bmi}()},
-\code{\link{bmic}()},
-\code{\link{bsa}()},
-\code{\link{dubois_bsa}()},
-\code{\link{ibw}()}
-}
-\concept{body_composition}
+\keyword{internal}

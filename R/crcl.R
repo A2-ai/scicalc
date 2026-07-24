@@ -34,11 +34,18 @@
 #'   "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
 #' df
 crcl <- function(sexf, age, creat, weight) {
+  age_input <- mask_missing_computation_input(age, "age")
+  creat_input <- mask_missing_computation_input(creat, "creat")
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  age <- age_input$value
+  creat <- creat_input$value
+  weight <- weight_input$value
+
   checkmate::assertLogical(sexf)
   checkmate::assertNumeric(age)
   checkmate::assertNumeric(creat)
@@ -64,6 +71,7 @@ crcl <- function(sexf, age, creat, weight) {
 
   sex_mult <- ifelse(sexf, 0.85, 1)
   crcl <- (140 - age) * weight / (72 * creat) * sex_mult
-  attr(crcl, "units") <- "mL/min"
+  crcl <- apply_mv_mask(crcl, age_input$mask, creat_input$mask, weight_input$mask)
+  attr(crcl, "scicalc_units") <- "mL/min"
   return(crcl)
 }

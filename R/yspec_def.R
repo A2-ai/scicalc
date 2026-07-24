@@ -31,6 +31,19 @@ sexf <- function(sex) {
 #' @family demographics
 #' @export
 #'
+#' @details
+#' Default mapping: White = 1, Black = 2, Asian = 3, American Native = 4,
+#' Pacific Islander = 5, Other = 6. `"UNKNOWN"` and `NA` map to the missing
+#' value indicator (`getOption("scicalc.missing_value", -999)`). Any other
+#' value is treated as unspecified: it maps to `NA` and triggers a warning.
+#'
+#' The `scicalc.racen_config` option (a named numeric vector) customizes the
+#' mapping. A name matching a built-in category (`"white"`, `"black"`,
+#' `"asian"`, `"american native"`, `"pacific islander"`, `"other"`) overrides
+#' that category's code (synonyms included). Any other name adds a new
+#' exact-match category. For example
+#' `options(scicalc.racen_config = c("WHITE" = 2, "JAPANESE" = 7))`.
+#'
 #' @examples
 #' racen("WHITE") # 1
 #'
@@ -38,23 +51,90 @@ sexf <- function(sex) {
 #'
 #' racen("ASIAN") # 3
 #'
-#' racen("OTHER") # 4
+#' racen("AMERICAN INDIAN OR ALASKA NATIVE") # 4
 #'
-#' racen("UNKNOWN") # -999
+#' racen("PACIFIC ISLANDER") # 5
+#'
+#' racen("OTHER") # 6
+#'
+#' racen("UNKNOWN") # default missing value
 racen <- function(racec) {
   # check that racec is character
   checkmate::assert_character(racec)
   racec <- tolower(racec)
 
+  config <- validate_racen_config(getOption("scicalc.racen_config", NULL))
+  if (is.null(config)) {
+    config <- stats::setNames(numeric(0), character(0))
+  }
+
+  codes <- racen_default_codes()
+  overrides <- config[names(config) %in% names(codes)]
+  codes[names(overrides)] <- overrides
+
+  novel <- config[!(names(config) %in% names(codes))]
+
   racen <- dplyr::case_when(
-    is_white(racec) ~ 1,
-    is_black(racec) ~ 2,
-    is_asian(racec) ~ 3,
-    is_other(racec) ~ 4,
-    .default = -999
+    racec %in% names(novel) ~ unname(novel[racec]),
+    is_white(racec) ~ codes[["white"]],
+    is_black(racec) ~ codes[["black"]],
+    is_asian(racec) ~ codes[["asian"]],
+    is_american_native(racec) ~ codes[["american native"]],
+    is_pacific_islander(racec) ~ codes[["pacific islander"]],
+    is_other(racec) ~ codes[["other"]],
+    is_unspecified(racec, known = names(novel)) ~ NA_real_,
+    .default = getOption("scicalc.missing_value", -999)
   )
 
   return(racen)
+}
+
+#' Validate the scicalc.racen_config option
+#'
+#' @param config the value of `getOption("scicalc.racen_config")`
+#'
+#' @return the validated config with lower-cased names, or `NULL`
+#' @keywords internal
+validate_racen_config <- function(config) {
+  if (is.null(config)) {
+    return(NULL)
+  }
+
+  checkmate::assert_numeric(config, names = "named", any.missing = FALSE)
+
+  names(config) <- tolower(names(config))
+  if (anyDuplicated(names(config)) > 0) {
+    rlang::abort(
+      "`scicalc.racen_config` has duplicate names (case-insensitive)."
+    )
+  }
+
+  config
+}
+
+racen_default_codes <- function() {
+  c(
+    "white" = 1,
+    "black" = 2,
+    "asian" = 3,
+    "american native" = 4,
+    "pacific islander" = 5,
+    "other" = 6
+  )
+}
+
+# The full racen mapping with a config applied: defaults, overrides, then any
+# novel categories appended.
+resolve_racen_codes <- function(config) {
+  codes <- racen_default_codes()
+  config <- validate_racen_config(config)
+  if (is.null(config)) {
+    return(codes)
+  }
+  overrides <- config[names(config) %in% names(codes)]
+  codes[names(overrides)] <- overrides
+  novel <- config[!(names(config) %in% names(codes))]
+  c(codes, novel)
 }
 
 #' Convert Ethnicity to Numeric Code
@@ -71,7 +151,7 @@ racen <- function(racec) {
 #'
 #' ethnicn("NOT HISPANIC OR LATINO") # 0
 #'
-#' ethnicn("UNKNOWN") # -999
+#' ethnicn("UNKNOWN") # default missing value
 ethnicn <- function(ethnicc) {
   # check that ethnicc is character
   checkmate::assert_character(ethnicc)
@@ -80,7 +160,7 @@ ethnicn <- function(ethnicc) {
   ethnicn <- dplyr::case_when(
     is_hispanic_or_latino(ethnicc) ~ 1,
     is_not_hispanic_or_latino(ethnicc) ~ 0,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
 
   return(ethnicn)

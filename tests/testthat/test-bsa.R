@@ -1,14 +1,14 @@
 test_that("bsa works for numerical input", {
-  expect_equal(bsa(67.2, 173) %>% round(3), 1.801, ignore_attr = TRUE)
-  expect_equal(bsa(67.2, 173, method = "Mosteller") %>% round(3), 1.797, ignore_attr = TRUE)
+  expect_equal(bsa(67.2, 173) |> round(3), 1.801, ignore_attr = TRUE)
+  expect_equal(bsa(67.2, 173, method = "Mosteller") |> round(3), 1.797, ignore_attr = TRUE)
 })
 
 test_that("bsa sets units attribute", {
   result <- bsa(67.2, 173)
-  expect_equal(attr(result, "units"), "m^2")
+  expect_equal(attr(result, "scicalc_units"), "m^2")
 
   result_mosteller <- bsa(67.2, 173, method = "Mosteller")
-  expect_equal(attr(result_mosteller, "units"), "m^2")
+  expect_equal(attr(result_mosteller, "scicalc_units"), "m^2")
 })
 
 test_that("bsa works for dataframe columns", {
@@ -17,12 +17,12 @@ test_that("bsa works for dataframe columns", {
     "HT" = c(167, 161, 163, 164)
   )
   expect_equal(
-    bsa(weight = df$WT, height = df$HT) %>% round(3),
+    bsa(weight = df$WT, height = df$HT) |> round(3),
     c(1.896, 1.756, 1.868, 1.765),
     ignore_attr = TRUE
   )
   expect_equal(
-    bsa(weight = df$WT, height = df$HT, method = "mosteller") %>% round(3),
+    bsa(weight = df$WT, height = df$HT, method = "mosteller") |> round(3),
     c(1.933, 1.789, 1.916, 1.788),
     ignore_attr = TRUE
   )
@@ -34,19 +34,19 @@ test_that("bsa can be used in a mutate", {
     "HT" = c(167, 161, 163, 164)
   )
 
-  df <- df %>%
+  df <- df |>
     dplyr::mutate(
       dubois_bsa = bsa(WT, HT),
       mosteller_bsa = bsa(WT, HT, method = "Mosteller")
     )
 
   expect_equal(
-    df$dubois_bsa %>% round(3),
+    df$dubois_bsa |> round(3),
     c(1.896, 1.756, 1.868, 1.765),
     ignore_attr = TRUE
   )
   expect_equal(
-    df$mosteller_bsa %>% round(3),
+    df$mosteller_bsa |> round(3),
     c(1.933, 1.789, 1.916, 1.788),
     ignore_attr = TRUE
   )
@@ -59,20 +59,20 @@ test_that("bsa can be used in a mutate after a group_by", {
     "HT" = c(167, 167, 167, 167, 161, 161, 161, 161)
   )
 
-  df <- df %>%
-    dplyr::group_by(ID) %>%
+  df <- df |>
+    dplyr::group_by(ID) |>
     dplyr::mutate(
       dubois_bsa = bsa(WT, HT),
       mosteller_bsa = bsa(WT, HT, method = "Mosteller")
     )
 
   expect_equal(
-    df$dubois_bsa %>% round(3),
+    df$dubois_bsa |> round(3),
     c(1.896, 1.896, 1.896, 1.896, 1.756, 1.756, 1.756, 1.756),
     ignore_attr = TRUE
   )
   expect_equal(
-    df$mosteller_bsa %>% round(3),
+    df$mosteller_bsa |> round(3),
     c(1.933, 1.933, 1.933, 1.933, 1.789, 1.789, 1.789, 1.789),
     ignore_attr = TRUE
   )

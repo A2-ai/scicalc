@@ -17,7 +17,9 @@ write_csv_with_hash(data, csv_path, ...)
 Nothing, creates csv_path file and prints hash of the file
 }
 \description{
-Write CSV File with Hash Output
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=write_file_with_hash]{write_file_with_hash()}}.
 }
 \examples{
 \dontrun{
@@ -25,20 +27,7 @@ df <- data.frame(
   "a" = c(1, 2, 3, 4)
   "b" = c("A", "B", "C", "D")
 )
-write_csv_with_hash(df, "test/test.csv")
+write_file_with_hash(df, "test/test.csv")
 }
 }
-\seealso{
-Other file_io: 
-\code{\link{read_csv_with_hash}()},
-\code{\link{read_excel_with_hash}()},
-\code{\link{read_file_with_hash}()},
-\code{\link{read_hashed_file}()},
-\code{\link{read_parquet_with_hash}()},
-\code{\link{read_pzfx_with_hash}()},
-\code{\link{read_sas_with_hash}()},
-\code{\link{read_xpt_with_hash}()},
-\code{\link{write_file_with_hash}()},
-\code{\link{write_parquet_with_hash}()}
-}
-\concept{file_io}
+\keyword{internal}

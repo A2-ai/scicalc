@@ -16,8 +16,18 @@
 #'   \item 6: Elderly Adult: ≥65 years
 #' }
 #'
-#' @return Integer vector of age categories (1-6). Returns \code{-999} for
+#' @return Integer vector of age categories (1-6). Returns the value of
+#'   \code{getOption("scicalc.missing_value")} (default \code{-999}) for
 #'   missing values. Includes a \code{category_standard} attribute set to "FDA".
+#'
+#' @section Custom bands:
+#' Set \code{options(scicalc.agec_config = )} to a data frame of custom bands
+#' with columns \code{label}, \code{min} (lower bound), and \code{code} to
+#' replace the FDA bands entirely. Bands are half-open \code{[min, next min)}
+#' with the top band open-ended; ages below the lowest \code{min} return the
+#' missing value. The \code{category_standard} attribute is then "custom". For
+#' example, \code{data.frame(label = c("child", "adult", "senior"),
+#' min = c(0, 18, 65), code = c(1, 2, 3))}.
 #'
 #' @family categorization
 #'
@@ -41,26 +51,37 @@
 agec <- function(age) {
   checkmate::assertNumeric(age)
 
+  mv_age <- check_mv_computation(age, "age")
+  age[mv_age] <- NA
+
   # give message if any NAs
   if (any(is.na(age))) {
-    message("age contains missing values")
+    rlang::inform("age contains missing values")
+  }
+
+  config <- validate_band_config(getOption("scicalc.agec_config", NULL), "scicalc.agec_config")
+  if (!is.null(config)) {
+    agec <- apply_band_config(age, config)
+    agec <- apply_mv_mask(agec, mv_age)
+    attr(agec, "category_standard") <- "custom"
+    return(agec)
   }
 
   if (any(age < 0, na.rm = TRUE)) {
-    warning("age contains values less than 0 years. Confirm data is correct.")
+    rlang::warn("age contains values less than 0 years. Confirm data is correct.")
   }
 
   # Oldest person alive currently is 116
   if (any(age > 116, na.rm = TRUE)) {
-    warning("age contains values > 116 years. Confirm data is correct.")
+    rlang::warn("age contains values > 116 years. Confirm data is correct.")
   }
 
   if (any(0 <= age & age < 28 / 365, na.rm = TRUE)) {
-    warning("Neonate ages detected. Confirm assignment.")
+    rlang::warn("Neonate ages detected. Confirm assignment.")
   }
 
   if (any(dplyr::near(age, 28 / 365), na.rm = TRUE)) {
-    message("Age near Neonate boundary (28 days)")
+    rlang::inform("Age near Neonate boundary (28 days)")
   }
 
   # TODO: fix up division check. Maybe age * 365 < 28
@@ -71,8 +92,9 @@ agec <- function(age) {
     12 <= age & age < 18 ~ 4, # Adolescent
     18 <= age & age < 65 ~ 5, # Adult
     65 <= age ~ 6, # Elder Adult,
-    .default = -999
+    .default = getOption("scicalc.missing_value", -999)
   )
+  agec <- apply_mv_mask(agec, mv_age)
   attr(agec, "category_standard") <- "FDA"
   return(agec)
 }

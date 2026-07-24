@@ -15,6 +15,19 @@ the standard yspec numeric value for the inputted Race character
 \description{
 Convert Race to Numeric Code
 }
+\details{
+Default mapping: White = 1, Black = 2, Asian = 3, American Native = 4,
+Pacific Islander = 5, Other = 6. \code{"UNKNOWN"} and \code{NA} map to the missing
+value indicator (\code{getOption("scicalc.missing_value", -999)}). Any other
+value is treated as unspecified: it maps to \code{NA} and triggers a warning.
+
+The \code{scicalc.racen_config} option (a named numeric vector) customizes the
+mapping. A name matching a built-in category (\code{"white"}, \code{"black"},
+\code{"asian"}, \code{"american native"}, \code{"pacific islander"}, \code{"other"}) overrides
+that category's code (synonyms included). Any other name adds a new
+exact-match category. For example
+\code{options(scicalc.racen_config = c("WHITE" = 2, "JAPANESE" = 7))}.
+}
 \examples{
 racen("WHITE") # 1
 
@@ -22,19 +35,26 @@ racen("BLACK") # 2
 
 racen("ASIAN") # 3
 
-racen("OTHER") # 4
+racen("AMERICAN INDIAN OR ALASKA NATIVE") # 4
 
-racen("UNKNOWN") # -999
+racen("PACIFIC ISLANDER") # 5
+
+racen("OTHER") # 6
+
+racen("UNKNOWN") # default missing value
 }
 \seealso{
 Other demographics: 
 \code{\link{ethnicn}()},
+\code{\link{is_american_native}()},
 \code{\link{is_asian}()},
 \code{\link{is_black}()},
 \code{\link{is_female}()},
 \code{\link{is_hispanic_or_latino}()},
 \code{\link{is_not_hispanic_or_latino}()},
 \code{\link{is_other}()},
+\code{\link{is_pacific_islander}()},
+\code{\link{is_unspecified}()},
 \code{\link{is_white}()},
 \code{\link{sexf}()}
 }

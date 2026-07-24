@@ -28,6 +28,11 @@
 #' df <- dplyr::mutate(df, bmi = bmi(WT, HT))
 #' df
 bmi <- function(weight, height) {
+  weight_input <- mask_missing_computation_input(weight, "weight")
+  height_input <- mask_missing_computation_input(height, "height")
+  weight <- weight_input$value
+  height <- height_input$value
+
   # check that weight and height are numeric
   checkmate::assertNumeric(weight)
   checkmate::assertNumeric(height)
@@ -46,7 +51,8 @@ bmi <- function(weight, height) {
   }
 
   bmi <- weight / ((height / 100)^2)
-  attr(bmi, "units") <- "kg/m^2"
+  bmi <- apply_mv_mask(bmi, weight_input$mask, height_input$mask)
+  attr(bmi, "scicalc_units") <- "kg/m^2"
   return(bmi)
 }
 

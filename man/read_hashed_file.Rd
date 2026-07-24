@@ -4,16 +4,31 @@
 \alias{read_hashed_file}
 \title{Read File with Required Hash Match}
 \usage{
-read_hashed_file(file_path, hash, ..., algo = "blake3")
+read_hashed_file(
+  file_path,
+  hash,
+  ...,
+  algo = "blake3",
+  reader = NULL,
+  force = FALSE
+)
 }
 \arguments{
 \item{file_path}{path to file with data you want to read}
 
 \item{hash}{hash you expect the file to have}
 
-\item{...}{additional arguments for digest or read_csv, parquet, sas}
+\item{...}{additional arguments for digest or read_csv, parquet, sas, or \code{reader}}
 
 \item{algo}{hashing algorithm to use, default is "blake3"}
+
+\item{reader}{optional function used to read the file, called as \code{reader(file_path, ...)}
+once the hash check passes. Required for file extensions this function doesn't know
+how to read. For a known extension (csv, parquet, sas7bdat, xpt, pzfx, xlsx/xls/xlsm),
+\code{reader} is ignored unless \code{force = TRUE}.}
+
+\item{force}{if \code{TRUE}, use \code{reader} even for a known extension instead of the built-in
+reader. Must be \code{FALSE} (the default) when \code{reader} is not supplied.}
 }
 \value{
 data object of contents of file_path
@@ -31,15 +46,7 @@ read_hashed_file(file_path, hash)
 }
 \seealso{
 Other file_io: 
-\code{\link{read_csv_with_hash}()},
-\code{\link{read_excel_with_hash}()},
 \code{\link{read_file_with_hash}()},
-\code{\link{read_parquet_with_hash}()},
-\code{\link{read_pzfx_with_hash}()},
-\code{\link{read_sas_with_hash}()},
-\code{\link{read_xpt_with_hash}()},
-\code{\link{write_csv_with_hash}()},
-\code{\link{write_file_with_hash}()},
-\code{\link{write_parquet_with_hash}()}
+\code{\link{write_file_with_hash}()}
 }
 \concept{file_io}

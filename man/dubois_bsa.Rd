@@ -15,7 +15,9 @@ dubois_bsa(weight, height)
 the body surface area (m^2)
 }
 \description{
-Calculate Body Surface Area Using Du Bois Equation
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#deprecated}{\figure{lifecycle-deprecated.svg}{options: alt='[Deprecated]'}}}{\strong{[Deprecated]}}
+
+This function is deprecated; use \code{\link[=bsa]{bsa()}} with \code{method = "Dubois"}.
 }
 \details{
 The Du Bois equation for BSA:
@@ -28,22 +30,6 @@ where:
 }
 }
 \examples{
-b <- dubois_bsa(80.56, 167)
-
-df <- data.frame(
-"WT" = c(80.56, 71.53, 81.04, 70.17),
-"HT" = c(167, 161, 163, 164)
-)
-df <- dplyr::mutate(df, bsa = dubois_bsa(WT, HT))
-df
+b <- bsa(80.56, 167, method = "Dubois")
 }
-\seealso{
-Other body_composition: 
-\code{\link{aibw}()},
-\code{\link{bmi}()},
-\code{\link{bmic}()},
-\code{\link{bsa}()},
-\code{\link{ibw}()},
-\code{\link{mosteller_bsa}()}
-}
-\concept{body_composition}
+\keyword{internal}

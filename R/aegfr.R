@@ -30,31 +30,30 @@
 #'   BSA = c(1.60, 1.85, 1.75, 2.00)
 #' )
 #'
-#' df <- df %>%
-#'   dplyr::group_by(ID) %>%
+#' df <- df |>
+#'   dplyr::group_by(ID) |>
 #'   dplyr::mutate(AEGFR = aegfr(EGFR, BSA))
 #' df
 aegfr <- function(egfr, bsa) {
-  checkmate::assertNumeric(egfr)
-  checkmate::assertNumeric(bsa)
-
-  # Check if input already has absolute units
-
-  input_units <- attr(egfr, "units")
+  input_units <- attr(egfr, "scicalc_units")
   if (!is.null(input_units) && input_units == "mL/min") {
     warning("Input eGFR already has absolute units (mL/min), returning unchanged")
     return(egfr)
   }
 
-  if (any(is.na(egfr))) {
-    message("egfr contains missing values")
-  }
-  if (any(is.na(bsa))) {
-    message("bsa contains missing values")
-  }
+  egfr_input <- mask_missing_computation_input(egfr, "egfr")
+  bsa_input <- mask_missing_computation_input(bsa, "bsa")
+  egfr_val <- egfr_input$value
+  bsa_val <- bsa_input$value
+  checkmate::assertNumeric(egfr_val)
+  checkmate::assertNumeric(bsa_val)
 
-  aegfr <- convert_rel_to_abs(egfr, bsa)
-  attr(aegfr, "units") <- "mL/min"
+  if (any(is.na(egfr_val))) message("egfr contains missing values")
+  if (any(is.na(bsa_val))) message("bsa contains missing values")
+
+  aegfr <- convert_rel_to_abs(egfr_val, bsa_val)
+  aegfr <- apply_mv_mask(aegfr, egfr_input$mask, bsa_input$mask)
+  attr(aegfr, "scicalc_units") <- "mL/min"
   return(aegfr)
 }
 

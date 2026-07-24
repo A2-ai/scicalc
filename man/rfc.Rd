@@ -20,12 +20,14 @@ converting between absolute and relative units}
 \item{category_standard}{Character string specifying categorization standard:
 \code{"regulatory"} (default) or \code{"clinical"}}
 
-\item{absolute_units}{Logical indicating if \code{estimator} units are mL/min (\code{TRUE})
-or mL/min/1.73m² (\code{FALSE})}
+\item{absolute_units}{Logical: are \code{estimator} units mL/min (\code{TRUE})
+or mL/min/1.73m² (\code{FALSE})? If \code{NULL} (default), inferred from the
+estimator's \code{scicalc_units} attribute.}
 }
 \value{
 Integer vector of renal impairment categories (1-4 for regulatory, 1-5 for clinical).
-Returns \code{-999} for missing values. Includes a \code{category_standard} attribute
+Returns the value of \code{getOption("scicalc.missing_value")} (default \code{-999})
+for missing values. Includes a \code{category_standard} attribute
 indicating the source ("FDA" or "KDIGO").
 }
 \description{
@@ -90,7 +92,7 @@ df <- data.frame(
 )
 
 library(dplyr)
-df \%>\%
+df <- df |>
   mutate(
     BSA = bsa(WEIGHT, HEIGHT, method = "Dubois"),
     EGFR = egfr(is_female(SEX), is_black(RACE), AGE, CREAT),
@@ -117,12 +119,7 @@ KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chro
 
 Other renal_function: 
 \code{\link{aegfr}()},
-\code{\link{ckdepi_2009_egfr}()},
-\code{\link{ckdepi_2021_egfr}()},
-\code{\link{ckdepi_2021_egfr_cystatin}()},
 \code{\link{crcl}()},
-\code{\link{egfr}()},
-\code{\link{mdrd_egfr}()},
-\code{\link{schwartz_egfr}()}
+\code{\link{egfr}()}
 }
 \concept{renal_function}

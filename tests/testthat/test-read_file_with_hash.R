@@ -48,7 +48,7 @@ test_that("read_file_with_hash can replace '.' with NA", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c(NA, 186, 201, 193)
   )
-  expect_equal(df %>% as.data.frame(), expected_df)
+  expect_equal(df |> as.data.frame(), expected_df)
 })
 
 test_that("read_file_with_hash will not replace '.' by default", {
@@ -61,7 +61,7 @@ test_that("read_file_with_hash will not replace '.' by default", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c('.', 186, 201, 193)
   )
-  expect_equal(df %>% as.data.frame(), expected_df)
+  expect_equal(df |> as.data.frame(), expected_df)
 })
 
 test_that("read_csv_with_hash can hide column types", {
@@ -85,4 +85,44 @@ test_that("read_file_with_hash can use different algos", {
 
 test_that("read_file_with_hash errors for pzfx without table arg", {
   expect_error(read_file_with_hash("testdata/test_data.pzfx"))
+})
+
+test_that("read_file_with_hash uses a supplied reader for an unknown extension", {
+  df <- read_file_with_hash(
+    "testdata/test_data.txt",
+    reader = function(path, ...) readr::read_csv(path, ...)
+  )
+  expect_true(nrow(df) > 0)
+})
+
+test_that("read_file_with_hash warns and ignores reader for a known extension without force", {
+  expect_warning(
+    df <- read_file_with_hash(
+      "testdata/test_data.csv",
+      reader = function(path, ...) stop("should not be called")
+    ),
+    "Supplied `reader` ignored"
+  )
+  expect_true(nrow(df) > 0)
+})
+
+test_that("read_file_with_hash uses reader for a known extension when forced", {
+  called <- FALSE
+  df <- read_file_with_hash(
+    "testdata/test_data.csv",
+    reader = function(path, ...) {
+      called <<- TRUE
+      readr::read_csv(path, ...)
+    },
+    force = TRUE
+  )
+  expect_true(called)
+  expect_true(nrow(df) > 0)
+})
+
+test_that("read_file_with_hash errors when force is TRUE without a reader", {
+  expect_error(
+    read_file_with_hash("testdata/test_data.csv", force = TRUE),
+    "requires `reader`"
+  )
 })

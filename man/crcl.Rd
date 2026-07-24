@@ -45,20 +45,15 @@ df <- data.frame(
   "WEIGHT" = c(70, 70, 70, 70, 65, 65, 65, 65)
 )
 
-df <- df \%>\%
-  dplyr::group_by(ID) \%>\%
+df <- df |>
+  dplyr::group_by(ID) |>
   dplyr::mutate(CRCL = crcl(is_female(SEX), AGE, CREAT, WEIGHT))
 df
 }
 \seealso{
 Other renal_function: 
 \code{\link{aegfr}()},
-\code{\link{ckdepi_2009_egfr}()},
-\code{\link{ckdepi_2021_egfr}()},
-\code{\link{ckdepi_2021_egfr_cystatin}()},
 \code{\link{egfr}()},
-\code{\link{mdrd_egfr}()},
-\code{\link{rfc}()},
-\code{\link{schwartz_egfr}()}
+\code{\link{rfc}()}
 }
 \concept{renal_function}

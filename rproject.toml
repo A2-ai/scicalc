@@ -5,12 +5,12 @@ name = "scicalc"
 r_version = "4.5"
 
 repositories = [
-  { alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2025-09-29/"},
+	{ alias = "PRISM", url = "https://prism.dev.a2-ai.cloud/rpkgs/stratus/2026-07-16/" },
 ]
 
 dependencies = [
-  "devtools",
-	"covr",
-  {name = "scicalc", path = ".", dependencies_only = true, install_suggestions = true},
-    "gt",
+	"devtools",
+	{ name = "covr", install_suggestions = true },
+	{ name = "scicalc", path = ".", dependencies_only = false, install_suggestions = true },
+	{ name = "starlightr", git = "https://github.com/a2-ai/starlightr", branch = "main" },
 ]

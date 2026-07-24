@@ -39,6 +39,13 @@
 #' df <- dplyr::mutate(df, IBW = ibw(HEIGHT, SEX, AGE))
 #' df
 ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
+  height_input <- mask_missing_computation_input(height, "height")
+  sexf_input <- mask_missing_computation_input(sexf, "sexf")
+  age_input <- mask_missing_computation_input(age, "age")
+  height <- height_input$value
+  sexf <- sexf_input$value
+  age <- age_input$value
+
   checkmate::assert_numeric(height)
   checkmate::assert_numeric(sexf)
   checkmate::assert_numeric(age)
@@ -73,6 +80,7 @@ ibw <- function(height, sexf, age, allow_ibw_lt_intercept = TRUE) {
   }
 
   ibw <- ideal_weight + 2.3 / 2.54 * (height - 152.4)
-  attr(ibw, "units") <- "kg"
+  ibw <- apply_mv_mask(ibw, height_input$mask, sexf_input$mask, age_input$mask)
+  attr(ibw, "scicalc_units") <- "kg"
   return(ibw)
 }
