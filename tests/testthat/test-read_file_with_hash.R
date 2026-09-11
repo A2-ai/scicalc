@@ -48,7 +48,7 @@ test_that("read_file_with_hash can replace '.' with NA", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c(NA, 186, 201, 193)
   )
-  expect_equal(df |> as.data.frame(), expected_df)
+  expect_equal(df |> as.data.frame(), expected_df, ignore_attr = c("file_hash", "data_hash"))
 })
 
 test_that("read_file_with_hash will not replace '.' by default", {
@@ -61,7 +61,7 @@ test_that("read_file_with_hash will not replace '.' by default", {
     "CYSTC" = c(0.4, 0.8, 1, 2),
     "HEIGHT" = c('.', 186, 201, 193)
   )
-  expect_equal(df |> as.data.frame(), expected_df)
+  expect_equal(df |> as.data.frame(), expected_df, ignore_attr = c("file_hash", "data_hash"))
 })
 
 test_that("read_csv_with_hash can hide column types", {
@@ -125,4 +125,27 @@ test_that("read_file_with_hash errors when force is TRUE without a reader", {
     read_file_with_hash("testdata/test_data.csv", force = TRUE),
     "requires `reader`"
   )
+})
+
+test_that("read_file_with_hash attaches file_hash and data_hash attributes", {
+  expected_hash <- digest::digest(file = "testdata/test_data.csv", algo = "blake3")
+  df <- read_file_with_hash("testdata/test_data.csv", show_col_types = FALSE)
+
+  expect_equal(attr(df, "file_hash"), expected_hash)
+  expect_type(attr(df, "data_hash"), "character")
+
+  bare <- df
+  attr(bare, "file_hash") <- NULL
+  attr(bare, "data_hash") <- NULL
+  expect_equal(attr(df, "data_hash"), digest::digest(bare, algo = "blake3"))
+})
+
+test_that("read_file_with_hash attaches hashes to output of a custom reader", {
+  path <- withr::local_tempfile(fileext = ".rds")
+  saveRDS(1:5, path)
+
+  out <- read_file_with_hash(path, reader = function(p, ...) readRDS(p))
+
+  expect_equal(attr(out, "file_hash"), digest::digest(file = path, algo = "blake3"))
+  expect_type(attr(out, "data_hash"), "character")
 })

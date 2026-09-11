@@ -28,7 +28,7 @@ unless \code{force = TRUE}.}
 reader. Must be \code{FALSE} (the default) when \code{reader} is not supplied.}
 }
 \value{
-data within the supplied file
+data within the supplied file, carrying \code{file_hash} and \code{data_hash} attributes
 }
 \description{
 Read Data File with Hash Verification
