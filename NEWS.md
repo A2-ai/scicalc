@@ -1,3 +1,9 @@
+# scicalc 0.4.1
+
+## New features
+
+* `read_file_with_hash()` now records two hashes on the object it returns: `attr(df, "file_hash")` is the hash of the file on disk (the one printed when reading), and `attr(df, "data_hash")` is a hash of the data as read in. Both use the `algo` you asked for. 
+
 # scicalc 0.4.0
 
 ## New features
