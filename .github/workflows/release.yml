@@ -106,9 +106,6 @@ jobs:
             DESCRIPTION
           sparse-checkout-cone-mode: false
       
-      - name: use rproject-release.toml
-        run: mv rproject-release.toml rproject.toml
-
       - name: Check .github/prism.yml is what this workflow was generated from
         run: |
           want="1378569452402d4a3f7f9925dc1a65d847f1a0de07c540a0427285172c990273"
