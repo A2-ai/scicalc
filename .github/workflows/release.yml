@@ -105,6 +105,9 @@ jobs:
             .github/prism.yml
             DESCRIPTION
           sparse-checkout-cone-mode: false
+      
+      - name: use rproject-release.toml
+        run: mv rproject-release.toml rproject.toml
 
       - name: Check .github/prism.yml is what this workflow was generated from
         run: |
@@ -200,6 +203,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: refs/tags/${{ needs.preflight.outputs.tag }}
+      
+      - name: use rproject-release.toml
+        run: mv rproject-release.toml rproject.toml
 
       - name: Setup R (container)
         if: env.BUILD_CONTAINER != ''
@@ -358,6 +364,9 @@ jobs:
         with:
           fetch-depth: 0
           ref: refs/tags/${{ needs.preflight.outputs.tag }}
+      
+      - name: use rproject-release.toml
+        run: mv rproject-release.toml rproject.toml
 
       - name: Setup R (container)
         if: env.BUILD_CONTAINER != ''
