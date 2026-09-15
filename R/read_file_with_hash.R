@@ -1,11 +1,8 @@
 #' @noRd
-print_file_hash <- function(file_path, label = file_path, event = "ingest") {
-  digest_args$file <- file_path
-
-  hash <- do.call(digest::digest, digest_args)
+print_file_hash <- function(file_path, ..., algo = "blake3", label = file_path, event = "ingest") {
+  hash <- digest::digest(file = file_path, algo = algo)
   cat(label, hash, sep = ": ")
   cat("\n")
-  fn <- if (identical(event, "write")) "write_file_with_hash" else "read_file_with_hash"
   invisible(hash)
 }
 
@@ -90,8 +87,8 @@ read_file_with_hash <- function(file_path, ..., algo = "blake3", reader = NULL, 
     reader <- built_in
   }
 
-  file_hash <- print_file_hash(file_path, algo = algo, label = basename(file_path))
-  data <- reader(file_path)
+  file_hash <- print_file_hash(file_path, ..., algo = algo, label = basename(file_path))
+  data <- reader(file_path, ...)
 
   attr(data, "data_hash") <- digest::digest(data, algo = algo)
   attr(data, "file_hash") <- file_hash
