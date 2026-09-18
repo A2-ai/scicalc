@@ -1,3 +1,9 @@
+# scicalc (development version)
+
+## Bug fixes
+
+* `read_file_with_hash()` and `write_file_with_hash()` no longer pass reader/writer arguments through to the hashing step. Arguments whose names collide with `digest::digest()` formals (e.g. `skip`, `length`, `ascii`, `raw`, `seed`) were being forwarded to the hash call, so something like `read_file_with_hash(path, skip = 2)` printed and recorded a hash of only part of the file. The file hash now depends only on the file and `algo`.
+
 # scicalc 0.4.1
 
 ## New features
